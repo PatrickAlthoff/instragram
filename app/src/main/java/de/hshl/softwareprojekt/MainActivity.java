@@ -137,8 +137,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Hier Foto Funktion einfügen", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                startCamera();
             }
         });
 
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         this.imageView = (ImageView) findViewById(R.id.imageView);
+        checkPermission();
     }
 
     @Override
@@ -185,9 +185,6 @@ public class MainActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
-
-
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
