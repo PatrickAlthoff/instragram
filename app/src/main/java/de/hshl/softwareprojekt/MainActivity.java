@@ -1,9 +1,19 @@
 package de.hshl.softwareprojekt;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.EventLogTags;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +23,108 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private boolean permissionGranted;
+    private static final int PERMISSION_REQUEST = 1;
+    private int TITLE = 1;
+    private int DESCRIPTION = 1;
+    private int IMAGE_CAPTURE = 1;
+    private Uri imageUri;
+    private ImageView imageView;
+
+
+    protected void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED){
+
+
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            }
+
+            else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    this.PERMISSION_REQUEST);
+            }
+        }
+        else {
+            this.permissionGranted = true;
+        }
+    }
+
+
+    public void onRequestPermissionResult(int requestCode, String permissions[],
+                                          int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.permissionGranted = true;
+                    startCamera();
+                }
+                else {
+                    this.permissionGranted = false;
+                }
+                return;
+        }
+    }
+
+
+    private void startCamera(){
+        if (this.permissionGranted){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
+            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+             imageUri = getContentResolver().insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            Intent intentC = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intentC.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intentC, IMAGE_CAPTURE);
+        }
+    }
+
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+        try {
+            Bitmap src = MediaStore.Images.Media.getBitmap(
+                    getContentResolver(), uri);
+
+            float   srcWidth = src.getWidth(),
+                    srcHeight = src.getHeight();
+
+            if (dstWidth < 1) {
+                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
+            }
+            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
+            return dst;
+        }
+        catch (IOException e) {
+            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
+        }
+        return null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_CAPTURE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Uri uri = data.getData();
+                    this.imageView.setImageBitmap(getAndScaleBitmap(uri, 300, 300));
+                }
+            } else {
+                int rowsDeleted = getContentResolver().delete(imageUri, null, null);
+                Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +150,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        this.imageView = (ImageView) findViewById(R.id.imageView);
     }
 
     @Override
@@ -75,6 +186,9 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -82,7 +196,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            startCamera();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
