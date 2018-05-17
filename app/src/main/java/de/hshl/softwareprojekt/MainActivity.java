@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.EventLogTags;
@@ -24,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
@@ -32,49 +30,26 @@ public class MainActivity extends AppCompatActivity
 
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-    private int TITLE = 1;
-    private int DESCRIPTION = 1;
-    private int IMAGE_CAPTURE = 1;
+    private int TITLE = 2;
+    private int DESCRIPTION = 3;
+    private int IMAGE_CAPTURE = 4;
+    private int GALLERY_PICK = 5;
     private Uri imageUri;
     private ImageView imageView;
-
 
     protected void checkPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED){
-
-
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
             }
-
             else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    this.PERMISSION_REQUEST);
+                ActivityCompat.requestPermissions(this, new String[]{   Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
             }
         }
         else {
             this.permissionGranted = true;
         }
     }
-
-
-    public void onRequestPermissionResult(int requestCode, String permissions[],
-                                          int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    this.permissionGranted = true;
-                    startCamera();
-                }
-                else {
-                    this.permissionGranted = false;
-                }
-                return;
-        }
-    }
-
 
     private void startCamera(){
         if (this.permissionGranted){
@@ -92,8 +67,7 @@ public class MainActivity extends AppCompatActivity
 
     private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
         try {
-            Bitmap src = MediaStore.Images.Media.getBitmap(
-                    getContentResolver(), uri);
+            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
             float   srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
@@ -117,11 +91,27 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     Uri uri = data.getData();
-                    this.imageView.setImageBitmap(getAndScaleBitmap(uri, 300, 300));
+                    this.imageView.setImageBitmap(getAndScaleBitmap(uri, -1, 300));
                 }
-            } else {
+            }
+            else {
                 int rowsDeleted = getContentResolver().delete(imageUri, null, null);
                 Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
+                //startCamera();
+            }
+        }
+
+        if(requestCode == GALLERY_PICK){
+            if(resultCode == RESULT_OK){
+                if(data != null) {
+                    Uri uri = data.getData();
+                    this.imageView.setImageBitmap(getAndScaleBitmap(uri, -1, 300));
+                }
+            }
+
+        else{
+            Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+
             }
         }
     }
@@ -130,10 +120,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -141,16 +131,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        this.imageView = (ImageView) findViewById(R.id.imageView);
+        this.imageView = findViewById(R.id.imageView);
         checkPermission();
     }
 
@@ -194,7 +184,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             startCamera();
+
         } else if (id == R.id.nav_gallery) {
+            Intent intentG = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intentG, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -204,14 +197,16 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
+
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
