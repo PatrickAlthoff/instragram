@@ -28,37 +28,33 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bearbeitungs);
-
         Button scaleBtn = (Button)findViewById(R.id.scaleBtn);
         Button grayBtn = (Button)findViewById(R.id.bwBtn);
-
+        Button sendBtn = findViewById(R.id.sendBtn);
         this.imageView = findViewById(R.id.imageView2);
-
         Intent intentG = getIntent();
         this.bitty = intentG.getParcelableExtra("BitmapImage");
-
         grayBtn.setOnClickListener(this);
+        scaleBtn.setOnClickListener(this);
+        sendBtn.setOnClickListener(this);
         this.imageView.setImageBitmap(this.bitty);
+
 
     }
 
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
-        try {
-            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+    private Bitmap getAndScaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
 
-            float   srcWidth = src.getWidth(),
-                    srcHeight = src.getHeight();
+
+            float   srcWidth = bitmap.getWidth(),
+                    srcHeight = bitmap.getHeight();
 
             if (dstWidth < 1) {
                 dstWidth = (int) (srcWidth / srcHeight * dstHeight);
             }
-            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
+            Bitmap dst = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
-            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
-        }
-        return null;
+
+
     }
 
     @Override
@@ -72,8 +68,16 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 cropImage(this.imageUri);
                 break;
             case R.id.bwBtn:
-                this.imageView.setImageBitmap(changeToGreyscale(this.bitty));
+                this.imageView.setImageBitmap(changeToGreyscale(getAndScaleBitmap(this.bitty, -1,300)));
                 break;
+            case R.id.sendBtn:
+                Bitmap myBitmap = getAndScaleBitmap(this.bitty,-1,300);
+                Intent sendBackImage = new Intent (BearbeitungsActivity.this, MainActivity.class);
+                sendBackImage.putExtra("BitmapImage", myBitmap);
+                setResult(RESULT_OK, sendBackImage);
+                finish();
+                break;
+
         }
 
     }

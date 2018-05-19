@@ -8,9 +8,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.ActivityChooserView;
 import android.util.EventLogTags;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +24,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
@@ -30,16 +35,22 @@ public class MainActivity extends AppCompatActivity
 
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
+    private int BEARBEITUNG_CODE =12;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
+    private int REQUEST_GETSEND = 12;
     private Uri imageUri;
     private ImageView imageView;
+    private Bitmap bitty;
+
+    ConstraintLayout innerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -63,6 +74,12 @@ public class MainActivity extends AppCompatActivity
 
         this.imageView = findViewById(R.id.imageView);
         checkPermission();
+
+        innerLayout = findViewById(R.id.consInScroll);
+        Button test = new Button(this);
+        test.setId(View.generateViewId());
+        test.setText("Test123");
+        innerLayout.addView(test);
     }
 
     protected void checkPermission(){
@@ -78,6 +95,8 @@ public class MainActivity extends AppCompatActivity
             this.permissionGranted = true;
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
@@ -134,7 +153,6 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     Uri uri = data.getData();
-
                     this.imageView.setImageBitmap(getAndScaleBitmap(uri, -1, 300));
                 }
             }
@@ -152,14 +170,28 @@ public class MainActivity extends AppCompatActivity
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    startActivity(sendToBearbeitung);
-                    //this.imageView.setImageBitmap(getAndScaleBitmap(uri, -1, 300));
+                    startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
+
             }
 
         else{
             Log.d(MainActivity.class.getSimpleName(),"no picture selected");
 
+            }
+        }
+        if (requestCode == REQUEST_GETSEND) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Intent intentG = getIntent();
+                    this.bitty = intentG.getParcelableExtra("BitmapImage");
+                    this.imageView.setImageBitmap(this.bitty);
+                }
+            }
+            else {
+                int rowsDeleted = getContentResolver().delete(imageUri, null, null);
+                Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
+                //startCamera();
             }
         }
     }
