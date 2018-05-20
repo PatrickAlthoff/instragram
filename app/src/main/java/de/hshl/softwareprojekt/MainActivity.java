@@ -9,10 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.ActivityChooserView;
+import android.util.DisplayMetrics;
 import android.util.EventLogTags;
 import android.util.Log;
 import android.view.View;
@@ -27,11 +29,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
@@ -44,12 +47,23 @@ public class MainActivity extends AppCompatActivity
     private Uri imageUri;
     private ImageView imageView;
     private Bitmap bitty;
+    float dpi;
+    Intent intentC;
+    LinearLayout innerLayout;
+    ConstraintSet constraintSet;
 
-    ConstraintLayout innerLayout;
+
+    private void getDisplayMetrics(){
+        DisplayMetrics dm = new DisplayMetrics();
+        MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        this.dpi = getResources().getDisplayMetrics().density;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getDisplayMetrics();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -75,12 +89,32 @@ public class MainActivity extends AppCompatActivity
         this.imageView = findViewById(R.id.imageView);
         checkPermission();
 
-        innerLayout = findViewById(R.id.consInScroll);
-        Button test = new Button(this);
+        innerLayout = findViewById(R.id.innerLayout);
+
+        Button generatorBtn = findViewById(R.id.generatorBtn);
+        generatorBtn.setOnClickListener(this);
+    }
+
+    private int dp2px(int dp){
+        return (int)(dp*dpi);
+    }
+
+    public void createNewPost(){
+
+        //ConstraintLayout testCons = new ConstraintLayout(this);
+        RadioButton test = new RadioButton(this);
         test.setId(View.generateViewId());
         test.setText("Test123");
+        ImageView testImage = new ImageView(this);
+        testImage.setId(View.generateViewId());
+        testImage.setImageResource(R.drawable.major);
+
+        innerLayout.addView(testImage);
         innerLayout.addView(test);
+
+        //constraintSet.connect(test.getId(), ConstraintSet.TOP, testImage.getId(), constraintSet.TOP, dp2px(100));
     }
+
 
     protected void checkPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -121,7 +155,7 @@ public class MainActivity extends AppCompatActivity
             contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
             contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
              imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            Intent intentC = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+             intentC = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intentC.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
             startActivityForResult(intentC, IMAGE_CAPTURE);
         }
@@ -245,7 +279,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentG, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-
+            createNewPost();
         }
         //Shortcut to Logout.
         else if (id == R.id.nav_manage) {
@@ -264,4 +298,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.generatorBtn:
+                createNewPost();
+                break;
+        }
+    }
 }
