@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
@@ -30,6 +31,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+
 
 import java.io.IOException;
 
@@ -59,6 +61,15 @@ public class MainActivity extends AppCompatActivity
     Intent intentC;
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
+
+    Button btn_galerie, btn_upload;
+    ImageView imageView3;
+
+    final int PICK_IMAGE_REQ_CODE = 12;
+    final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
+
+    Uri ImageUri;
+
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -106,6 +117,12 @@ public class MainActivity extends AppCompatActivity
         //Initialisierung des Generator Button + Listener
         Button generatorBtn = findViewById(R.id.generatorBtn);
         generatorBtn.setOnClickListener(this);
+
+        btn_galerie = (Button) findViewById(R.id.button_galerie);
+        btn_galerie.setOnClickListener(this);
+        btn_upload = (Button) findViewById(R.id.button_upload);
+        btn_upload.setOnClickListener(this);
+        imageView3 = (ImageView) findViewById(R.id.imageView3);
     }
 
     //Methode zur Umrechnung der dpi
@@ -330,9 +347,55 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         switch(v.getId()){
-            case R.id.generatorBtn:
+            case R.id.generatorBtn: {
                 createNewPost();
                 break;
+            }
+            case R.id.button_galerie: {
+                if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    pickImage();
+                }
+                else {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]
+                            {Manifest.permission.READ_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_PERMISSION_REQ_CODE);
+                }
+                }
+                break;
+            }
+
+            case R.id.button_upload: {
+
+                break;
+            }
+        }
+    }
+
+    public void pickImage(){
+
+        Intent pickImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        pickImageIntent.setType("image/*");
+        startActivityForResult(pickImageIntent, PICK_IMAGE_REQ_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == EXTERNAL_STORAGE_PERMISSION_REQ_CODE && grantResults.length >0 && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED){
+            pickImage();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQ_CODE) {
+            imageView3.setImageURI(data.getData());
+            imageUri = data.getData();
         }
     }
 }
+
+
