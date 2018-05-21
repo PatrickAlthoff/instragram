@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
         testCons.setId(View.generateViewId());
         RadioButton test = new RadioButton(this);
         test.setId(View.generateViewId());
-        test.setText("Test123");
+        test.setText(getString(R.string.I_like));
         ImageView testImage = new ImageView(this);
         testImage.setId(View.generateViewId());
         testImage.setImageResource(R.drawable.major);
@@ -304,16 +304,21 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             createNewPost();
         }
-        //Shortcut to Logout.
+
         else if (id == R.id.nav_manage) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
-                finish();
 
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
+        }
+        //Shortcut to Logout.
+        else if (id == R.id.nav_logout) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

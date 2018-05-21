@@ -28,8 +28,8 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bearbeitungs);
-        Button scaleBtn = (Button)findViewById(R.id.scaleBtn);
-        Button grayBtn = (Button)findViewById(R.id.bwBtn);
+        Button scaleBtn = findViewById(R.id.scaleBtn);
+        Button grayBtn = findViewById(R.id.bwBtn);
         Button sendBtn = findViewById(R.id.sendBtn);
         this.imageView = findViewById(R.id.imageView2);
         Intent intentG = getIntent();
@@ -59,8 +59,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onClick(View v){
-        Button scaleBtn = (Button)findViewById(R.id.scaleBtn);
-        Button grayBtn = (Button)findViewById(R.id.bwBtn);
         Uri imageUri = this.imageUri;
 
         switch (v.getId()){
