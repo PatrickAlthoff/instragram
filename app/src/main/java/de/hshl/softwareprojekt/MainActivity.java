@@ -36,23 +36,31 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    //Globale Variablen zur Request Identifizierung
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-    private int BEARBEITUNG_CODE =12;
-    private int TITLE = 2;
-    private int DESCRIPTION = 3;
+    private int BEARBEITUNG_CODE = 12;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
     private int REQUEST_GETSEND = 12;
+
+    //Globale Variablen zur Beschreibung der Bilder
+    private int TITLE = 2;
+    private int DESCRIPTION = 3;
     private Uri imageUri;
+
+    //Globale Variablen zur Bildwiedergabe
     private ImageView imageView;
     private Bitmap bitty;
+
+
+    //Globale Variablen für die Layouts
     float dpi;
     Intent intentC;
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
 
-
+    //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
         DisplayMetrics dm = new DisplayMetrics();
         MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -63,12 +71,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Check for permissions and Display Metrics
+        checkPermission();
         getDisplayMetrics();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Initialisierung des floating Camera Button
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,31 +88,35 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Initialisierung des Drawer Layout
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        //Initialisierung des NavigationView + Listener
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Initialisierung des Image View + InnerLayout (Linear Layout)
         this.imageView = findViewById(R.id.imageView);
-        checkPermission();
+        this.innerLayout = findViewById(R.id.innerLayout);
 
-        innerLayout = findViewById(R.id.innerLayout);
-
+        //Initialisierung des Generator Button + Listener
         Button generatorBtn = findViewById(R.id.generatorBtn);
         generatorBtn.setOnClickListener(this);
     }
 
+    //Methode zur Umrechnung der dpi
     private int dp2px(int dp){
         return (int)(dp*dpi);
     }
 
+    //Erzeugt neue posts
     public void createNewPost(){
-
-        //ConstraintLayout testCons = new ConstraintLayout(this);
+        ConstraintLayout testCons = new ConstraintLayout(this);
+        testCons.setId(View.generateViewId());
         RadioButton test = new RadioButton(this);
         test.setId(View.generateViewId());
         test.setText("Test123");
@@ -109,13 +124,14 @@ public class MainActivity extends AppCompatActivity
         testImage.setId(View.generateViewId());
         testImage.setImageResource(R.drawable.major);
 
-        innerLayout.addView(testImage);
-        innerLayout.addView(test);
+        innerLayout.addView(testCons);
+        testCons.addView(testImage);
+        testCons.addView(test);
 
         //constraintSet.connect(test.getId(), ConstraintSet.TOP, testImage.getId(), constraintSet.TOP, dp2px(100));
     }
 
-
+    //Öffnet Fenster zur Bestätigung der Zugriffsrechte
     protected void checkPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED){
@@ -148,6 +164,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Methode zum Start der Camera
     private void startCamera(){
         if (this.permissionGranted){
             ContentValues contentValues = new ContentValues();
@@ -161,6 +178,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Methode zum Skallieren der zu übergebenen Bitmap
     private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -180,9 +198,12 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
+    //onActivityResult Methode zur Verarbeitung mehrerer Requests
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        //Verarbeitung der Image Capture Request
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
@@ -197,6 +218,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        //Verarbeitung der Gallerie Request
         if(requestCode == GALLERY_PICK){
             if(resultCode == RESULT_OK){
                 if(data != null) {
@@ -206,14 +228,13 @@ public class MainActivity extends AppCompatActivity
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
-
             }
-
         else{
             Log.d(MainActivity.class.getSimpleName(),"no picture selected");
-
             }
         }
+
+        //Verarbeitung der Bearbeitungs Request
         if (requestCode == REQUEST_GETSEND) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
@@ -231,16 +252,16 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -249,6 +270,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //Verarbeitung der Settings Anfrage (noch passiert nichts)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -264,6 +286,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //Methode zur Verarbeitung der Buttons im  Drawer Menü
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -298,6 +321,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //On Click Methode für den Generator Button
     @Override
     public void onClick(View v) {
         switch(v.getId()){
