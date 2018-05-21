@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
 
+    final String uploadUrlString = "http://localhost:8080/instragram/Upload.php";
+
     Button btn_galerie, btn_upload;
     ImageView imageView3;
 
