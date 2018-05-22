@@ -34,9 +34,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -411,6 +413,8 @@ public class MainActivity extends AppCompatActivity
     private class UploadImageAsyncTask extends AsyncTask{
 
 
+        String serverResponse;
+
         @Override
         protected Object doInBackground(Object[] params) {
 
@@ -420,8 +424,12 @@ public class MainActivity extends AppCompatActivity
             String newLine = "\r\n";
             String lastLineBoundary = "--"+boundary+"--\r\n";
 
+
+
             try {
                 InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
+                int uploadSize = (firstLineBoundary+contentDisposition+newLine+newLine+lastLineBoundary).getBytes().length + imageInputStream.available();
+
 
                 URL uploadUrl = new URL(uploadUrlString);
                 HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();
@@ -429,11 +437,14 @@ public class MainActivity extends AppCompatActivity
                 connection.setDoInput(true);
                 connection.setRequestProperty("Content-Type", "multipart/form-data; boundary"+boundary);
                 connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setFixedLengthStreamingMode(uploadSize);
+
 
                 DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
                 dataOutputStream.writeBytes(firstLineBoundary);
                 dataOutputStream.writeBytes(contentDisposition);
                 dataOutputStream.writeBytes(newLine);
+
 
                 byte[] buffer = new byte[1024];
                 int read;
@@ -443,7 +454,12 @@ public class MainActivity extends AppCompatActivity
 
                 dataOutputStream.writeBytes(newLine);
                 dataOutputStream.writeBytes(lastLineBoundary);
+                dataOutputStream.flush();
+                dataOutputStream.close();
 
+                serverResponse = getTextFromInputStream(connection.getInputStream());
+                connection.getInputStream().close();
+                connection.disconnect();
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -456,8 +472,25 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Object o) {
+            imageView3.setImageDrawable(null);
+            btn_upload.setVisibility(View.INVISIBLE);
             super.onPostExecute(o);
         }
+    }
+
+    public String getTextFromInputStream(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder stringBuilder = new StringBuilder();
+        String aktuelleZeile;
+        try {
+            while ((aktuelleZeile = reader.readLine()) != null) {
+                stringBuilder.append(aktuelleZeile);
+                stringBuilder.append("\n");
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString().trim();
     }
 
 }
