@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    //On Click Methode für den Generator Button
+    //On Click Methode für den Generator Button, Upload Button und Galerie Button
     @Override
     public void onClick(View v) {
         switch(v.getId()){
