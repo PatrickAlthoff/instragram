@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(pickImageIntent, PICK_IMAGE_REQ_CODE);
     }
 
-    @Override
+ /*   @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == EXTERNAL_STORAGE_PERMISSION_REQ_CODE && grantResults.length >0 && grantResults[0] ==
@@ -397,7 +397,7 @@ public class MainActivity extends AppCompatActivity
             imageView3.setImageURI(data.getData());
             imageUri = data.getData();
         }
-    }
+    }*/
 }
 
 
