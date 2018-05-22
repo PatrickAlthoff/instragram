@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -33,7 +34,12 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -367,6 +373,7 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.button_upload: {
 
+                new UploadImageAsyncTask().execute(null);
                 break;
         }
 
@@ -400,6 +407,59 @@ public class MainActivity extends AppCompatActivity
             imageUri = data.getData();
         }
     }*/
+
+    private class UploadImageAsyncTask extends AsyncTask{
+
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+
+            String boundary = "---boundary"+System.currentTimeMillis();
+            String firstLineBoundary = "--"+boundary+"\r\n";
+            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload\";filename=\"imagefile.jpg\"\r\n";
+            String newLine = "\r\n";
+            String lastLineBoundary = "--"+boundary+"--\r\n";
+
+            try {
+                InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
+
+                URL uploadUrl = new URL(uploadUrlString);
+                HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary"+boundary);
+                connection.setRequestProperty("Connection", "Keep-Alive");
+
+                DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
+                dataOutputStream.writeBytes(firstLineBoundary);
+                dataOutputStream.writeBytes(contentDisposition);
+                dataOutputStream.writeBytes(newLine);
+
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = imageInputStream.read(buffer)) != -1) {
+                    dataOutputStream.write(buffer, 0, read);
+                }
+
+                dataOutputStream.writeBytes(newLine);
+                dataOutputStream.writeBytes(lastLineBoundary);
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+        }
+    }
+
 }
 
 
