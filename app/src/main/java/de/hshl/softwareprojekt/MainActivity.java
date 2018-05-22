@@ -364,14 +364,16 @@ public class MainActivity extends AppCompatActivity
                 }
                 }
                 break;
-            }
 
             case R.id.button_upload: {
 
                 break;
+        }
+
+
             }
         }
-    }
+
 
     public void pickImage(){
 
