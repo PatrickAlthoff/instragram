@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 
 import java.io.BufferedReader;
@@ -375,8 +378,10 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.button_upload: {
 
-                new UploadImageAsyncTask().execute(null);
-                break;
+                if(imageUri!= null && internetAvailable()) {
+                    new UploadImageAsyncTask().execute(null);
+                    break;
+                }
         }
 
 
@@ -407,6 +412,8 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQ_CODE) {
             imageView3.setImageURI(data.getData());
             imageUri = data.getData();
+            btn_upload.setVisibility(View.VISIBLE);
+            tv_link.setText(null);
         }
     }*/
 
@@ -463,8 +470,10 @@ public class MainActivity extends AppCompatActivity
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                Toast.makeText(MainActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast.makeText(MainActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
             }
 
             return null;
@@ -491,6 +500,13 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return stringBuilder.toString().trim();
+    }
+
+    private boolean internetAvailable(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+
     }
 
 }
