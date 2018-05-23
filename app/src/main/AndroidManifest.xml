@@ -11,13 +11,11 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="27" />
-    <user-permission android:name="android.permission.INTERNET"/>
-    <user-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
 
     <uses-permission-sdk-23 android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
 
     <application
         android:allowBackup="true"
@@ -44,6 +42,7 @@
             android:name=".BearbeitungsActivity"
             android:exported="true" />
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".UploadActivity"></activity>
     </application>
 
 </manifest>
