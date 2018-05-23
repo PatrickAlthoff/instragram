@@ -42,42 +42,23 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
     }
 
-    private Bitmap getAndScaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
-
-
-            float   srcWidth = bitmap.getWidth(),
-                    srcHeight = bitmap.getHeight();
-
-            if (dstWidth < 1) {
-                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
-            }
-            Bitmap dst = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
-            return dst;
-
-
-    }
-
     @Override
     public void onClick(View v){
-        Uri imageUri = this.imageUri;
-
         switch (v.getId()){
             case R.id.scaleBtn:
                 cropImage(this.imageUri);
                 break;
             case R.id.bwBtn:
-                this.imageView.setImageBitmap(changeToGreyscale(getAndScaleBitmap(this.bitty, -1,300)));
+                this.bitty = changeToGreyscale(this.bitty);
+                this.imageView.setImageBitmap(this.bitty);
                 break;
             case R.id.sendBtn:
-                Bitmap myBitmap = getAndScaleBitmap(this.bitty,-1,300);
                 Intent sendBackImage = new Intent (BearbeitungsActivity.this, MainActivity.class);
-                sendBackImage.putExtra("BitmapImage", myBitmap);
+                sendBackImage.putExtra("BitmapImage", this.bitty);
                 setResult(RESULT_OK, sendBackImage);
                 finish();
                 break;
-
         }
-
     }
     private Bitmap changeToGreyscale(Bitmap src){
         int width = src.getWidth(), height = src.getHeight();

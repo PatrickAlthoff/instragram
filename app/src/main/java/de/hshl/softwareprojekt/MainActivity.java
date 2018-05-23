@@ -225,8 +225,10 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    Uri uri = data.getData();
-                    this.imageView.setImageBitmap(getAndScaleBitmap(uri, -1, 300));
+                    ImageView newImage = new ImageView(this);
+                    newImage.setId(View.generateViewId());
+                    this.innerLayout.addView(newImage);
+                    newImage.setImageBitmap(getAndScaleBitmap(this.imageUri, -1, 300));
                 }
             }
             else {
@@ -256,7 +258,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_GETSEND) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    Intent intentG = getIntent();
+                    Intent intentG = data;
                     this.bitty = intentG.getParcelableExtra("BitmapImage");
                     this.imageView.setImageBitmap(this.bitty);
                 }
