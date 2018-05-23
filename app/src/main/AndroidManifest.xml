@@ -42,7 +42,11 @@
             android:name=".BearbeitungsActivity"
             android:exported="true" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".UploadActivity"></activity>
+        <activity
+            android:name=".UploadActivity"
+            android:exported="true">
+
+        </activity>
     </application>
 
 </manifest>
