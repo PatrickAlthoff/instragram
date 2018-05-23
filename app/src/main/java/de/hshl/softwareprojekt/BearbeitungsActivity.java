@@ -1,5 +1,6 @@
 package de.hshl.softwareprojekt;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 public class BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
@@ -23,6 +26,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private ImageView imageView;
     private Uri imageUri;
     private Bitmap bitty;
+    final int PIC_CROP = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +43,22 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         sendBtn.setOnClickListener(this);
         this.imageView.setImageBitmap(this.bitty);
 
+    }
 
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     @Override
     public void onClick(View v){
         switch (v.getId()){
             case R.id.scaleBtn:
+                this.imageUri = getImageUri(this, this.bitty);
                 cropImage(this.imageUri);
+
                 break;
             case R.id.bwBtn:
                 this.bitty = changeToGreyscale(this.bitty);
@@ -60,6 +72,36 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 break;
         }
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if(requestCode == PIC_CROP){
+                Uri uri = data.getData();
+                this.bitty = getAndScaleBitmap(uri, -1,300);
+                this.imageView.setImageBitmap(this.bitty);
+            }
+        }
+    }
+
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+        try {
+            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+            float   srcWidth = src.getWidth(),
+                    srcHeight = src.getHeight();
+
+            if (dstWidth < 1) {
+                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
+            }
+            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
+            return dst;
+        }
+        catch (IOException e) {
+            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
+        }
+        return null;
+    }
+
     private Bitmap changeToGreyscale(Bitmap src){
         int width = src.getWidth(), height = src.getHeight();
 
@@ -88,7 +130,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             cropIntent.putExtra("outputY", 256);
             cropIntent.putExtra("return-data", true);
             startActivityForResult(cropIntent, IMAGE_FROM_CROP);
-
         }
         catch(Exception e){
             Log.e(BearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
