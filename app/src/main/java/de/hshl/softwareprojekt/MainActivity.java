@@ -132,19 +132,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Erzeugt neue posts
-    public void createNewPost(){
-        ConstraintLayout testCons = new ConstraintLayout(this);
-        testCons.setId(View.generateViewId());
-        RadioButton test = new RadioButton(this);
-        test.setId(View.generateViewId());
-        test.setText(getString(R.string.I_like));
+    public void createNewPost(Bitmap postImage){
+
+
         ImageView testImage = new ImageView(this);
         testImage.setId(View.generateViewId());
-        testImage.setImageResource(R.drawable.major);
+        testImage.setImageBitmap(postImage);
 
-        innerLayout.addView(testCons);
-        testCons.addView(testImage);
-        testCons.addView(test);
+        innerLayout.addView(testImage);
 
         //constraintSet.connect(test.getId(), ConstraintSet.TOP, testImage.getId(), constraintSet.TOP, dp2px(100));
     }
@@ -225,10 +220,11 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    ImageView newImage = new ImageView(this);
-                    newImage.setId(View.generateViewId());
-                    this.innerLayout.addView(newImage);
-                    newImage.setImageBitmap(getAndScaleBitmap(this.imageUri, -1, 300));
+
+                    Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
+                    Intent sendToBearbeitung = new Intent (MainActivity.this, BearbeitungsActivity.class);
+                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
+                    startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
             else {
@@ -260,7 +256,7 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
                     Intent intentG = data;
                     this.bitty = intentG.getParcelableExtra("BitmapImage");
-                    this.imageView.setImageBitmap(this.bitty);
+                    createNewPost(this.bitty);
                 }
             }
             else {
@@ -322,7 +318,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentG, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-            createNewPost();
+
         }
 
         else if (id == R.id.nav_manage) {
@@ -351,7 +347,7 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.generatorBtn: {
-                createNewPost();
+
                 break;
             }
 
