@@ -22,4 +22,7 @@
     </string>
     <string name="benutzername">Benutzername:</string>
     <string name="I_like">Gefällt mir</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
