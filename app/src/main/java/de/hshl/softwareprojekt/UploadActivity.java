@@ -1,6 +1,7 @@
 package de.hshl.softwareprojekt;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -30,15 +32,18 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     private Uri imageUri;
 
 
-    final String uploadUrlString = "http://localhost:8080/instragram/Upload.php";
+    final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
 
     Button btn_galerie, btn_upload;
     ImageView imageView3;
+    TextView textView3;
 
     final int PICK_IMAGE_REQ_CODE = 12;
     final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
 
     Uri ImageUri;
+
+    ProgressDialog uploadDialog;
 
    @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         btn_upload = (Button) findViewById(R.id.button_upload);
         btn_upload.setOnClickListener(this);
         imageView3 = (ImageView) findViewById(R.id.imageView3);
+        textView3 = (TextView) findViewById(R.id.textView3);
     }
 
    @Override
@@ -68,14 +74,15 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             break;
 
             case R.id.button_upload: {
-
                 if(imageUri!= null && internetAvailable()) {
+                    uploadDialog = new ProgressDialog(UploadActivity.this);
+                    uploadDialog.setTitle("Bild wird hochgeladen.");
+                    uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    uploadDialog.show();
                     new UploadActivity.UploadImageAsyncTask().execute();
-                    break;
                 }
+                    break;
             }
-
-
         }
     }
     public void pickImage(){
@@ -102,6 +109,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             imageView3.setImageURI(data.getData());
             imageUri = data.getData();
             btn_upload.setVisibility(View.VISIBLE);
+            textView3.setText(null);
         }
     }
 
@@ -117,7 +125,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
             String boundary = "---boundary" + System.currentTimeMillis();
             String firstLineBoundary = "--" + boundary + "\r\n";
-            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload\";filename=\"imagefile.jpg\"\r\n";
+            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload1\";filename=\"imagefile.jpg\"\r\n";
             String newLine = "\r\n";
             String lastLineBoundary = "--" + boundary + "--\r\n";
 
@@ -125,13 +133,13 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             try {
                 InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
                 int uploadSize = (firstLineBoundary + contentDisposition + newLine + newLine + lastLineBoundary).getBytes().length + imageInputStream.available();
-
+                uploadDialog.setMax(uploadSize);
 
                 URL uploadUrl = new URL(uploadUrlString);
                 HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
-                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary" + boundary);
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
                 connection.setRequestProperty("Connection", "Keep-Alive");
                 connection.setFixedLengthStreamingMode(uploadSize);
 
@@ -141,11 +149,14 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                 dataOutputStream.writeBytes(contentDisposition);
                 dataOutputStream.writeBytes(newLine);
 
+                int byteCounter = 0;
 
                 byte[] buffer = new byte[1024];
                 int read;
                 while ((read = imageInputStream.read(buffer)) != -1) {
                     dataOutputStream.write(buffer, 0, read);
+                    byteCounter+=1024;
+                    uploadDialog.setProgress(byteCounter);
                 }
 
                 dataOutputStream.writeBytes(newLine);
@@ -173,6 +184,8 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         protected void onPostExecute(Object o) {
             imageView3.setImageDrawable(null);
             btn_upload.setVisibility(View.INVISIBLE);
+            textView3.setText(serverResponse);
+            uploadDialog.dismiss();
             super.onPostExecute(o);
         }
     }
