@@ -16,6 +16,9 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.ActivityChooserView;
 import android.util.DisplayMetrics;
@@ -75,7 +78,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
         DisplayMetrics dm = new DisplayMetrics();
@@ -126,23 +128,25 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void addFragment(Bitmap postBitmap){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment dynamicFragment = new PostFragment();
+        //add fragment
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.innerLayout, dynamicFragment);
+        fragmentTransaction.commitNow();
+
+        ImageView postImage = findViewById(R.id.postView);
+        postImage.setImageBitmap(postBitmap);
+
+
+
+    }
     //Methode zur Umrechnung der dpi
     private int dp2px(int dp){
         return (int)(dp*dpi);
     }
 
-    //Erzeugt neue posts
-    public void createNewPost(Bitmap postImage){
-
-
-        ImageView testImage = new ImageView(this);
-        testImage.setId(View.generateViewId());
-        testImage.setImageBitmap(postImage);
-
-        innerLayout.addView(testImage);
-
-        //constraintSet.connect(test.getId(), ConstraintSet.TOP, testImage.getId(), constraintSet.TOP, dp2px(100));
-    }
 
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte
     protected void checkPermission(){
@@ -256,7 +260,7 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
                     Intent intentG = data;
                     this.bitty = intentG.getParcelableExtra("BitmapImage");
-                    createNewPost(this.bitty);
+                    addFragment(this.bitty);
                 }
             }
             else {
