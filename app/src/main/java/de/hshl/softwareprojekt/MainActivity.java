@@ -50,7 +50,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     //Globale Variablen zur Request Identifizierung
     private boolean permissionGranted;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     private Uri imageUri;
 
     //Globale Variablen zur Bildwiedergabe
-    private ImageView imageView;
+    //private ImageView imageView;
     private Bitmap bitty;
 
 
@@ -118,26 +118,21 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //Initialisierung des Image View + InnerLayout (Linear Layout)
-        this.imageView = findViewById(R.id.imageView);
+        //this.imageView = findViewById(R.id.imageView);
         this.innerLayout = findViewById(R.id.innerLayout);
-
-        //Initialisierung des Generator Button + Listener
-        Button generatorBtn = findViewById(R.id.generatorBtn);
-        generatorBtn.setOnClickListener(this);
 
 
     }
 
     public void addFragment(Bitmap postBitmap){
         FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment dynamicFragment = new PostFragment();
+        PostFragment dynamicFragment = new PostFragment();
         //add fragment
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.innerLayout, dynamicFragment);
         fragmentTransaction.commitNow();
 
-        ImageView postImage = findViewById(R.id.postView);
-        postImage.setImageBitmap(postBitmap);
+        dynamicFragment.addImage(postBitmap);
 
 
 
@@ -259,8 +254,9 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     Intent intentG = data;
-                    this.bitty = intentG.getParcelableExtra("BitmapImage");
-                    addFragment(this.bitty);
+                    Bitmap postImage;
+                    postImage = intentG.getParcelableExtra("BitmapImage");
+                    addFragment(postImage);
                 }
             }
             else {
@@ -270,7 +266,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -316,7 +311,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             startCamera();
 
-
         } else if (id == R.id.nav_gallery) {
             Intent intentG = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intentG, GALLERY_PICK);
@@ -345,24 +339,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    //On Click Methode für den Generator Button, Upload Button und Galerie Button
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.generatorBtn: {
-
-                break;
-            }
-
-            }
-        }
-
-
-
-
-
-
-
-
 }
