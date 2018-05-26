@@ -43,8 +43,9 @@
         <activity android:name=".SettingsActivity" />
         <activity
             android:name=".UploadActivity"
-            android:exported="true"></activity>
-        <activity android:name=".ProfilActivity"></activity>
+            android:exported="true" />
+        <activity android:name=".ProfilActivity" />
+        <activity android:name=".Main_Image_Clicked"></activity>
     </application>
 
 </manifest>

@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
-   private int IMAGE_FROM_CROP = 1;
+    private int IMAGE_FROM_CROP = 1;
     private ImageView imageView;
     private Uri imageUri;
     private Bitmap bitty;
@@ -44,7 +44,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         this.imageView.setImageBitmap(this.bitty);
 
     }
-
+    //Verpackt die übergebene Bitmap in eine Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -52,6 +52,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return Uri.parse(path);
     }
 
+    //Enthält die Funktionen der Buttons
     @Override
     public void onClick(View v){
         switch (v.getId()){
@@ -72,7 +73,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 break;
         }
     }
-
+    //Enthält die Funktion, welche die "Croppen"-Funktion für eine Uri aufruft
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if(requestCode == PIC_CROP){
@@ -82,7 +83,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             }
         }
     }
-
+    //Enthält die Funktionen zum Skalieren einer Bitmap
     private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -101,7 +102,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         }
         return null;
     }
-
+    //Enthält die Funktion für den Schwarz/Weiß Filter
     private Bitmap changeToGreyscale(Bitmap src){
         int width = src.getWidth(), height = src.getHeight();
 
@@ -117,7 +118,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         canvas.drawBitmap(src, 0 ,0,paint);
         return  dst;
     }
-
+    //Enthält die Funktion zum "Croppen" einer übergebenen Uri
     private void cropImage(Uri uri) {
         try{
 

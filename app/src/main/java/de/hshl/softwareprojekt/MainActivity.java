@@ -2,9 +2,11 @@ package de.hshl.softwareprojekt;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -34,6 +36,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -41,6 +44,7 @@ import android.widget.Toast;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +54,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     //Globale Variablen zur Request Identifizierung
     private boolean permissionGranted;
@@ -59,24 +63,19 @@ public class MainActivity extends AppCompatActivity
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
     private int REQUEST_GETSEND = 12;
+    private int IMAGE_CLICKED = 13;
 
     //Globale Variablen zur Beschreibung der Bilder
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private Uri imageUri;
 
-    //Globale Variablen zur Bildwiedergabe
-    //private ImageView imageView;
-    private Bitmap bitty;
-
-
     //Globale Variablen für die Layouts
     float dpi;
     Intent intentC;
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
-
-
+    Bitmap clickedImage;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -88,12 +87,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         //Check for permissions and Display Metrics
         checkPermission();
         getDisplayMetrics();
 
-        setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -117,31 +116,30 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Initialisierung des Image View + InnerLayout (Linear Layout)
-        //this.imageView = findViewById(R.id.imageView);
+        //Initialisierung des InnerLayout (Linear Layout)
         this.innerLayout = findViewById(R.id.innerLayout);
-
 
     }
 
     public void addFragment(Bitmap postBitmap){
         FragmentManager fragmentManager = getSupportFragmentManager();
         PostFragment dynamicFragment = new PostFragment();
+
         //add fragment
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.innerLayout, dynamicFragment);
         fragmentTransaction.commitNow();
-
         dynamicFragment.addImage(postBitmap);
 
-
-
+        ImageView postImage = dynamicFragment.postImage;
+        postImage.setId(View.generateViewId());
+        postImage.setOnClickListener(this);
     }
+
     //Methode zur Umrechnung der dpi
     private int dp2px(int dp){
         return (int)(dp*dpi);
     }
-
 
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte
     protected void checkPermission(){
@@ -157,8 +155,6 @@ public class MainActivity extends AppCompatActivity
             this.permissionGranted = true;
         }
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
@@ -277,7 +273,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -338,5 +333,26 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        View vi = v;
+        vi.setDrawingCacheEnabled(true);
+        vi.buildDrawingCache();
+        Bitmap test = vi.getDrawingCache();
+        Uri uri = getImageUri(this, test);
+        Bitmap test2 = getAndScaleBitmap(uri,-1,300);
+        Intent intentI = new Intent(MainActivity.this, Main_Image_Clicked.class);
+        intentI.putExtra("BitmapImage", test2);
+        startActivityForResult(intentI, IMAGE_CLICKED);
+    }
+
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }
