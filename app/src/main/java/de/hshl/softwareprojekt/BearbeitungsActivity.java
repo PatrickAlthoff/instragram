@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
@@ -20,17 +19,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 
 public class BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
     private int IMAGE_FROM_CROP = 1;
     private ImageView imageView;
     private Uri imageUri;
-    private Bitmap bitty;
+    private Bitmap bearbeitungsBitmap;
     final int PIC_CROP = 1;
     private EditText editT;
 
@@ -38,16 +34,18 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bearbeitungs);
+        Intent intentG = getIntent();
+
         Button scaleBtn = findViewById(R.id.scaleBtn);
         Button grayBtn = findViewById(R.id.bwBtn);
         Button sendBtn = findViewById(R.id.sendBtn);
-        this.imageView = findViewById(R.id.imageView2);
-        Intent intentG = getIntent();
-        this.bitty = intentG.getParcelableExtra("BitmapImage");
-        grayBtn.setOnClickListener(this);
         scaleBtn.setOnClickListener(this);
+        grayBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);
-        this.imageView.setImageBitmap(this.bitty);
+
+        this.imageView = findViewById(R.id.imageView2);
+        this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
+        this.imageView.setImageBitmap(this.bearbeitungsBitmap);
         this.editT = findViewById(R.id.editTitel);
 
         TextWatcher test = new TextWatcher() {
@@ -83,23 +81,24 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v){
         switch (v.getId()){
+            //Ruft beim Klick auf den Button die Skalierung auf
             case R.id.scaleBtn:
-                this.imageUri = getImageUri(this, this.bitty);
+                this.imageUri = getImageUri(this, this.bearbeitungsBitmap);
                 cropImage(this.imageUri);
 
                 break;
+            //Ruft beim Klick auf den Button die B/W Funktion auf
             case R.id.bwBtn:
-                this.bitty = changeToGreyscale(this.bitty);
-                this.imageView.setImageBitmap(this.bitty);
+                this.bearbeitungsBitmap = changeToGreyscale(this.bearbeitungsBitmap);
+                this.imageView.setImageBitmap(this.bearbeitungsBitmap);
                 break;
+            //Ruft beim Klick auf den Button das SendBackIntent auf
             case R.id.sendBtn:
-                Intent sendBackImage = new Intent (BearbeitungsActivity.this, MainActivity.class);
-                sendBackImage.putExtra("BitmapImage", this.bitty);
-
+                Intent sendBackIntent = new Intent (BearbeitungsActivity.this, MainActivity.class);
+                sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 String sendTitel = this.editT.getText().toString();
-
-                sendBackImage.putExtra("Titel", sendTitel);
-                setResult(RESULT_OK, sendBackImage);
+                sendBackIntent.putExtra("Titel", sendTitel);
+                setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
         }
@@ -109,8 +108,8 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         if (resultCode == RESULT_OK) {
             if(requestCode == PIC_CROP){
                 Uri uri = data.getData();
-                this.bitty = getAndScaleBitmap(uri, -1,300);
-                this.imageView.setImageBitmap(this.bitty);
+                this.bearbeitungsBitmap = getAndScaleBitmap(uri, -1,300);
+                this.imageView.setImageBitmap(this.bearbeitungsBitmap);
             }
         }
     }

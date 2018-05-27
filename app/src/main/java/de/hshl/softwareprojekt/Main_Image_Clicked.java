@@ -22,31 +22,35 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private ImageView clickedImage;
     private Bitmap getBitmap;
     private TextView kommentar;
-    private EditText editKomm;
     private TextView titel;
+    private EditText editKomm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__image__clicked);
         Intent getImage = getIntent();
-        this.kommentar = findViewById(R.id.clickedKomment);
-        this.editKomm = findViewById(R.id.editKomment);
-        this.titel = findViewById(R.id.titel);
+
         this.clickedImage = findViewById(R.id.clickedImage);
         this.getBitmap =  getImage.getParcelableExtra("BitmapImage");
         this.clickedImage.setImageBitmap(this.getBitmap);
+
+        this.kommentar = findViewById(R.id.clickedKomment);
+        this.titel = findViewById(R.id.titel);
+        this.editKomm = findViewById(R.id.editKomment);
+
+        this.kommentar.setOnClickListener(this);
         this.titel.setText(getImage.getStringExtra("Titel"));
+
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
-        this.kommentar.setOnClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     @Override
     public void onClick(View v) {
-
+            //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
             this.editKomm.setVisibility(View.VISIBLE);
             this.editKomm.requestFocus();
             this.editKomm.setText("");

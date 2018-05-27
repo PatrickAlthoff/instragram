@@ -17,10 +17,13 @@ public class PostFragment extends Fragment {
     ImageView postImage;
     TextView textViewTitel;
 
+    //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
     public void addImage(Bitmap bitmap, String titel){
         this.postImage = getView().findViewById(R.id.postView);
         this.postImage.setImageBitmap(bitmap);
 
+        //Der Titel wird hier einem TextView übergeben und
+        //in die ContentDescription des ImageView geschrieben
         this.textViewTitel = getView().findViewById(R.id.textViewTitel);
         this.textViewTitel.setText(titel);
         this.postImage.setContentDescription(this.textViewTitel.getText());

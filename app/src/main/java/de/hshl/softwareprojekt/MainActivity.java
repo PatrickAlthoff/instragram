@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity
 
     //Globale Variablen für die Layouts
     float dpi;
-    Intent intentC;
+    Intent intentCaptureImage;
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
     Bitmap clickedImage;
@@ -123,18 +123,21 @@ public class MainActivity extends AppCompatActivity
         this.innerLayout = findViewById(R.id.innerLayout);
 
     }
-
+    //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addFragment(Bitmap postBitmap, String titel){
+
+        //Initialisiert den FragmentManager und das PostFragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        PostFragment dynamicFragment = new PostFragment();
+        PostFragment frontPagePost = new PostFragment();
 
         //add fragment
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.innerLayout, dynamicFragment);
+        fragmentTransaction.add(R.id.innerLayout, frontPagePost);
         fragmentTransaction.commitNow();
-        dynamicFragment.addImage(postBitmap, titel);
+        frontPagePost.addImage(postBitmap, titel);
 
-        ImageView postImage = dynamicFragment.postImage;
+        //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
+        ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(this);
 
@@ -145,7 +148,7 @@ public class MainActivity extends AppCompatActivity
         return (int)(dp*dpi);
     }
 
-    //Öffnet Fenster zur Bestätigung der Zugriffsrechte
+    //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
     protected void checkPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED){
@@ -184,9 +187,9 @@ public class MainActivity extends AppCompatActivity
             contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
             contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
              imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-             intentC = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intentC.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(intentC, IMAGE_CAPTURE);
+             intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+            startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
         }
     }
 
@@ -253,11 +256,11 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_GETSEND) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    Intent intentG = data;
+                    Intent intentVerarbeitet = data;
                     Bitmap postImage;
                     String titel;
-                    titel = intentG.getStringExtra("Titel");
-                    postImage = intentG.getParcelableExtra("BitmapImage");
+                    titel = intentVerarbeitet.getStringExtra("Titel");
+                    postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
 
                     addFragment(postImage, titel);
                 }
@@ -269,7 +272,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
+    //Schließt bei einem Backpress das DrawerLayout, falls dies offen ist
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -280,6 +283,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Generiert den Inhalt des DrawerLayout aus der main.xml
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -314,16 +318,16 @@ public class MainActivity extends AppCompatActivity
             startCamera();
 
         } else if (id == R.id.nav_gallery) {
-            Intent intentG = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intentG, GALLERY_PICK);
+            Intent intentGallerie = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
 
         }
-
+        //Startet das Settingslayout
         else if (id == R.id.nav_manage) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+                Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intentSetting);
 
         } else if (id == R.id.nav_share) {
 
@@ -332,8 +336,8 @@ public class MainActivity extends AppCompatActivity
         }
         //Shortcut to Logout.
         else if (id == R.id.nav_logout) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            Intent intentLogout = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intentLogout);
             finish();
         }
 
@@ -342,21 +346,27 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
+        //Baut aus den Daten im Cache eine Bitmap
+        v.setDrawingCacheEnabled(true);
+        v.buildDrawingCache();
+        Bitmap parseBit = v.getDrawingCache();
 
-        View clickView = v;
-        clickView.setDrawingCacheEnabled(true);
-        clickView.buildDrawingCache();
-        Bitmap parseBit = clickView.getDrawingCache();
+        //Ruft auf einer Bitmap die getImageUri Methode auf
         Uri uri = getImageUri(this, parseBit);
-        Bitmap createBit = getAndScaleBitmap(uri,-1,300);
-        Intent intentI = new Intent(MainActivity.this, Main_Image_Clicked.class);
-        intentI.putExtra("BitmapImage", createBit);
-        intentI.putExtra("Titel", clickView.getContentDescription());
-        startActivityForResult(intentI, IMAGE_CLICKED);
-    }
 
+        //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
+        Bitmap createBit = getAndScaleBitmap(uri,-1,300);
+
+        //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
+        Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
+        intentVollansicht.putExtra("BitmapImage", createBit);
+        intentVollansicht.putExtra("Titel", v.getContentDescription());
+        startActivityForResult(intentVollansicht, IMAGE_CLICKED);
+    }
+    //Enthält Methode zur Convertierung einer Bitmap in eine Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
