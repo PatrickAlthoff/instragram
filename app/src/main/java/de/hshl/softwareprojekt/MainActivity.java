@@ -40,8 +40,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void addFragment(Bitmap postBitmap){
+    public void addFragment(Bitmap postBitmap, String titel){
         FragmentManager fragmentManager = getSupportFragmentManager();
         PostFragment dynamicFragment = new PostFragment();
 
@@ -129,11 +132,12 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.innerLayout, dynamicFragment);
         fragmentTransaction.commitNow();
-        dynamicFragment.addImage(postBitmap);
+        dynamicFragment.addImage(postBitmap, titel);
 
         ImageView postImage = dynamicFragment.postImage;
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(this);
+
     }
 
     //Methode zur Umrechnung der dpi
@@ -251,8 +255,11 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
                     Intent intentG = data;
                     Bitmap postImage;
+                    String titel;
+                    titel = intentG.getStringExtra("Titel");
                     postImage = intentG.getParcelableExtra("BitmapImage");
-                    addFragment(postImage);
+
+                    addFragment(postImage, titel);
                 }
             }
             else {
@@ -338,14 +345,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
 
-        View vi = v;
-        vi.setDrawingCacheEnabled(true);
-        vi.buildDrawingCache();
-        Bitmap test = vi.getDrawingCache();
-        Uri uri = getImageUri(this, test);
-        Bitmap test2 = getAndScaleBitmap(uri,-1,300);
+        View clickView = v;
+        clickView.setDrawingCacheEnabled(true);
+        clickView.buildDrawingCache();
+        Bitmap parseBit = clickView.getDrawingCache();
+        Uri uri = getImageUri(this, parseBit);
+        Bitmap createBit = getAndScaleBitmap(uri,-1,300);
         Intent intentI = new Intent(MainActivity.this, Main_Image_Clicked.class);
-        intentI.putExtra("BitmapImage", test2);
+        intentI.putExtra("BitmapImage", createBit);
+        intentI.putExtra("Titel", clickView.getContentDescription());
         startActivityForResult(intentI, IMAGE_CLICKED);
     }
 

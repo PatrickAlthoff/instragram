@@ -12,10 +12,15 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,6 +32,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private Uri imageUri;
     private Bitmap bitty;
     final int PIC_CROP = 1;
+    private EditText editT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,27 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         scaleBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);
         this.imageView.setImageBitmap(this.bitty);
+        this.editT = findViewById(R.id.editTitel);
+
+        TextWatcher test = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+
+        this.editT.addTextChangedListener(test);
+
 
     }
     //Verpackt die übergebene Bitmap in eine Uri
@@ -68,6 +95,10 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             case R.id.sendBtn:
                 Intent sendBackImage = new Intent (BearbeitungsActivity.this, MainActivity.class);
                 sendBackImage.putExtra("BitmapImage", this.bitty);
+
+                String sendTitel = this.editT.getText().toString();
+
+                sendBackImage.putExtra("Titel", sendTitel);
                 setResult(RESULT_OK, sendBackImage);
                 finish();
                 break;

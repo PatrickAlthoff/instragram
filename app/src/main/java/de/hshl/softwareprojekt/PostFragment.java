@@ -10,15 +10,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 
 public class PostFragment extends Fragment {
     ImageView postImage;
+    TextView textViewTitel;
 
-    public void addImage(Bitmap bitmap){
+    public void addImage(Bitmap bitmap, String titel){
         this.postImage = getView().findViewById(R.id.postView);
-        this.postImage.setId(View.generateViewId());
         this.postImage.setImageBitmap(bitmap);
+
+        this.textViewTitel = getView().findViewById(R.id.textViewTitel);
+        this.textViewTitel.setText(titel);
+        this.postImage.setContentDescription(this.textViewTitel.getText());
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {

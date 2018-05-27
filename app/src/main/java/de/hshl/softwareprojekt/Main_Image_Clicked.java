@@ -8,6 +8,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +23,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private Bitmap getBitmap;
     private TextView kommentar;
     private EditText editKomm;
+    private TextView titel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,23 +32,27 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         Intent getImage = getIntent();
         this.kommentar = findViewById(R.id.clickedKomment);
         this.editKomm = findViewById(R.id.editKomment);
+        this.titel = findViewById(R.id.titel);
         this.clickedImage = findViewById(R.id.clickedImage);
         this.getBitmap =  getImage.getParcelableExtra("BitmapImage");
         this.clickedImage.setImageBitmap(this.getBitmap);
-
+        this.titel.setText(getImage.getStringExtra("Titel"));
         Toolbar toolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         this.kommentar.setOnClickListener(this);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     @Override
     public void onClick(View v) {
-        this.editKomm.setVisibility(View.VISIBLE);
-        this.editKomm.requestFocus();
-        this.editKomm.setText("");
+
+            this.editKomm.setVisibility(View.VISIBLE);
+            this.editKomm.requestFocus();
+            this.editKomm.setText("");
+
+
+
     }
 
 

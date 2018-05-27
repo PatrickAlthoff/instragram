@@ -107,8 +107,6 @@ public class SettingsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_backHome) {
-            Intent intentBack = new Intent(SettingsActivity.this, MainActivity.class);
-            startActivity(intentBack);
             finish();
         }
 
