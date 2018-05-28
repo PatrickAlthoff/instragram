@@ -2,9 +2,7 @@
 $uploadName = "fileupload1";
 $uploadFolder = "upload/";
 $fullServerLink = "http://intranet-secure.de/instragram/";
-if(!filde_exists($uploadFolder)){
-	mkdir($uploadFolder, 0777);
-}
+
 	$temp_name = $_FILES[$uploadName]['tmp_name'];
 	$orginal_name = $_FILES[$uploadName]['name'];
 	$filesize = $_FILES[$uploadName]['size'];
