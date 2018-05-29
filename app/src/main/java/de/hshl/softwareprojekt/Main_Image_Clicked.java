@@ -43,6 +43,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.titel.setText(getImage.getStringExtra("Titel"));
 
         Toolbar toolbar = findViewById(R.id.toolbar2);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
