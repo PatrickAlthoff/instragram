@@ -2,6 +2,7 @@ package de.hshl.softwareprojekt;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -45,8 +46,10 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -56,11 +59,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             this.editKomm.requestFocus();
             this.editKomm.setText("");
 
-
-
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

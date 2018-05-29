@@ -266,9 +266,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             else {
-                int rowsDeleted = getContentResolver().delete(imageUri, null, null);
-                Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
-                //startCamera();
+                Log.d(MainActivity.class.getSimpleName(),"no picture selected");
             }
         }
     }
