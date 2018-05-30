@@ -1,21 +1,20 @@
 package de.hshl.softwareprojekt;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import java.sql.Timestamp;
 
 
 public class PostFragment extends Fragment {
     ImageView postImage;
     TextView textViewTitel;
+    TextView timeStampView;
 
     //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
     public void addImage(Bitmap bitmap, String titel){
@@ -27,6 +26,11 @@ public class PostFragment extends Fragment {
         this.textViewTitel = getView().findViewById(R.id.textViewTitel);
         this.textViewTitel.setText(titel);
         this.postImage.setContentDescription(this.textViewTitel.getText());
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        this.timeStampView = getView().findViewById(R.id.timeStamp);
+        this.timeStampView.setText(timestamp.toString());
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {

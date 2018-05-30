@@ -6,25 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.ActivityChooserView;
 import android.util.DisplayMetrics;
-import android.util.EventLogTags;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -35,26 +26,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
-
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -126,13 +102,16 @@ public class MainActivity extends AppCompatActivity
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addFragment(Bitmap postBitmap, String titel){
 
-        //Initialisiert den FragmentManager und das PostFragment
+        //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         FragmentManager fragmentManager = getSupportFragmentManager();
         PostFragment frontPagePost = new PostFragment();
+        FrameLayout frameInner = new FrameLayout(this);
+        frameInner.setId(View.generateViewId());
+        innerLayout.addView(frameInner, 0);
 
         //add fragment
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.innerLayout, frontPagePost);
+        fragmentTransaction.add(frameInner.getId(), frontPagePost);
         fragmentTransaction.commitNow();
         frontPagePost.addImage(postBitmap, titel);
 
