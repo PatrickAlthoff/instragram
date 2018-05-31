@@ -38,6 +38,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private Uri imageUri;
     private Bitmap bearbeitungsBitmap;
     private Bitmap normalImage;
+    private Bitmap resetImage;
     final int PIC_CROP = 1;
     private EditText editT;
 
@@ -49,43 +50,20 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
         Button scaleBtn = findViewById(R.id.scaleBtn);
         Button sendBtn = findViewById(R.id.sendBtn);
+        Button resetBtn = findViewById(R.id.resetImage);
         scaleBtn.setOnClickListener(this);
         sendBtn.setOnClickListener(this);
+        resetBtn.setOnClickListener(this);
 
         this.bigImage = findViewById(R.id.imageView2);
 
         this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
-        this.normalImage = this.bearbeitungsBitmap;
         this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
+        this.normalImage = this.bearbeitungsBitmap;
+        this.resetImage = this.normalImage;
         this.editT = findViewById(R.id.editTitel);
 
-        this.miniImage1 = findViewById(R.id.miniImage1);
-        this.miniImage1.setImageBitmap(this.normalImage);
-        this.miniImage1.setOnClickListener(this);
 
-        this.miniImage2 = findViewById(R.id.miniImage2);
-        this.miniImage2.setImageBitmap(changeToGreyscale(this.bearbeitungsBitmap));
-        this.miniImage2.setOnClickListener(this);
-
-        this.miniImage3 = findViewById(R.id.miniImage3);
-        this.miniImage3.setImageBitmap(higherSaturation(this.bearbeitungsBitmap));
-        this.miniImage3.setOnClickListener(this);
-
-        this.miniImage4 = findViewById(R.id.miniImage4);
-        this.miniImage4.setImageBitmap(higherContrast(this.bearbeitungsBitmap,50));
-        this.miniImage4.setOnClickListener(this);
-
-        this.miniImage5 = findViewById(R.id.miniImage5);
-        this.miniImage5.setImageBitmap(invertEffect(this.bearbeitungsBitmap));
-        this.miniImage5.setOnClickListener(this);
-
-        this.miniImage6 = findViewById(R.id.miniImage6);
-        this.miniImage6.setImageBitmap(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2));
-        this.miniImage6.setOnClickListener(this);
-
-        this.miniImage7 = findViewById(R.id.miniImage7);
-        this.miniImage7.setImageBitmap(invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2)));
-        this.miniImage7.setOnClickListener(this);
 
         TextWatcher test = new TextWatcher() {
             @Override
@@ -114,7 +92,39 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
+        initImages();
 
+    }
+    private void initImages(){
+        this.normalImage = this.bearbeitungsBitmap;
+
+        this.miniImage1 = findViewById(R.id.miniImage1);
+        this.miniImage1.setImageBitmap(this.bearbeitungsBitmap);
+        this.miniImage1.setOnClickListener(this);
+
+        this.miniImage2 = findViewById(R.id.miniImage2);
+        this.miniImage2.setImageBitmap(changeToGreyscale(this.bearbeitungsBitmap));
+        this.miniImage2.setOnClickListener(this);
+
+        this.miniImage3 = findViewById(R.id.miniImage3);
+        this.miniImage3.setImageBitmap(higherSaturation(this.bearbeitungsBitmap));
+        this.miniImage3.setOnClickListener(this);
+
+        this.miniImage4 = findViewById(R.id.miniImage4);
+        this.miniImage4.setImageBitmap(higherContrast(this.bearbeitungsBitmap,50));
+        this.miniImage4.setOnClickListener(this);
+
+        this.miniImage5 = findViewById(R.id.miniImage5);
+        this.miniImage5.setImageBitmap(invertEffect(this.bearbeitungsBitmap));
+        this.miniImage5.setOnClickListener(this);
+
+        this.miniImage6 = findViewById(R.id.miniImage6);
+        this.miniImage6.setImageBitmap(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2));
+        this.miniImage6.setOnClickListener(this);
+
+        this.miniImage7 = findViewById(R.id.miniImage7);
+        this.miniImage7.setImageBitmap(invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2)));
+        this.miniImage7.setOnClickListener(this);
     }
     //Verpackt die übergebene Bitmap in eine Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
@@ -142,6 +152,10 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
+            case R.id.resetImage:
+                this.bearbeitungsBitmap = this.resetImage;
+                this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
+                initImages();
                 //Normales Bild
             case R.id.miniImage1:
                 this.bearbeitungsBitmap = this.normalImage;
@@ -187,6 +201,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 Uri uri = data.getData();
                 this.bearbeitungsBitmap = getAndScaleBitmap(uri, -1,300);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
+                initImages();
             }
         }
     }
