@@ -30,6 +30,13 @@
     <string name="anzahl_follower">Follower</string>
     <string name="biografie">Bio</string>
 
+    <!-- Strings related to Bearbeitung des Profils -->
+    <string name="Profilbild"></string>
+    <string name="OpenPicture">Foto aus Galerie</string>
+    <string name="editName">Benutzername</string>
+    <string name="editBiografie">Biografie</string>
+
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
