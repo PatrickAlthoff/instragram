@@ -44,8 +44,7 @@ public class SettingsActivity extends AppCompatActivity
         setContentView(R.layout.activity_settings_drawer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
+        
         //Initialisierung des Drawer Layout
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

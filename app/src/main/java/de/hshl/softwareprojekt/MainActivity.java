@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,6 +30,10 @@ import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -55,6 +60,8 @@ public class MainActivity extends AppCompatActivity
     LinearLayout innerLayout;
     ConstraintSet constraintSet;
     Bitmap clickedImage;
+    ImageView profilBild;
+    TextView profilName;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -97,6 +104,12 @@ public class MainActivity extends AppCompatActivity
 
         //Initialisierung des InnerLayout (Linear Layout)
         this.innerLayout = findViewById(R.id.innerLayout);
+
+        this.profilBild = findViewById(R.id.profilBild);
+        this.profilBild.setOnClickListener(this);
+
+        this.profilName = findViewById(R.id.profilName);
+
 
     }
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
@@ -190,6 +203,18 @@ public class MainActivity extends AppCompatActivity
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
+    }
+    public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
+
+        float   srcWidth = bitmap.getWidth(),
+                srcHeight = bitmap.getHeight();
+
+        if (dstWidth < 1) {
+            dstWidth = (int) (srcWidth / srcHeight * dstHeight);
+        }
+        Bitmap dst = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
+
+        return dst;
     }
 
     //onActivityResult Methode zur Verarbeitung mehrerer Requests
@@ -326,22 +351,25 @@ public class MainActivity extends AppCompatActivity
     //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
+        if (v.getId() == R.id.profilBild) {
+            Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
+            startActivity(intentProfil);
+
+        }
+        else{
         //Baut aus den Daten im Cache eine Bitmap
         v.setDrawingCacheEnabled(true);
         v.buildDrawingCache();
         Bitmap parseBit = v.getDrawingCache();
 
-        //Ruft auf einer Bitmap die getImageUri Methode auf
-        Uri uri = getImageUri(this, parseBit);
-
         //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-        Bitmap createBit = getAndScaleBitmap(uri,-1,300);
+        Bitmap createBit = scaleBitmap(parseBit,-1,300);
 
         //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
         Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
         intentVollansicht.putExtra("BitmapImage", createBit);
         intentVollansicht.putExtra("Titel", v.getContentDescription());
-        startActivityForResult(intentVollansicht, IMAGE_CLICKED);
+        startActivityForResult(intentVollansicht, IMAGE_CLICKED);}
     }
     //Enthält Methode zur Convertierung einer Bitmap in eine Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
