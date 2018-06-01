@@ -1,6 +1,8 @@
 package de.hshl.softwareprojekt;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +29,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     Bitmap clickedImage;
     ImageView profilBild;
     TextView profilName;
+    ImageButton deleteButton;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -110,21 +115,24 @@ public class MainActivity extends AppCompatActivity
 
         this.profilName = findViewById(R.id.profilName);
 
-
     }
+
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addFragment(Bitmap postBitmap, String titel){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        PostFragment frontPagePost = new PostFragment();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
         innerLayout.addView(frameInner, 0);
 
         //add fragment
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(frameInner.getId(), frontPagePost);
+        String i = Long.toString(System.currentTimeMillis()/1000);
+        int c = Integer.parseInt(i);
+        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
+
         fragmentTransaction.commitNow();
         frontPagePost.addImage(postBitmap, titel);
 
@@ -133,7 +141,26 @@ public class MainActivity extends AppCompatActivity
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(this);
 
+        ImageButton deleteButton = frontPagePost.delete;
+
+        deleteButton.setId(c);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeFragment(frontPagePost);
+            }
+        });
+
     }
+
+    public void removeFragment(PostFragment pf) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(pf);
+        fragmentTransaction.commitNow();
+
+   }
 
     //Methode zur Umrechnung der dpi
     private int dp2px(int dp){
@@ -348,15 +375,17 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
+
         if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
 
         }
-        else{
+        else {
         //Baut aus den Daten im Cache eine Bitmap
         v.setDrawingCacheEnabled(true);
         v.buildDrawingCache();
@@ -370,12 +399,5 @@ public class MainActivity extends AppCompatActivity
         intentVollansicht.putExtra("BitmapImage", createBit);
         intentVollansicht.putExtra("Titel", v.getContentDescription());
         startActivityForResult(intentVollansicht, IMAGE_CLICKED);}
-    }
-    //Enthält Methode zur Convertierung einer Bitmap in eine Uri
-    private Uri getImageUri(Context context, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
     }
 }

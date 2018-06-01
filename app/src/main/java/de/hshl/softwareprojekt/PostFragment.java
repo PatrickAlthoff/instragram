@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.sql.Timestamp;
@@ -18,6 +19,7 @@ public class PostFragment extends Fragment {
     ImageView postImage;
     TextView textViewTitel;
     TextView timeStampView;
+    ImageButton delete;
 
     //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
     public void addImage(Bitmap bitmap, String titel){
@@ -33,6 +35,8 @@ public class PostFragment extends Fragment {
         String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
         this.timeStampView = getView().findViewById(R.id.timeStamp);
         this.timeStampView.setText(date);
+
+        this.delete = getView().findViewById(R.id.deleteButton);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
