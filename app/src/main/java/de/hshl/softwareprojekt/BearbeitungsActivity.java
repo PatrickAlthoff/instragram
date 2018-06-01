@@ -40,7 +40,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private Bitmap normalImage;
     private Bitmap resetImage;
     final int PIC_CROP = 1;
-    private EditText editT;
+    private EditText editTitel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,8 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
         this.normalImage = this.bearbeitungsBitmap;
         this.resetImage = this.normalImage;
-        this.editT = findViewById(R.id.editTitel);
+        this.editTitel = findViewById(R.id.editTitel);
+        this.editTitel.selectAll();
 
 
 
@@ -82,7 +83,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             }
         };
 
-        this.editT.addTextChangedListener(test);
+        this.editTitel.addTextChangedListener(test);
 
         Toolbar toolbar = findViewById(R.id.toolbar3);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -147,7 +148,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             case R.id.sendBtn:
                 Intent sendBackIntent = new Intent (BearbeitungsActivity.this, MainActivity.class);
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
-                String sendTitel = this.editT.getText().toString();
+                String sendTitel = this.editTitel.getText().toString();
                 sendBackIntent.putExtra("Titel", sendTitel);
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
