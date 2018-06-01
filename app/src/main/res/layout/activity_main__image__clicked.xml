@@ -126,7 +126,8 @@
                 android:inputType="textPersonName"
                 android:text="Titel"
                 android:textAlignment="center"
-                android:textAppearance="@android:style/TextAppearance.Medium" />
+                android:textAppearance="@android:style/TextAppearance.Medium"
+                android:textSize="20sp" />
 
         </RelativeLayout>
     </ScrollView>

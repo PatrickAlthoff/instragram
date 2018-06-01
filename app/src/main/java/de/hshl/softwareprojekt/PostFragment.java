@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class PostFragment extends Fragment {
@@ -27,10 +30,9 @@ public class PostFragment extends Fragment {
         this.textViewTitel.setText(titel);
         this.postImage.setContentDescription(this.textViewTitel.getText());
 
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
+        String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
         this.timeStampView = getView().findViewById(R.id.timeStamp);
-        this.timeStampView.setText(timestamp.toString());
+        this.timeStampView.setText(date);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
