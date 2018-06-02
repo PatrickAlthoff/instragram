@@ -22,7 +22,7 @@ public class PostFragment extends Fragment {
     ImageButton delete;
 
     //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
-    public void addImage(Bitmap bitmap, String titel){
+    public void addPost(Bitmap bitmap, String titel){
         this.postImage = getView().findViewById(R.id.postView);
         this.postImage.setImageBitmap(bitmap);
 

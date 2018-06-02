@@ -1,14 +1,10 @@
 package de.hshl.softwareprojekt;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,16 +25,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
@@ -52,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     private int GALLERY_PICK = 5;
     private int REQUEST_GETSEND = 12;
     private int IMAGE_CLICKED = 13;
+    private int STORIE_PICK = 14;
 
     //Globale Variablen zur Beschreibung der Bilder
     private int TITLE = 2;
@@ -65,6 +58,7 @@ public class MainActivity extends AppCompatActivity
     ConstraintSet constraintSet;
     Bitmap clickedImage;
     ImageView profilBild;
+    ImageView followerBild;
     TextView profilName;
     ImageButton deleteButton;
 
@@ -112,13 +106,15 @@ public class MainActivity extends AppCompatActivity
 
         this.profilBild = findViewById(R.id.profilBild);
         this.profilBild.setOnClickListener(this);
+        this.followerBild = findViewById(R.id.followerNr1);
+        this.followerBild.setOnClickListener(this);
 
         this.profilName = findViewById(R.id.profilName);
 
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addFragment(Bitmap postBitmap, String titel){
+    public void addPostFragment(Bitmap postBitmap, String titel){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -134,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
 
         fragmentTransaction.commitNow();
-        frontPagePost.addImage(postBitmap, titel);
+        frontPagePost.addPost(postBitmap, titel);
 
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         ImageView postImage = frontPagePost.postImage;
@@ -152,6 +148,7 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
+
 
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -255,8 +252,10 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
 
                     Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (MainActivity.this, PostBearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
+                    int code = 1;
+                    sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -273,8 +272,10 @@ public class MainActivity extends AppCompatActivity
                 if(data != null) {
                     Uri uri = data.getData();
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (MainActivity.this, PostBearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
+                    int code = 1;
+                    sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -292,8 +293,7 @@ public class MainActivity extends AppCompatActivity
                     String titel;
                     titel = intentVerarbeitet.getStringExtra("Titel");
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
-
-                    addFragment(postImage, titel);
+                    addPostFragment(postImage, titel);
                 }
             }
             else {
@@ -351,7 +351,8 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-
+            Intent intentStories = new Intent(MainActivity.this, StoriesBearbeitungsActivity.class);
+            startActivity(intentStories);
         }
         //Startet das Settingslayout
         else if (id == R.id.nav_manage) {
@@ -384,6 +385,9 @@ public class MainActivity extends AppCompatActivity
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
 
+        }else if(v.getId() == R.id.followerNr1){
+            Intent intentStories = new Intent(MainActivity.this, StoriesBearbeitungsActivity.class);
+            startActivity(intentStories);
         }
         else {
         //Baut aus den Daten im Cache eine Bitmap

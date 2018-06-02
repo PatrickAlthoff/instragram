@@ -25,7 +25,7 @@ import android.widget.ImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+public class PostBearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
     private int IMAGE_FROM_CROP = 1;
     private ImageView bigImage;
     private ImageView miniImage1;
@@ -41,23 +41,34 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private Bitmap resetImage;
     final int PIC_CROP = 1;
     private EditText editTitel;
+    private Button postBtn;
+    private Button storieBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bearbeitungs);
+
         Intent intentG = getIntent();
 
+        this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
+        Bundle bundle = intentG.getExtras();
+        int code = bundle.getInt("Code");
+
+
         Button scaleBtn = findViewById(R.id.scaleBtn);
-        Button sendBtn = findViewById(R.id.sendBtn);
+        this.postBtn = findViewById(R.id.postBtn);
         Button resetBtn = findViewById(R.id.resetImage);
         scaleBtn.setOnClickListener(this);
-        sendBtn.setOnClickListener(this);
+        this.postBtn.setOnClickListener(this);
         resetBtn.setOnClickListener(this);
+        this.storieBtn = findViewById(R.id.storieBtn);
+        this.storieBtn.setOnClickListener(this);
+        checkCode(code);
 
         this.bigImage = findViewById(R.id.imageView2);
 
-        this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
+
         this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
         this.normalImage = this.bearbeitungsBitmap;
         this.resetImage = this.normalImage;
@@ -94,7 +105,14 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         initImages();
-
+    }
+    public void checkCode(int code){
+        if(code == 2){
+            this.postBtn.setVisibility(View.INVISIBLE);
+        }
+        else if(code == 1){
+            this.storieBtn.setVisibility(View.INVISIBLE);
+        }
     }
     private void initImages(){
         this.normalImage = this.bearbeitungsBitmap;
@@ -145,12 +163,18 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 cropImage(this.imageUri);
                 break;
             //Ruft beim Klick auf den Button das SendBackIntent auf
-            case R.id.sendBtn:
-                Intent sendBackIntent = new Intent (BearbeitungsActivity.this, MainActivity.class);
+            case R.id.postBtn:
+                Intent sendBackIntent = new Intent (PostBearbeitungsActivity.this, MainActivity.class);
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
-                String sendTitel = this.editTitel.getText().toString();
-                sendBackIntent.putExtra("Titel", sendTitel);
+                String sendTitelPost = this.editTitel.getText().toString();
+                sendBackIntent.putExtra("Titel", sendTitelPost);
                 setResult(RESULT_OK, sendBackIntent);
+                finish();
+                break;
+            case R.id.storieBtn:
+                Intent sendtoStorieBearbeitung = new Intent (PostBearbeitungsActivity.this, StoriesBearbeitungsActivity.class);
+                sendtoStorieBearbeitung.putExtra("BitmapImage", this.bearbeitungsBitmap);
+                setResult(RESULT_OK, sendtoStorieBearbeitung);
                 finish();
                 break;
             case R.id.resetImage:
@@ -395,7 +419,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             startActivityForResult(cropIntent, IMAGE_FROM_CROP);
         }
         catch(Exception e){
-            Log.e(BearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
+            Log.e(PostBearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
         }
     }
 
@@ -403,7 +427,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (BearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent (PostBearbeitungsActivity.this, MainActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
