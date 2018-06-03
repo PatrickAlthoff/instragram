@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -15,7 +16,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,6 +31,8 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     Button videoBtn;
     Button fotoBtn;
     Button galerieBtn;
+    Button restartbtn;
+    Button publishBtn;
 
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
@@ -64,15 +69,26 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         this.videoBtn = findViewById(R.id.videoEdit);
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
+        this.restartbtn = findViewById(R.id.restartBtn);
+        this.publishBtn = findViewById(R.id.publishBtn);
 
         this.videoBtn.setOnClickListener(this);
         this.fotoBtn.setOnClickListener(this);
         this.galerieBtn.setOnClickListener(this);
+        this.restartbtn.setOnClickListener(this);
+        this.publishBtn.setOnClickListener(this);
 
         this.storiePic = findViewById(R.id.storieConent);
         this.storiebar = findViewById(R.id.storieProgress);
         this.bitmapList = new ArrayList<>();
 
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
     }
 
@@ -90,6 +106,15 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
             case R.id.galerieEdit:
                 Intent intentGallerie = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intentGallerie, GALLERY_PICK);
+                break;
+            case R.id.restartBtn:
+                startBar();
+                break;
+            case R.id.publishBtn:
+                Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, MainActivity.class);
+                sendBackIntent.putParcelableArrayListExtra("BitmapList", this.bitmapList);
+                setResult(RESULT_OK, sendBackIntent);
+                finish();
                 break;
         }
     }
@@ -114,12 +139,13 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         this.bitmapList.add(storieBitmap);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         this.storiePic.setImageBitmap(bitmapList.get(0));
-        startBar();
+
+        this.restartbtn.setText("Start");
+        this.storiebar.setProgress(0);
 
     }
     public void startBar(){
         this.progressBarCount = this.bitmapList.size();
-        storiebar.setProgress(0);
         final ImageView storiePic = this.storiePic;
         new Thread(new Runnable() {
             @Override
@@ -132,15 +158,11 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
                     i++;
                     storiebar.setProgress((i)*100/progressBarCount);
                     android.os.SystemClock.sleep(2000);
-
-                    if(storiebar.getProgress()>99){
-
-                        storiePic.setImageBitmap(bitmapList.get(0));
-                        storiebar.setProgress(0);
-                    }
                 }
+
             }
         }).start();
+        this.restartbtn.setText("Restart");
     }
 
 
@@ -255,6 +277,18 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
                 }
                 return;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, MainActivity.class);
+            setResult(RESULT_CANCELED, sendBackIntent);
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

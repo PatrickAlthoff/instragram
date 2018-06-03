@@ -52,7 +52,7 @@
             android:name=".Profil_BearbeitungActivity"
             android:parentActivityName=".ProfilActivity" />
         <activity android:name=".Main_Storie_Clicked" />
-        <activity android:name=".StoriesBearbeitungsActivity"></activity>
+        <activity android:name=".StoriesBearbeitungsActivity" />
     </application>
 
 </manifest>

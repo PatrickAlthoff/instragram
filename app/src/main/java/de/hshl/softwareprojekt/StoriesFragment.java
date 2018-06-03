@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,32 +23,26 @@ import java.util.Locale;
 
 public class StoriesFragment extends Fragment {
     ImageView storieImage;
-    ProgressBar storiesBar;
+    ProgressBar prBar;
+    Button strStart;
 
-
-
-
-    public void addStorie(Bitmap bitmap, String titel){
+    public void addStr(Bitmap bitmap){
         this.storieImage = getView().findViewById(R.id.storieView);
         this.storieImage.setImageBitmap(bitmap);
-
-        //Der Titel wird hier einem TextView übergeben und
-        //in die ContentDescription des ImageView geschrieben
-
-
-
-
-
+        this.prBar = getView().findViewById(R.id.storiesBar);
+        this.strStart = getView().findViewById(R.id.storieStart);
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.storiesBar = getView().findViewById(R.id.storiesBar);
+
     }
     @Override
     public void onStart() {
         super.onStart();
+
     }
 
     @Override
