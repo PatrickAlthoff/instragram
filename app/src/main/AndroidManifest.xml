@@ -42,9 +42,6 @@
             android:exported="true" />
         <activity android:name=".SettingsActivity" />
         <activity
-            android:name=".UploadActivity"
-            android:exported="true" />
-        <activity
             android:name=".ProfilActivity"
             android:exported="true" />
         <activity android:name=".Main_Image_Clicked" />
