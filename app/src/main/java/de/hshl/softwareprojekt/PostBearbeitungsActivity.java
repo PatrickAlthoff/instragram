@@ -62,8 +62,6 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
     final int PICK_IMAGE_REQ_CODE = 12;
     final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
 
-    Button btn_upload;
-
     ProgressDialog uploadDialog;
 
     @Override
@@ -75,8 +73,6 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
 
         this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
         Bundle bundle = intentG.getExtras();
-        btn_upload = findViewById(R.id.btn_upload);
-        btn_upload.setOnClickListener(this);
         int code = bundle.getInt("Code");
 
 
@@ -195,6 +191,13 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 String sendTitelPost = this.editTitel.getText().toString();
                 sendBackIntent.putExtra("Titel", sendTitelPost);
+                imageUriÜbergabe();
+                if(imageUri!= null && internetAvailable()) {
+                    uploadDialog = new ProgressDialog(PostBearbeitungsActivity.this);
+                    uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    uploadDialog.show();
+                    new UploadImageAsyncTask().execute();
+                }
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -243,16 +246,7 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
                 this.bearbeitungsBitmap = invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2));
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-            case R.id.btn_upload: {
-                imageUriÜbergabe();
-                if(imageUri!= null && internetAvailable()) {
-                    uploadDialog = new ProgressDialog(PostBearbeitungsActivity.this);
-                    uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    uploadDialog.show();
-                    new UploadImageAsyncTask().execute();
-                }
-                break;
-            }
+
         }
     }
     public void pickImage(){
@@ -271,15 +265,13 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
     }
     //Enthält die Funktion, welche die "Croppen"-Funktion für eine Uri aufruft
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQ_CODE) {
-            imageUri = data.getData();
-            btn_upload.setVisibility(View.VISIBLE);
+
             if(requestCode == PIC_CROP){
                 Uri uri = data.getData();
                 this.bearbeitungsBitmap = getAndScaleBitmap(uri, -1,300);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 initImages();
-            }
+
         }
     }
     private class UploadImageAsyncTask extends AsyncTask {
@@ -349,7 +341,6 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
 
         @Override
         protected void onPostExecute(Object o) {
-            btn_upload.setVisibility(View.INVISIBLE);
             uploadDialog.dismiss();
             super.onPostExecute(o);
         }
