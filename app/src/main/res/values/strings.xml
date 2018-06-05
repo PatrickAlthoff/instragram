@@ -35,8 +35,12 @@
     <string name="OpenPicture">Foto aus Galerie</string>
     <string name="editName">Benutzername</string>
     <string name="editBiografie">Biografie</string>
+    <string name="speichern">Änderungen speichern</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Strings related to Menuleiste -->
+    <string name="settings_name">Profil bearbeiten</string>
 </resources>

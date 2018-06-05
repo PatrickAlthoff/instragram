@@ -23,14 +23,14 @@
         android:layout_height="60dp"
         android:layout_marginTop="232dp"
         android:ems="10"
+        android:hint="@string/editName"
         android:inputType="textPersonName"
         android:text="@string/editName"
         android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:hint="@string/editName" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editBiografie"
@@ -40,6 +40,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="36dp"
         android:ems="10"
+        android:hint="@string/editBiografie"
         android:inputType="textPersonName"
         android:text="@string/editBiografie"
         android:textAlignment="textStart"
@@ -48,21 +49,29 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editName"
-        app:layout_constraintVertical_bias="0.0"
-        android:hint="@string/editBiografie"/>
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/OpenPicture"
         android:layout_width="120dp"
         android:layout_height="60dp"
+        android:hint="@string/OpenPicture"
         android:onClick="onGalleryClicked"
         android:text="@string/OpenPicture"
         app:layout_constraintBottom_toTopOf="@+id/editName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Profilbild"
-        android:hint="@string/OpenPicture"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/Profilbild" />
+
+    <Button
+        android:id="@+id/speichern"
+        android:layout_width="120dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/speichern"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editBiografie" />
 
 </android.support.constraint.ConstraintLayout>
