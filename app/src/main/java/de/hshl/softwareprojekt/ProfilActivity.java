@@ -37,7 +37,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         TextView biografie = findViewById(R.id.biografie);
 
         View divider = findViewById(R.id.divider);
-
+//abcd
 
         // soll Profilbild rund darstellen
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.futurecity);
