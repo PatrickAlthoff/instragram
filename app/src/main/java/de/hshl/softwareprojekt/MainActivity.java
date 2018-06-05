@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
     ImageView followerBild;
     TextView profilName;
     ImageButton deleteButton;
-    ArrayList<Bitmap> bitmapList;
+    ArrayList<Uri> uriList;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -114,7 +114,9 @@ public class MainActivity extends AppCompatActivity
         this.followerBild = findViewById(R.id.followerNr1);
         this.followerBild.setOnClickListener(this);
 
+
         this.profilName = findViewById(R.id.profilName);
+        this.uriList = new ArrayList<>();
 
     }
 
@@ -312,12 +314,19 @@ public class MainActivity extends AppCompatActivity
                 if(data != null) {
 
                     Intent intentStorie = data;
-                    this.bitmapList = intentStorie.getParcelableArrayListExtra("BitmapList");
-                    createFollower();
+                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
                 }
             }
             else{
                 Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+            }
+        }
+        if(requestCode == 101){
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentStorie = data;
+                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
+                }
             }
         }
     }
@@ -409,18 +418,13 @@ public class MainActivity extends AppCompatActivity
     //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.horiInner){
+        if(v.getId() == R.id.followerNr1){
             Intent intentStorie = new Intent(MainActivity.this, Main_Storie_Clicked.class);
-            intentStorie.putExtra("String", "hello");
-            intentStorie.putParcelableArrayListExtra("BitmapList", this.bitmapList);
+            intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
-
-        }else if(v.getId() == R.id.followerNr1){
-            Intent intentStories = new Intent(MainActivity.this, StoriesBearbeitungsActivity.class);
-            startActivityForResult(intentStories, RESULT_FIRST_USER);
         }
         else {
         //Baut aus den Daten im Cache eine Bitmap

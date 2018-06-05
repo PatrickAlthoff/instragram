@@ -150,7 +150,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:contentDescription="delete"
-        android:src="@android:drawable/arrow_down_float"
+        android:src="@android:drawable/ic_menu_delete"
         app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.805"

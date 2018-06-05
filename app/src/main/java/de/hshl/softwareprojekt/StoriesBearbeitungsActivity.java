@@ -2,17 +2,17 @@ package de.hshl.softwareprojekt;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -45,15 +46,17 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private Uri imageUri;
-    private int i;
+
 
     ArrayList<Bitmap> bitmapList;
+    ArrayList<Uri> uriList;
     ConstraintLayout storieBearCons;
     ConstraintLayout storieFrame;
     Intent intentCaptureImage;
     ProgressBar storiebar;
     int progressBarCount;
     ImageView storiePic;
+    int i;
 
 
 
@@ -64,6 +67,12 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
 
         //Check for permissions
         checkPermission();
+
+        this.bitmapList = new ArrayList<>();
+        this.uriList = new ArrayList<>();
+        Intent data = getIntent();
+        this.uriList = data.getParcelableArrayListExtra("UriList");
+        this.bitmapList = convertToBitmapList(this.uriList);
         this.storieBearCons = findViewById(R.id.storieBearCons);
 
         this.videoBtn = findViewById(R.id.videoEdit);
@@ -80,7 +89,10 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
 
         this.storiePic = findViewById(R.id.storieConent);
         this.storiebar = findViewById(R.id.storieProgress);
-        this.bitmapList = new ArrayList<>();
+
+        if(this.uriList.size() > 0) {
+            this.storiePic.setImageBitmap(getAndScaleBitmapNormal(this.uriList.get(0), -1, 330));
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar4);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -91,7 +103,42 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
     }
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
 
+    public ArrayList<Bitmap> convertToBitmapList(ArrayList<Uri> uriList){
+
+        ArrayList<Bitmap> bitmapList =new ArrayList<>();
+        int length = uriList.size();
+        int i = 0;
+        Bitmap bitmap;
+        while (length > i){
+            bitmap = getAndScaleBitmapNormal(uriList.get(i),-1,330);
+            bitmapList.add(bitmap);
+            i++;
+
+        }
+        return bitmapList;
+    }
+
+    public ArrayList<Uri> convertToUriList(ArrayList<Bitmap> bitmapList){
+
+        ArrayList<Uri> uriList =new ArrayList<>();
+        int length = bitmapList.size();
+        int i = 0;
+        Uri uri;
+        while (length > i){
+            uri = getImageUri(this,bitmapList.get(i));
+            uriList.add(uri);
+            i++;
+
+        }
+        return uriList;
+    }
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -99,7 +146,6 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
             case R.id.videoEdit:
 
                 break;
-
             case R.id.fotoEdit:
                 startCamera();
                 break;
@@ -111,8 +157,8 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
                 startBar();
                 break;
             case R.id.publishBtn:
-                Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, MainActivity.class);
-                sendBackIntent.putParcelableArrayListExtra("BitmapList", this.bitmapList);
+                Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, Main_Storie_Clicked.class);
+                sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -144,30 +190,43 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         this.storiebar.setProgress(0);
 
     }
+
     public void startBar(){
         this.progressBarCount = this.bitmapList.size();
-        final ImageView storiePic = this.storiePic;
+        this.i = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                i = 0;
+                while(i < progressBarCount){
 
-                while(i<progressBarCount){
 
-                    storiePic.setImageBitmap(bitmapList.get(i));
-                    i++;
-                    storiebar.setProgress((i)*100/progressBarCount);
-                    android.os.SystemClock.sleep(2000);
+                    storiePic.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            storiePic.setImageBitmap(bitmapList.get(i));
+                            i++;
+                        }
+                    });
+
+                    storiebar.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            storiebar.setProgress((i)* 100 / progressBarCount);
+
+                        }
+                    });
+                    SystemClock.sleep(2000);
+
                 }
-
             }
         }).start();
+
         this.restartbtn.setText("Restart");
     }
 
 
     //Methode zum Skallieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight){
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
@@ -196,7 +255,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
             if (resultCode == RESULT_OK) {
                 if (data != null) {
 
-                    Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
+                    Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
                     Intent sendToBearbeitung = new Intent (StoriesBearbeitungsActivity.this, PostBearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     int code = 2;
@@ -216,7 +275,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
             if(resultCode == RESULT_OK){
                 if(data != null) {
                     Uri uri = data.getData();
-                    Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
+                    Bitmap myBitmap = getAndScaleBitmapNormal(uri, -1, 300);
                     Intent sendToBearbeitung = new Intent (StoriesBearbeitungsActivity.this, PostBearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     int code = 2;
