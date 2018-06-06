@@ -43,11 +43,17 @@
         <activity android:name=".SettingsActivity" />
         <activity
             android:name=".ProfilActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"/>
         <activity android:name=".Main_Image_Clicked" />
         <activity
             android:name=".Profil_BearbeitungActivity"
-            android:parentActivityName=".ProfilActivity" />
+            android:parentActivityName=".ProfilActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light"/>
         <activity android:name=".Main_Storie_Clicked" />
         <activity android:name=".StoriesBearbeitungsActivity" />
     </application>

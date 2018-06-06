@@ -38,6 +38,9 @@ public class Profil_BearbeitungActivity extends AppCompatActivity {
         EditText editBiografie = findViewById(R.id.editBiografie);
         EditText editName = findViewById(R.id.editName);
 
+        Button speichern = findViewById(R.id.speichern);
+
+
 
     }// ImageGalerie öffnen wenn geklickt
     public void onGalleryClicked(View v) {
@@ -51,7 +54,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity {
 
         startActivityForResult(photoPicker, IMAGE_GALLERY_REQUEST);
     }
-
+//
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

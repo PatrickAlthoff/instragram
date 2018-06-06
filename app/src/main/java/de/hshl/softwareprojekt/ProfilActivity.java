@@ -8,6 +8,9 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,20 +28,34 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         TextView follower = findViewById(R.id.follower);
         TextView following = findViewById(R.id.following);
 
+        TextView AnzahlFollower = findViewById(R.id.anzFollower);
+        TextView AnzahlFollowing = findViewById(R.id.anzFollowing);
+
         Button folgen = findViewById(R.id.folgen);
         folgen.setOnClickListener(this);
 
         TextView biografie = findViewById(R.id.biografie);
 
-        Button weiterleitung = findViewById(R.id.weiterleitung);
-        weiterleitung.setOnClickListener(this);
-
+        View divider = findViewById(R.id.divider);
+//abcd
 
         // soll Profilbild rund darstellen
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.futurecity);
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         profilbild.setImageDrawable(roundedBitmapDrawable);
+    }
+    // erstellt Menuleiste
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater MenuInflater = getMenuInflater();
+        MenuInflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    // wenn Profil bearbeiten
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -51,7 +68,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
                 folgen.setText("Entfolgen");
                 break;
             // Weiterleitung auf Profil_BearbeitungActivity
-            case R.id.weiterleitung:
+            case R.id.action_settings:
                 Intent intent = new Intent(ProfilActivity.this,
                         Profil_BearbeitungActivity.class);
                 startActivity(intent);
