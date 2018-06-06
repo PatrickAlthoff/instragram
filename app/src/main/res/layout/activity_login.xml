@@ -73,6 +73,25 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/neuBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Neu" />
+
+            <Button
+                android:id="@+id/getDaten"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Datenbank" />
+
+            <Button
+                android:id="@+id/deleteBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
+
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

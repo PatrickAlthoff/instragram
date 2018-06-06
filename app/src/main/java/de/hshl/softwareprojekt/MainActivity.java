@@ -159,7 +159,6 @@ public class MainActivity extends AppCompatActivity
 
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();

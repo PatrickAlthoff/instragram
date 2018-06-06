@@ -91,13 +91,13 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
 
 
         } else {
-            this.emptyText.setVisibility(View.VISIBLE);
+
         }
     }
 
     public void startBar() {
         if (this.uriList.size() == 0) {
-            this.storiePic.setImageResource(R.drawable.major);
+            this.emptyText.setVisibility(View.VISIBLE);
         } else {
             this.progressBarCount = this.bitmapList.size();
             final ImageView storiePic = this.storiePic;
@@ -165,7 +165,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             this.bitmapList.clear();
             this.storiePic.setVisibility(View.INVISIBLE);
             this.progressBar.setVisibility(View.INVISIBLE);
-
+            this.emptyText.setVisibility(View.VISIBLE);
 
     }
     @Override
