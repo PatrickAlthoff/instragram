@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
@@ -29,37 +28,30 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class StoriesBearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
-    Button videoBtn;
-    Button fotoBtn;
-    Button galerieBtn;
-    Button restartbtn;
-    Button publishBtn;
+public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-
     private int BEARBEITUNG_CODE = 12;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
     private int REQUEST_GETSEND = 12;
-
     private int TITLE = 2;
     private int DESCRIPTION = 3;
+    private int i;
+    private int progressBarCount;
     private Uri imageUri;
-
-
-    ArrayList<Bitmap> bitmapList;
-    ArrayList<Uri> uriList;
-    ArrayList<String> titelList;
-    ConstraintLayout storieBearCons;
-    ConstraintLayout storieFrame;
-    Intent intentCaptureImage;
-    ProgressBar storiebar;
-    int progressBarCount;
-    ImageView storiePic;
-    TextView storieTitel;
-    int i;
+    private Button fotoBtn;
+    private Button galerieBtn;
+    private Button restartbtn;
+    private Button publishBtn;
+    private ArrayList<Bitmap> bitmapList;
+    private ArrayList<Uri> uriList;
+    private ArrayList<String> titelList;
+    private ImageView storiePic;
+    private TextView storieTitel;
+    private ProgressBar storiebar;
+    private Intent intentCaptureImage;
 
 
 
@@ -70,29 +62,27 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
 
         //Check for permissions
         checkPermission();
+        Intent data = getIntent();
         this.titelList = new ArrayList<>();
         this.bitmapList = new ArrayList<>();
         this.uriList = new ArrayList<>();
-        Intent data = getIntent();
+
         this.uriList = data.getParcelableArrayListExtra("UriList");
         this.titelList = data.getStringArrayListExtra("TitelList");
         this.bitmapList = convertToBitmapList(this.uriList);
-        this.storieBearCons = findViewById(R.id.storieBearCons);
-
 
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
         this.restartbtn = findViewById(R.id.restartBtn);
         this.publishBtn = findViewById(R.id.publishBtn);
+        this.storieTitel = findViewById(R.id.storieTitel2);
+        this.storiePic = findViewById(R.id.storieConent);
+        this.storiebar = findViewById(R.id.storieProgress);
 
         this.fotoBtn.setOnClickListener(this);
         this.galerieBtn.setOnClickListener(this);
         this.restartbtn.setOnClickListener(this);
         this.publishBtn.setOnClickListener(this);
-
-        this.storieTitel = findViewById(R.id.storieTitel2);
-        this.storiePic = findViewById(R.id.storieConent);
-        this.storiebar = findViewById(R.id.storieProgress);
 
         if(this.uriList.size() > 0) {
             this.storiePic.setImageBitmap(getAndScaleBitmapNormal(this.uriList.get(0), -1, 330));
@@ -115,11 +105,11 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     }
 
     public ArrayList<Bitmap> convertToBitmapList(ArrayList<Uri> uriList){
-
-        ArrayList<Bitmap> bitmapList =new ArrayList<>();
         int length = uriList.size();
         int i = 0;
+        ArrayList<Bitmap> bitmapList =new ArrayList<>();
         Bitmap bitmap;
+
         while (length > i){
             bitmap = getAndScaleBitmapNormal(uriList.get(i),-1,330);
             bitmapList.add(bitmap);
@@ -130,11 +120,11 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     }
 
     public ArrayList<Uri> convertToUriList(ArrayList<Bitmap> bitmapList){
-
-        ArrayList<Uri> uriList =new ArrayList<>();
         int length = bitmapList.size();
         int i = 0;
+        ArrayList<Uri> uriList =new ArrayList<>();
         Uri uri;
+
         while (length > i){
             uri = getImageUri(this,bitmapList.get(i));
             uriList.add(uri);
@@ -158,7 +148,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
                 startBar();
                 break;
             case R.id.publishBtn:
-                Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, Main_Storie_Clicked.class);
+                Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Storie_Clicked.class);
                 sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
                 sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
@@ -184,7 +174,6 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addStorieContent(Bitmap storieBitmap, String titel) {
 
-
         this.titelList.add(titel);
         this.bitmapList.add(storieBitmap);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
@@ -197,8 +186,8 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     }
 
     public void startBar(){
-        this.progressBarCount = this.bitmapList.size();
         this.i = 0;
+        this.progressBarCount = this.bitmapList.size();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -260,11 +249,10 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-
-                    Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (StoriesBearbeitungsActivity.this, PostBearbeitungsActivity.class);
-                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     int code = 2;
+                    Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
@@ -280,11 +268,11 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
         if(requestCode == GALLERY_PICK){
             if(resultCode == RESULT_OK){
                 if(data != null) {
+                    int code = 2;
                     Uri uri = data.getData();
                     Bitmap myBitmap = getAndScaleBitmapNormal(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (StoriesBearbeitungsActivity.this, PostBearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    int code = 2;
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
@@ -348,7 +336,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, MainActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }

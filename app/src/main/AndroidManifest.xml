@@ -38,7 +38,7 @@
             android:exported="true"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".PostBearbeitungsActivity"
+            android:name=".Post_BearbeitungsActivity"
             android:exported="true" />
         <activity android:name=".SettingsActivity" />
         <activity
@@ -55,7 +55,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light"/>
         <activity android:name=".Main_Storie_Clicked" />
-        <activity android:name=".StoriesBearbeitungsActivity" />
+        <activity android:name=".Stories_BearbeitungsActivity" />
     </application>
 
 </manifest>

@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -29,7 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +35,6 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    //Globale Variablen zur Request Identifizierung
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
     private int BEARBEITUNG_CODE = 12;
@@ -46,25 +43,17 @@ public class MainActivity extends AppCompatActivity
     private int REQUEST_GETSEND = 12;
     private int IMAGE_CLICKED = 13;
     private int STORIE_PICK = 1;
-
-    //Globale Variablen zur Beschreibung der Bilder
     private int TITLE = 2;
     private int DESCRIPTION = 3;
+    private float dpi;
     private Uri imageUri;
-
-    //Globale Variablen für die Layouts
-    float dpi;
-    Intent intentCaptureImage;
-    LinearLayout innerLayout;
-    ConstraintSet constraintSet;
-    LinearLayout horiInner;
-    Bitmap clickedImage;
-    ImageView profilBild;
-    ImageView followerBild;
-    TextView profilName;
-    ImageButton deleteButton;
-    ArrayList<Uri> uriList;
-    ArrayList<String> titelList;
+    private Intent intentCaptureImage;
+    private ArrayList<Uri> uriList;
+    private ArrayList<String> titelList;
+    private ImageView profilBild;
+    private ImageView followerBild;
+    private LinearLayout innerLayout;
+    private LinearLayout horiInner;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -77,16 +66,12 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //Check for permissions and Display Metrics
         checkPermission();
         getDisplayMetrics();
-        Intent data = getIntent();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //Initialisierung des floating Camera Button
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,28 +80,23 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        //Initialisierung des Drawer Layout
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        //Initialisierung des NavigationView + Listener
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Initialisierung des InnerLayout (Linear Layout)
         this.innerLayout = findViewById(R.id.innerLayout);
         this.horiInner = findViewById(R.id.horiInner);
-
         this.profilBild = findViewById(R.id.profilBild);
-        this.profilBild.setOnClickListener(this);
         this.followerBild = findViewById(R.id.followerNr1);
+
         this.followerBild.setOnClickListener(this);
+        this.profilBild.setOnClickListener(this);
 
-
-        this.profilName = findViewById(R.id.profilName);
         this.uriList = new ArrayList<>();
         this.titelList = new ArrayList<>();
 
@@ -166,7 +146,6 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.commitNow();
 
    }
-
     //Methode zur Umrechnung der dpi
     private int dp2px(int dp){
         return (int)(dp*dpi);
@@ -258,11 +237,10 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-
-                    Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, PostBearbeitungsActivity.class);
-                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     int code = 1;
+                    Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
+                    Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
+                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
@@ -279,10 +257,10 @@ public class MainActivity extends AppCompatActivity
             if(resultCode == RESULT_OK){
                 if(data != null) {
                     Uri uri = data.getData();
-                    Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, PostBearbeitungsActivity.class);
-                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     int code = 1;
+                    Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
+                    Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
+                    sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
@@ -313,7 +291,6 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == STORIE_PICK){
             if(resultCode == RESULT_OK){
                 if(data != null) {
-
                     Intent intentStorie = data;
                     this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
                     this.titelList = intentStorie.getStringArrayListExtra("TitelList");
@@ -392,13 +369,13 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-            Intent intentStories = new Intent(MainActivity.this, StoriesBearbeitungsActivity.class);
+            Intent intentStories = new Intent(MainActivity.this, Stories_BearbeitungsActivity.class);
             startActivityForResult(intentStories, RESULT_FIRST_USER);
         }
         //Startet das Settingslayout
         else if (id == R.id.nav_manage) {
-                Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intentSetting);
+            Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intentSetting);
 
         } else if (id == R.id.nav_share) {
 

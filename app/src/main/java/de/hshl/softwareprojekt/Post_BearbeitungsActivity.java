@@ -40,8 +40,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class PostBearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+public class Post_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private final int PIC_CROP = 1;
+    private final int PICK_IMAGE_REQ_CODE = 12;
+    private final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
     private int IMAGE_FROM_CROP = 1;
+    private final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
+    private Uri imageUri;
+    private Bitmap bearbeitungsBitmap;
+    private Bitmap normalImage;
+    private Bitmap resetImage;
     private ImageView bigImage;
     private ImageView miniImage1;
     private ImageView miniImage2;
@@ -50,52 +59,37 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
     private ImageView miniImage5;
     private ImageView miniImage6;
     private ImageView miniImage7;
-    private Uri imageUri;
-    private Bitmap bearbeitungsBitmap;
-    private Bitmap normalImage;
-    private Bitmap resetImage;
-    final int PIC_CROP = 1;
-    final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
     private EditText editTitel;
     private Button postBtn;
     private Button storieBtn;
-    final int PICK_IMAGE_REQ_CODE = 12;
-    final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
-
-    ProgressDialog uploadDialog;
+    private Button scaleBtn;
+    private Button resetBtn;
+    private ProgressDialog uploadDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bearbeitungs);
-
         Intent intentG = getIntent();
-
         this.bearbeitungsBitmap = intentG.getParcelableExtra("BitmapImage");
         Bundle bundle = intentG.getExtras();
         int code = bundle.getInt("Code");
 
-
-        Button scaleBtn = findViewById(R.id.scaleBtn);
+        this.bigImage = findViewById(R.id.imageView2);
+        this.scaleBtn = findViewById(R.id.scaleBtn);
         this.postBtn = findViewById(R.id.postBtn);
-        Button resetBtn = findViewById(R.id.resetImage);
-        scaleBtn.setOnClickListener(this);
-        this.postBtn.setOnClickListener(this);
-        resetBtn.setOnClickListener(this);
+        this.resetBtn = findViewById(R.id.resetImage);
         this.storieBtn = findViewById(R.id.storieBtn);
+        this.editTitel = findViewById(R.id.editTitel);
+        this.scaleBtn.setOnClickListener(this);
+        this.postBtn.setOnClickListener(this);
+        this.resetBtn.setOnClickListener(this);
         this.storieBtn.setOnClickListener(this);
         checkCode(code);
-
-        this.bigImage = findViewById(R.id.imageView2);
-
-
         this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
         this.normalImage = this.bearbeitungsBitmap;
         this.resetImage = this.normalImage;
-        this.editTitel = findViewById(R.id.editTitel);
         this.editTitel.selectAll();
-
-
 
         TextWatcher test = new TextWatcher() {
             @Override
@@ -187,13 +181,13 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
                 break;
             //Ruft beim Klick auf den Button das SendBackIntent auf
             case R.id.postBtn:
-                Intent sendBackIntent = new Intent (PostBearbeitungsActivity.this, MainActivity.class);
-                sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
+                Intent sendBackIntent = new Intent (Post_BearbeitungsActivity.this, MainActivity.class);
                 String sendTitelPost = this.editTitel.getText().toString();
+                sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
                 imageUriÜbergabe();
                 if(imageUri!= null && internetAvailable()) {
-                    uploadDialog = new ProgressDialog(PostBearbeitungsActivity.this);
+                    uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
                     uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     uploadDialog.show();
                     new UploadImageAsyncTask().execute();
@@ -202,9 +196,9 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
                 finish();
                 break;
             case R.id.storieBtn:
-                Intent sendtoStorieBearbeitung = new Intent (PostBearbeitungsActivity.this, StoriesBearbeitungsActivity.class);
-                sendtoStorieBearbeitung.putExtra("BitmapImage", this.bearbeitungsBitmap);
+                Intent sendtoStorieBearbeitung = new Intent (Post_BearbeitungsActivity.this, Stories_BearbeitungsActivity.class);
                 String sendTitelStory = this.editTitel.getText().toString();
+                sendtoStorieBearbeitung.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendtoStorieBearbeitung.putExtra("Titel", sendTitelStory);
                 setResult(RESULT_OK, sendtoStorieBearbeitung);
                 finish();
@@ -331,11 +325,11 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
             }
             catch (MalformedURLException e) {
                 e.printStackTrace();
-                Toast.makeText(PostBearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Post_BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
             }
             catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(PostBearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Post_BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
             }
 
             return null;
@@ -557,7 +551,7 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
             startActivityForResult(cropIntent, IMAGE_FROM_CROP);
         }
         catch(Exception e){
-            Log.e(PostBearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
+            Log.e(Post_BearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
         }
     }
 
@@ -565,7 +559,7 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (PostBearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent (Post_BearbeitungsActivity.this, MainActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }

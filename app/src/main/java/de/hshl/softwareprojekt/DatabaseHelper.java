@@ -101,7 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void deleteData(int id){
-        int rowsDeleted = 0;
+        int rowsDeleted;
         SQLiteDatabase db = null;
 
         try{

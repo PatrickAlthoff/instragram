@@ -15,10 +15,10 @@ import android.widget.TextView;
 public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView clickedImage;
-    private Bitmap getBitmap;
     private TextView kommentar;
     private TextView titel;
     private EditText editKomm;
+    private Bitmap getBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

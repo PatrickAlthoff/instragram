@@ -17,9 +17,9 @@ import java.util.Locale;
 
 public class PostFragment extends Fragment {
     ImageView postImage;
+    ImageButton delete;
     TextView textViewTitel;
     TextView timeStampView;
-    ImageButton delete;
 
     //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
     public void addPost(Bitmap bitmap, String titel){
