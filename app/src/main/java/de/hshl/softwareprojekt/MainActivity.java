@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     TextView profilName;
     ImageButton deleteButton;
     ArrayList<Uri> uriList;
+    ArrayList<String> titelList;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity
 
         this.profilName = findViewById(R.id.profilName);
         this.uriList = new ArrayList<>();
+        this.titelList = new ArrayList<>();
 
     }
 
@@ -314,6 +316,7 @@ public class MainActivity extends AppCompatActivity
 
                     Intent intentStorie = data;
                     this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
                 }
             }
             else{
@@ -325,6 +328,7 @@ public class MainActivity extends AppCompatActivity
                 if(data != null){
                     Intent intentStorie = data;
                     this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
                 }
             }
         }
@@ -420,6 +424,7 @@ public class MainActivity extends AppCompatActivity
         if(v.getId() == R.id.followerNr1){
             Intent intentStorie = new Intent(MainActivity.this, Main_Storie_Clicked.class);
             intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
+            intentStorie.putStringArrayListExtra("TitelList", this.titelList);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);

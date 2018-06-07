@@ -204,6 +204,8 @@ public class PostBearbeitungsActivity extends AppCompatActivity implements View.
             case R.id.storieBtn:
                 Intent sendtoStorieBearbeitung = new Intent (PostBearbeitungsActivity.this, StoriesBearbeitungsActivity.class);
                 sendtoStorieBearbeitung.putExtra("BitmapImage", this.bearbeitungsBitmap);
+                String sendTitelStory = this.editTitel.getText().toString();
+                sendtoStorieBearbeitung.putExtra("Titel", sendTitelStory);
                 setResult(RESULT_OK, sendtoStorieBearbeitung);
                 finish();
                 break;

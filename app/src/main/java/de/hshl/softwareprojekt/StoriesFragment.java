@@ -24,13 +24,15 @@ import java.util.Locale;
 public class StoriesFragment extends Fragment {
     ImageView storieImage;
     ProgressBar prBar;
+    TextView storieTitel;
 
 
-    public void addStr(Bitmap bitmap){
+    public void addStr(Bitmap bitmap, String titel){
         this.storieImage = getView().findViewById(R.id.storieView);
         this.storieImage.setImageBitmap(bitmap);
         this.prBar = getView().findViewById(R.id.storiesBar);
-
+        this.storieTitel = getView().findViewById(R.id.storieTitel);
+        this.storieTitel.setText(titel);
     }
 
 

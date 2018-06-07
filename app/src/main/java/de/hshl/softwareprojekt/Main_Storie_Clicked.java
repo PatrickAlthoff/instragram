@@ -30,6 +30,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
     Intent data;
     ArrayList<Bitmap> bitmapList;
     ArrayList<Uri> uriList;
+    ArrayList<String> titelList;
     ProgressBar progressBar;
     int progressBarCount;
     ImageView storiePic;
@@ -40,6 +41,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
     Button startBtn;
     TextView emptyText;
     ImageButton deleteStorie;
+    TextView titelStory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,9 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         this.emptyText.setVisibility(View.INVISIBLE);
         Intent data = getIntent();
         this.bitmapList = new ArrayList<>();
+        this.titelList = new ArrayList<>();
         this.uriList = data.getParcelableArrayListExtra("UriList");
+        this.titelList = data.getStringArrayListExtra("TitelList");
         scaleUp(this.uriList);
         this.addBtn = findViewById(R.id.addBtn);
         this.addBtn.setOnClickListener(this);
@@ -65,6 +69,10 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+
+        if(this.uriList.size() == 0 ){
+            this.emptyText.setVisibility(View.VISIBLE);
+        }
     }
 
     public void addStorie() {
@@ -82,16 +90,16 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             final FragmentTransaction storieTransaction = storieManager.beginTransaction();
             storieTransaction.add(R.id.storieConstraints, storiesFragment);
             storieTransaction.commitNow();
-            storiesFragment.addStr(this.bitmapList.get(0));
+            storiesFragment.addStr(this.bitmapList.get(0), this.titelList.get(0));
 
-
+            this.titelStory = storiesFragment.storieTitel;
             this.progressBar = storiesFragment.prBar;
             this.storiePic = storiesFragment.storieImage;
 
 
 
         } else {
-
+            this.emptyText.setVisibility(View.VISIBLE);
         }
     }
 
@@ -107,9 +115,20 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
                     i = 0;
                     while (i < progressBarCount) {
 
-                        storiePic.setImageBitmap(bitmapList.get(i));
-                        i++;
-                        progressBar.setProgress((i) * 100 / progressBarCount);
+                        storiePic.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                storiePic.setImageBitmap(bitmapList.get(i));
+                                titelStory.setText(titelList.get(i));
+                                i++;
+                            }
+                        });
+                        progressBar.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setProgress((i) * 100 / progressBarCount);
+                            }
+                        });
                         SystemClock.sleep(2000);
                     }
 
@@ -138,8 +157,9 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             case R.id.addBtn:
                 Intent sendtoStorieBearbeitung = new Intent(Main_Storie_Clicked.this, StoriesBearbeitungsActivity.class);
                 sendtoStorieBearbeitung.putParcelableArrayListExtra("UriList", this.uriList);
+                sendtoStorieBearbeitung.putStringArrayListExtra("TitelList", this.titelList);
                 startActivityForResult(sendtoStorieBearbeitung, 101);
-                if(this.uriList.size()> 0){
+                if(this.uriList.size() > 0 ){
                     deleteProcess();
                 }
                 break;
@@ -163,10 +183,11 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
 
             this.uriList.clear();
             this.bitmapList.clear();
+            this.titelList.clear();
             this.storiePic.setVisibility(View.INVISIBLE);
             this.progressBar.setVisibility(View.INVISIBLE);
+            this.titelStory.setVisibility(View.INVISIBLE);
             this.emptyText.setVisibility(View.VISIBLE);
-
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -174,6 +195,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         if (item.getItemId() == android.R.id.home) {
             Intent sendBackIntent = new Intent(Main_Storie_Clicked.this, MainActivity.class);
             sendBackIntent.putParcelableArrayListExtra("UriList", this.uriList);
+            sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
             setResult(RESULT_OK, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
@@ -208,6 +230,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
                 if (data != null) {
                     Intent intentGet = data;
                     this.uriList = intentGet.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentGet.getStringArrayListExtra("TitelList");
                     this.bitmapList.clear();
                     scaleUp(this.uriList);
                     start++;

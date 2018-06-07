@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,12 +51,14 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
 
     ArrayList<Bitmap> bitmapList;
     ArrayList<Uri> uriList;
+    ArrayList<String> titelList;
     ConstraintLayout storieBearCons;
     ConstraintLayout storieFrame;
     Intent intentCaptureImage;
     ProgressBar storiebar;
     int progressBarCount;
     ImageView storiePic;
+    TextView storieTitel;
     int i;
 
 
@@ -67,26 +70,27 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
 
         //Check for permissions
         checkPermission();
-
+        this.titelList = new ArrayList<>();
         this.bitmapList = new ArrayList<>();
         this.uriList = new ArrayList<>();
         Intent data = getIntent();
         this.uriList = data.getParcelableArrayListExtra("UriList");
+        this.titelList = data.getStringArrayListExtra("TitelList");
         this.bitmapList = convertToBitmapList(this.uriList);
         this.storieBearCons = findViewById(R.id.storieBearCons);
 
-        this.videoBtn = findViewById(R.id.videoEdit);
+
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
         this.restartbtn = findViewById(R.id.restartBtn);
         this.publishBtn = findViewById(R.id.publishBtn);
 
-        this.videoBtn.setOnClickListener(this);
         this.fotoBtn.setOnClickListener(this);
         this.galerieBtn.setOnClickListener(this);
         this.restartbtn.setOnClickListener(this);
         this.publishBtn.setOnClickListener(this);
 
+        this.storieTitel = findViewById(R.id.storieTitel2);
         this.storiePic = findViewById(R.id.storieConent);
         this.storiebar = findViewById(R.id.storieProgress);
 
@@ -143,9 +147,6 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     public void onClick(View v) {
         switch(v.getId()) {
 
-            case R.id.videoEdit:
-
-                break;
             case R.id.fotoEdit:
                 startCamera();
                 break;
@@ -159,6 +160,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
             case R.id.publishBtn:
                 Intent sendBackIntent = new Intent (StoriesBearbeitungsActivity.this, Main_Storie_Clicked.class);
                 sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
+                sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -182,9 +184,12 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addStorieContent(Bitmap storieBitmap, String titel) {
 
+
+        this.titelList.add(titel);
         this.bitmapList.add(storieBitmap);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         this.storiePic.setImageBitmap(bitmapList.get(0));
+        this.storieTitel.setText(titelList.get(0));
 
         this.restartbtn.setText("Start");
         this.storiebar.setProgress(0);
@@ -204,6 +209,7 @@ public class StoriesBearbeitungsActivity extends AppCompatActivity implements Vi
                         @Override
                         public void run() {
                             storiePic.setImageBitmap(bitmapList.get(i));
+                            storieTitel.setText(titelList.get(i));
                             i++;
                         }
                     });
