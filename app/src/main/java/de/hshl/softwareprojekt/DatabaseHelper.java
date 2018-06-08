@@ -99,7 +99,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return userList;
     }
+    public String getUser(String username){
 
+        String[] columns = {"email"};
+        String userEntry = "";
+        ArrayList<String> user= new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try{
+            db = getReadableDatabase();
+            cursor = db.query(TABLE_NAME, columns, "email like " + "'%" + username + "%'", null,null,null,null);
+            while(cursor.moveToNext()){
+                userEntry = cursor.getString(0);
+                String[] pieces = userEntry.split("@");
+                userEntry = pieces[0];
+            }
+
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "getUser()", exception);
+        }
+        finally {
+            if (cursor != null){
+                cursor.close();
+            }
+            if(db != null){
+                db.close();
+            }
+        }
+
+        return userEntry;
+    }
     public void deleteData(int id){
         int rowsDeleted;
         SQLiteDatabase db = null;

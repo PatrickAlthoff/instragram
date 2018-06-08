@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,10 +49,12 @@ public class MainActivity extends AppCompatActivity
     private float dpi;
     private Uri imageUri;
     private Intent intentCaptureImage;
+    private User user;
     private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
     private ImageView profilBild;
     private ImageView followerBild;
+    private TextView profilName;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
 
@@ -68,7 +71,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         checkPermission();
         getDisplayMetrics();
-
+        Intent logInIntent = getIntent();
+        this.user = (User) logInIntent.getSerializableExtra("User");
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -93,12 +97,15 @@ public class MainActivity extends AppCompatActivity
         this.horiInner = findViewById(R.id.horiInner);
         this.profilBild = findViewById(R.id.profilBild);
         this.followerBild = findViewById(R.id.followerNr1);
+        this.profilName = findViewById(R.id.profilName);
 
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
 
         this.uriList = new ArrayList<>();
         this.titelList = new ArrayList<>();
+
+        this.profilName.setText(this.user.getUsername());
 
     }
 

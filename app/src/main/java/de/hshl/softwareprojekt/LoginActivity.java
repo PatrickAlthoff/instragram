@@ -38,7 +38,6 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();
-
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -52,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ArrayList<String> userList;
     private DatabaseHelper database;
     private LinearLayout email_login_form;
+    private User user;
 
 
     @Override
@@ -120,6 +120,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
@@ -171,7 +173,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            String username = database.getUser(mEmailView.getText().toString());
+            mAuthTask = new UserLoginTask(email, password, username);
             mAuthTask.execute((Void) null);
         }
     }
@@ -276,10 +279,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private String username;
+        private User user;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+        UserLoginTask(String email, String password, String username) {
+            this.mEmail = email;
+            this.mPassword = password;
+            this.username = username;
+            this.user = new User(username,email);
         }
 
         @Override
@@ -297,7 +304,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 String[] pieces = credential.split(":");
 
                 if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
+                    this.username = pieces[0];
                     return pieces[1].equals(mPassword);
                 }
             }
@@ -313,6 +320,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
+                intentMain.putExtra("User", this.user);
                 startActivity(intentMain);
                 finish();
             } else {
