@@ -20,6 +20,7 @@ public class PostFragment extends Fragment {
     ImageButton delete;
     TextView textViewTitel;
     TextView timeStampView;
+    TextView postProfilName;
 
     //Enthält die Methode mit der einem ImageView eine Bitmap und ein titel übergeben wird
     public void addPost(Bitmap bitmap, String titel){
@@ -28,6 +29,9 @@ public class PostFragment extends Fragment {
 
         //Der Titel wird hier einem TextView übergeben und
         //in die ContentDescription des ImageView geschrieben
+
+        this.postProfilName = getView().findViewById(R.id.profilNamePost);
+
         this.textViewTitel = getView().findViewById(R.id.textViewTitel);
         this.textViewTitel.setText(titel);
         this.postImage.setContentDescription(this.textViewTitel.getText());

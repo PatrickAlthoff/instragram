@@ -90,7 +90,7 @@
                     android:layout_height="match_parent">
 
                     <TextView
-                        android:id="@+id/textView4"
+                        android:id="@+id/displayUser"
                         android:layout_width="99dp"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"

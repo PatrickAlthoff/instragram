@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private TextView profilName;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
+    private ArrayList<TextView> textViewList;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity
 
         this.uriList = new ArrayList<>();
         this.titelList = new ArrayList<>();
+        this.textViewList = new ArrayList<>();
 
         this.profilName.setText(this.user.getUsername());
 
@@ -134,7 +136,9 @@ public class MainActivity extends AppCompatActivity
         postImage.setOnClickListener(this);
 
         ImageButton deleteButton = frontPagePost.delete;
-
+        TextView profilName = frontPagePost.postProfilName;
+        profilName.setText(user.getUsername());
+        this.textViewList.add(profilName);
         deleteButton.setId(c);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -316,6 +320,20 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        if(requestCode == 111){
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentStorie = data;
+                    this.user = (User) intentStorie.getSerializableExtra("User");
+                    this.profilName.setText(this.user.getUsername());
+                    int i=0;
+                    while(i < textViewList.size()){
+                        textViewList.get(i).setText(user.getUsername());
+                        i++;
+                    }
+                }
+            }
+        }
     }
 
     public void createFollower(){
@@ -382,7 +400,8 @@ public class MainActivity extends AppCompatActivity
         //Startet das Settingslayout
         else if (id == R.id.nav_manage) {
             Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intentSetting);
+            intentSetting.putExtra("User", this.user);
+            startActivityForResult(intentSetting, 111);
 
         } else if (id == R.id.nav_share) {
 
@@ -427,6 +446,7 @@ public class MainActivity extends AppCompatActivity
         Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
         intentVollansicht.putExtra("BitmapImage", createBit);
         intentVollansicht.putExtra("Titel", v.getContentDescription());
+        intentVollansicht.putExtra("User", this.user);
         startActivityForResult(intentVollansicht, IMAGE_CLICKED);}
     }
 }

@@ -12,13 +12,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView clickedImage;
     private TextView kommentar;
     private TextView titel;
+    private TextView disUser;
     private EditText editKomm;
     private Bitmap getBitmap;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +37,13 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.kommentar = findViewById(R.id.clickedKomment);
         this.titel = findViewById(R.id.titel);
         this.editKomm = findViewById(R.id.editKomment);
+        this.disUser = findViewById(R.id.displayUser);
 
         this.kommentar.setOnClickListener(this);
         this.titel.setText(getImage.getStringExtra("Titel"));
+
+        this.user = (User) getImage.getSerializableExtra("User");
+        this.disUser.setText(user.getUsername());
 
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);
