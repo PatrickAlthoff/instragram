@@ -36,9 +36,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class Post_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
     //Variablen zur Verarbeitung der Inhalte in der Activity
@@ -189,12 +191,12 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
                 imageUriÜbergabe();
-                /*if(imageUri!= null && internetAvailable()) {
+                if(imageUri!= null && internetAvailable()) {
                     uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
                     uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     uploadDialog.show();
                     new UploadImageAsyncTask().execute();
-                }*/
+                }
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -277,9 +279,11 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
 
 
         String serverResponse;
+        /* final String text;  /* public void sendToServer(final String text){ */
 
         @Override
         protected Object doInBackground(Object[] params) {
+
 
             String boundary = "---boundary" + System.currentTimeMillis();
             String firstLineBoundary = "--" + boundary + "\r\n";
@@ -289,6 +293,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
 
 
             try {
+                /*String textparam = "email1=" + URLEncoder.encode(text, "UTF-8");*/
                 InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
                 int uploadSize = (firstLineBoundary + contentDisposition + newLine + newLine + lastLineBoundary).getBytes().length + imageInputStream.available();
                 uploadDialog.setMax(uploadSize);
@@ -299,8 +304,12 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 connection.setDoInput(true);
                 connection.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
                 connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setFixedLengthStreamingMode(uploadSize);
+                connection.setFixedLengthStreamingMode(uploadSize/* + textparam.getBytes().length*/);
 
+                OutputStreamWriter contentWriter = new OutputStreamWriter(connection.getOutputStream());
+                /*contentWriter.write(textparam);
+                contentWriter.flush();
+                contentWriter.close(); */
 
                 DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
                 dataOutputStream.writeBytes(firstLineBoundary);
