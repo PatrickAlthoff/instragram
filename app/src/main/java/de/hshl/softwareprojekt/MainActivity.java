@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
         profilName.setText(user.getUsername());
 
         CheckBox likeCheck = frontPagePost.likeChecker;
-
+        likeCheck.setId(View.generateViewId());
         likeCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
