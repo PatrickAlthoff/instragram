@@ -430,8 +430,10 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-            Intent intentStories = new Intent(MainActivity.this, Stories_BearbeitungsActivity.class);
-            startActivityForResult(intentStories, RESULT_FIRST_USER);
+            Intent intentStories = new Intent(MainActivity.this, Main_Storie_Clicked.class);
+            intentStories.putParcelableArrayListExtra("UriList", this.uriList);
+            intentStories.putStringArrayListExtra("TitelList", this.titelList);
+            startActivityForResult(intentStories, 101);
         }
         //Startet das Settingslayout
         else if (id == R.id.nav_manage) {

@@ -11,21 +11,19 @@ import android.util.Log;
 import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
+    //Variablen zur Verwaltung der SQLite Datenbank
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private static final String DATABASE_NAME = "user.db";
-    private static final int DATABASE_VERSION = 1;
     private static final String TABLE_NAME = "users";
     private static final String COL_1 = "_id";
     private static final String COL_2 = "email";
     private static final String COL_3 = "pw";
-
     public static final String SQL_TABLE_CREATE =
             "CREATE TABLE " + TABLE_NAME + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, pw TEXT)";
-
     private static final String SQL_TABLE_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
+    private static final int DATABASE_VERSION = 1;
 
+    //Constructor für die Datenbank
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "DBHelper hat die Datenbank: " + getDatabaseName() + " erzeugt.");
@@ -49,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
 
     }
-
+    //Insert Methode zum einfügen weiterer Nutzer (email + pw)
     public void insertData(String email, String pw) {
         long rowId = -1;
         SQLiteDatabase db = null;
@@ -71,6 +69,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
     }
+
+    //Get Methode zur Datenausgabe
     public ArrayList<String> getData(){
 
         String[] columns = {"_id", "email", "pw"};
@@ -99,6 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return userList;
     }
+    //Get Methode zur Ausgabe der Nutzermailadresse
     public String getUser(String username){
 
         String[] columns = {"email"};
@@ -131,13 +132,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return userEntry;
     }
-    public void deleteData(int id){
+
+    //Methode zum Löschen des letzten Eintrages
+    public void deleteData(){
         int rowsDeleted;
         SQLiteDatabase db = null;
 
         try{
             db = getWritableDatabase();
-            rowsDeleted = db.delete(TABLE_NAME, "_id=" + id, null);
+            rowsDeleted = db.delete(TABLE_NAME, "_id = (SELECT MAX(_id) FROM " + TABLE_NAME +")", null);
             Log.d(TAG, "deleteData() affected " + rowsDeleted + " rows");
         }
         catch (SQLiteException exception){
