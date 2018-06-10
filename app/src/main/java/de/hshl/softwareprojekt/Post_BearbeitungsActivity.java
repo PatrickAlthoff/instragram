@@ -186,12 +186,12 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
                 imageUriÜbergabe();
-                if(imageUri!= null && internetAvailable()) {
+                /*if(imageUri!= null && internetAvailable()) {
                     uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
                     uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     uploadDialog.show();
                     new UploadImageAsyncTask().execute();
-                }
+                }*/
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;

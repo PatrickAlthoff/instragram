@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -138,7 +139,30 @@ public class MainActivity extends AppCompatActivity
         ImageButton deleteButton = frontPagePost.delete;
         TextView profilName = frontPagePost.postProfilName;
         profilName.setText(user.getUsername());
+
+        CheckBox likeCheck = frontPagePost.likeChecker;
+
+        likeCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = ((CheckBox) v).isChecked();
+                String getCount = ((CheckBox) v).getText().toString();
+                String[] pieces = getCount.split(": ");
+                int getInt = Integer.parseInt(pieces[1]);
+
+                if(checked){
+
+                    ((CheckBox) v).setText("Likes: " + (getInt + 1));
+
+                }
+                else{
+                    ((CheckBox) v).setText("Likes: " + (getInt - 1));
+                }
+            }
+        });
+
         this.textViewList.add(profilName);
+
         deleteButton.setId(c);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +172,6 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
-
 
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
