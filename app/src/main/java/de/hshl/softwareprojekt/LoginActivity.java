@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();

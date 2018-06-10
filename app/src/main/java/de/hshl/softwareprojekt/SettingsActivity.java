@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
-
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private Button change;
     private User user;
     private EditText userChanger;

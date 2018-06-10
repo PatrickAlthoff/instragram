@@ -25,7 +25,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -39,16 +38,17 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-    private int BEARBEITUNG_CODE = 12;
-    private int IMAGE_CAPTURE = 4;
-    private int GALLERY_PICK = 5;
-    private int REQUEST_GETSEND = 12;
-    private int IMAGE_CLICKED = 13;
     private int STORIE_PICK = 1;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
+    private int IMAGE_CAPTURE = 4;
+    private int GALLERY_PICK = 5;
+    private int BEARBEITUNG_CODE = 12;
+    private int REQUEST_GETSEND = 12;
+    private int IMAGE_CLICKED = 13;
     private float dpi;
     private Uri imageUri;
     private Intent intentCaptureImage;
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
-
+    //Entfernt das Fragment
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -251,6 +251,7 @@ public class MainActivity extends AppCompatActivity
         }
         return null;
     }
+    //Skaliert eine übergebene Bitmap
     public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
 
         float   srcWidth = bitmap.getWidth(),
@@ -324,12 +325,13 @@ public class MainActivity extends AppCompatActivity
                 Log.d(MainActivity.class.getSimpleName(),"no picture selected");
             }
         }
+        //Verarbeitet Informationen aus einem Intent, aus der Story Activity
         if(requestCode == STORIE_PICK){
             if(resultCode == RESULT_OK){
                 if(data != null) {
-                    Intent intentStorie = data;
-                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
+                    Intent intentStory = data;
+                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
                 }
             }
             else{
@@ -339,12 +341,13 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == 101){
             if(resultCode == RESULT_OK){
                 if(data != null){
-                    Intent intentStorie = data;
-                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
+                    Intent intentStory = data;
+                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
                 }
             }
         }
+        //Enthält das User Objekt aus der Settings Acitivty
         if(requestCode == 111){
             if(resultCode == RESULT_OK){
                 if(data != null){
@@ -359,6 +362,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        //Enthält Daten aus der Vollbildansicht
         if(requestCode == IMAGE_CLICKED) {
             if(resultCode == RESULT_OK){
                 if(data != null){
@@ -430,7 +434,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-            Intent intentStories = new Intent(MainActivity.this, Main_Storie_Clicked.class);
+            Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStories.putParcelableArrayListExtra("UriList", this.uriList);
             intentStories.putStringArrayListExtra("TitelList", this.titelList);
             startActivityForResult(intentStories, 101);
@@ -463,7 +467,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.followerNr1){
-            Intent intentStorie = new Intent(MainActivity.this, Main_Storie_Clicked.class);
+            Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
             intentStorie.putStringArrayListExtra("TitelList", this.titelList);
             startActivityForResult(intentStorie, 101);
@@ -472,8 +476,6 @@ public class MainActivity extends AppCompatActivity
             startActivity(intentProfil);
         }
         else {
-
-
             View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
             Boolean checked = ((CheckBox)nextChild).isChecked();
             String likes = ((CheckBox) nextChild).getText().toString();

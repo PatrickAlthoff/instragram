@@ -53,7 +53,7 @@
             android:parentActivityName=".ProfilActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
-        <activity android:name=".Main_Storie_Clicked" />
+        <activity android:name=".Main_Story_Clicked" />
         <activity android:name=".Stories_BearbeitungsActivity" />
         <activity android:name=".SettingsActivity"></activity>
     </application>

@@ -5,7 +5,7 @@
     android:id="@+id/storieConstraints"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Main_Storie_Clicked">
+    tools:context=".Main_Story_Clicked">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar5"

@@ -41,11 +41,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Post_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
-
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private final int PIC_CROP = 1;
+    private int IMAGE_FROM_CROP = 1;
     private final int PICK_IMAGE_REQ_CODE = 12;
     private final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
-    private int IMAGE_FROM_CROP = 1;
     private final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
     private Uri imageUri;
     private Bitmap bearbeitungsBitmap;
@@ -121,9 +121,11 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         initImages();
         imageUriÜbergabe();
     }
+    //Übergibt die ImageUri vom BearbeitungsBitmap
     public void imageUriÜbergabe(){
         this.imageUri = getImageUri(this, this.bearbeitungsBitmap);
     }
+    //Überprüft die Code mitgabe aus dem Intent und schaltet den dementsprechenden Button auf INVISIBLE
     public void checkCode(int code){
         if(code == 2){
             this.postBtn.setVisibility(View.INVISIBLE);
@@ -132,6 +134,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
             this.storieBtn.setVisibility(View.INVISIBLE);
         }
     }
+    //Methode zur Initialisierung aller ImageViews in der Activity
     private void initImages(){
         this.normalImage = this.bearbeitungsBitmap;
 

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener {
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private int ID;
     private ImageView clickedImage;
     private TextView kommentar;
@@ -26,34 +27,34 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private CheckBox checkLike;
     private User user;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__image__clicked);
         Intent getImage = getIntent();
-
+        //Ruft die übergebene Bitmap aus dem Intent auf und speichert sie in einem ImageView
         this.clickedImage = findViewById(R.id.clickedImage);
         this.getBitmap =  getImage.getParcelableExtra("BitmapImage");
         this.clickedImage.setImageBitmap(this.getBitmap);
 
-
+        //Initialisierung der Inhalte der Activity
         this.kommentar = findViewById(R.id.clickedKomment);
         this.titel = findViewById(R.id.titel);
         this.editKomm = findViewById(R.id.editKomment);
         this.disUser = findViewById(R.id.displayUser);
-
+        //Enthält weitere Informationen für den individuellen Post
         this.kommentar.setOnClickListener(this);
         this.titel.setText(getImage.getStringExtra("Titel"));
-
         this.user = (User) getImage.getSerializableExtra("User");
         this.disUser.setText(user.getUsername());
-
         this.checkLike = findViewById(R.id.clickedLike);
         this.checkLike.setText(getImage.getStringExtra("Likes"));
         this.checkLike.setChecked(getImage.getExtras().getBoolean("Checked"));
         this.checkLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Teilt den Text der CheckBox in 2 Teile, damit der Integerwert hochgezählt werden kann
                 boolean checked = ((CheckBox) v).isChecked();
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
@@ -69,12 +70,12 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 }
             }
         });
-
+        //Enthält die ID der Checkbox, für die korrekte Übermittlung
         this.ID = getImage.getExtras().getInt("ID");
+        //Toolbar Setup
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
