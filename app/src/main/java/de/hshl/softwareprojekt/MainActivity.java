@@ -24,6 +24,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -357,6 +359,17 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        if(requestCode == IMAGE_CLICKED) {
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentFromImage = data;
+                    int ID = intentFromImage.getExtras().getInt("ID");
+                    View v = findViewById(ID);
+                    ((CheckBox)v).setText(intentFromImage.getStringExtra("Likes"));
+                    ((CheckBox)v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
+                }
+            }
+        }
     }
 
     public void createFollower(){
@@ -457,19 +470,29 @@ public class MainActivity extends AppCompatActivity
             startActivity(intentProfil);
         }
         else {
-        //Baut aus den Daten im Cache eine Bitmap
-        v.setDrawingCacheEnabled(true);
-        v.buildDrawingCache();
-        Bitmap parseBit = v.getDrawingCache();
 
-        //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-        Bitmap createBit = scaleBitmap(parseBit,-1,300);
 
-        //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
-        Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
-        intentVollansicht.putExtra("BitmapImage", createBit);
-        intentVollansicht.putExtra("Titel", v.getContentDescription());
-        intentVollansicht.putExtra("User", this.user);
-        startActivityForResult(intentVollansicht, IMAGE_CLICKED);}
+            View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
+            Boolean checked = ((CheckBox)nextChild).isChecked();
+            String likes = ((CheckBox) nextChild).getText().toString();
+            int ID = nextChild.getId();
+            //Baut aus den Daten im Cache eine Bitmap
+            v.setDrawingCacheEnabled(true);
+            v.buildDrawingCache();
+            Bitmap parseBit = v.getDrawingCache();
+
+            //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
+            Bitmap createBit = scaleBitmap(parseBit,-1,300);
+
+            //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
+            Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
+            intentVollansicht.putExtra("BitmapImage", createBit);
+            intentVollansicht.putExtra("Titel", v.getContentDescription());
+            intentVollansicht.putExtra("User", this.user);
+            intentVollansicht.putExtra("Likes", likes);
+            intentVollansicht.putExtra("Checked", checked);
+            intentVollansicht.putExtra("ID", ID);
+            startActivityForResult(intentVollansicht, IMAGE_CLICKED);
+        }
     }
 }
