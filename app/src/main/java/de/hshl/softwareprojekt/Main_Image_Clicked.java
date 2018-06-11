@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private int ID;
@@ -22,35 +25,40 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private TextView kommentar;
     private TextView titel;
     private TextView disUser;
+    private TextView hashTags;
     private EditText editKomm;
     private Bitmap getBitmap;
     private CheckBox checkLike;
     private User user;
+    private GridLayout gridLayout;
+    private ArrayList<String> hashList;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__image__clicked);
-        Intent getImage = getIntent();
+        Intent getPost = getIntent();
         //Ruft die übergebene Bitmap aus dem Intent auf und speichert sie in einem ImageView
         this.clickedImage = findViewById(R.id.clickedImage);
-        this.getBitmap =  getImage.getParcelableExtra("BitmapImage");
+        this.getBitmap =  getPost.getParcelableExtra("BitmapImage");
         this.clickedImage.setImageBitmap(this.getBitmap);
-
         //Initialisierung der Inhalte der Activity
         this.kommentar = findViewById(R.id.clickedKomment);
         this.titel = findViewById(R.id.titel);
         this.editKomm = findViewById(R.id.editKomment);
         this.disUser = findViewById(R.id.displayUser);
+        this.hashTags = findViewById(R.id.hashTags);
+        this.gridLayout = findViewById(R.id.gridLayout);
         //Enthält weitere Informationen für den individuellen Post
         this.kommentar.setOnClickListener(this);
-        this.titel.setText(getImage.getStringExtra("Titel"));
-        this.user = (User) getImage.getSerializableExtra("User");
+        this.hashTags.setOnClickListener(this);
+        this.titel.setText(getPost.getStringExtra("Titel"));
+        this.user = (User) getPost.getSerializableExtra("User");
         this.disUser.setText(user.getUsername());
         this.checkLike = findViewById(R.id.clickedLike);
-        this.checkLike.setText(getImage.getStringExtra("Likes"));
-        this.checkLike.setChecked(getImage.getExtras().getBoolean("Checked"));
+        this.checkLike.setText(getPost.getStringExtra("Likes"));
+        this.checkLike.setChecked(getPost.getExtras().getBoolean("Checked"));
         this.checkLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +79,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             }
         });
         //Enthält die ID der Checkbox, für die korrekte Übermittlung
-        this.ID = getImage.getExtras().getInt("ID");
+        this.ID = getPost.getExtras().getInt("ID");
+        this.hashList = getPost.getStringArrayListExtra("Hashtags");
         //Toolbar Setup
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -83,11 +92,27 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.clickedKomment:
             //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
-            this.editKomm.setVisibility(View.VISIBLE);
-            this.editKomm.requestFocus();
-            this.editKomm.setText("");
-
+                this.gridLayout.setVisibility(View.INVISIBLE);
+                this.editKomm.setVisibility(View.VISIBLE);
+                this.editKomm.requestFocus();
+                this.editKomm.setText("");
+                break;
+            case R.id.hashTags:
+                this.editKomm.setVisibility(View.INVISIBLE);
+                this.gridLayout.setVisibility(View.VISIBLE);
+                int i = 0;
+                while(i<this.hashList.size()){
+                    TextView textview = new TextView(this);
+                    textview.setText(this.hashList.get(i));
+                    textview.setTextSize(12);
+                    this.gridLayout.addView(textview);
+                    i++;
+                }
+                break;
+        }
     }
 
     @Override

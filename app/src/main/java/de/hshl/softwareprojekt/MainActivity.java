@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
     private ArrayList<TextView> textViewList;
+    private ArrayList<String> hashTagList;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity
         this.uriList = new ArrayList<>();
         this.titelList = new ArrayList<>();
         this.textViewList = new ArrayList<>();
+        this.hashTagList = new ArrayList<>();
 
         this.profilName.setText(this.user.getUsername());
 
@@ -132,11 +134,38 @@ public class MainActivity extends AppCompatActivity
 
         fragmentTransaction.commitNow();
         frontPagePost.addPost(postBitmap, titel);
-
+        final ArrayList<String> hashList = this.hashTagList;
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
-        postImage.setOnClickListener(this);
+        postImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
+                Boolean checked = ((CheckBox)nextChild).isChecked();
+                String likes = ((CheckBox) nextChild).getText().toString();
+                int ID = nextChild.getId();
+                //Baut aus den Daten im Cache eine Bitmap
+                v.setDrawingCacheEnabled(true);
+                v.buildDrawingCache();
+                Bitmap parseBit = v.getDrawingCache();
+
+
+                //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
+                Bitmap createBit = scaleBitmap(parseBit,-1,300);
+
+                //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
+                Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
+                intentVollansicht.putExtra("BitmapImage", createBit);
+                intentVollansicht.putExtra("Titel", v.getContentDescription());
+                intentVollansicht.putExtra("User", user);
+                intentVollansicht.putExtra("Likes", likes);
+                intentVollansicht.putExtra("Checked", checked);
+                intentVollansicht.putExtra("ID", ID);
+                intentVollansicht.putStringArrayListExtra("Hashtags", hashList);
+                startActivityForResult(intentVollansicht, IMAGE_CLICKED);
+            }
+        });
 
         ImageButton deleteButton = frontPagePost.delete;
         TextView profilName = frontPagePost.postProfilName;
@@ -274,11 +303,11 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    int code = 1;
+
                     Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    sendToBearbeitung.putExtra("Code", code);
+
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -294,11 +323,11 @@ public class MainActivity extends AppCompatActivity
             if(resultCode == RESULT_OK){
                 if(data != null) {
                     Uri uri = data.getData();
-                    int code = 1;
+
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    sendToBearbeitung.putExtra("Code", code);
+
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -316,6 +345,7 @@ public class MainActivity extends AppCompatActivity
                     String titel;
                     titel = intentVerarbeitet.getStringExtra("Titel");
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
+                    this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
                     addPostFragment(postImage, titel);
                 }
             }
@@ -474,29 +504,6 @@ public class MainActivity extends AppCompatActivity
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
-        }
-        else {
-            View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
-            Boolean checked = ((CheckBox)nextChild).isChecked();
-            String likes = ((CheckBox) nextChild).getText().toString();
-            int ID = nextChild.getId();
-            //Baut aus den Daten im Cache eine Bitmap
-            v.setDrawingCacheEnabled(true);
-            v.buildDrawingCache();
-            Bitmap parseBit = v.getDrawingCache();
-
-            //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-            Bitmap createBit = scaleBitmap(parseBit,-1,300);
-
-            //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
-            Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
-            intentVollansicht.putExtra("BitmapImage", createBit);
-            intentVollansicht.putExtra("Titel", v.getContentDescription());
-            intentVollansicht.putExtra("User", this.user);
-            intentVollansicht.putExtra("Likes", likes);
-            intentVollansicht.putExtra("Checked", checked);
-            intentVollansicht.putExtra("ID", ID);
-            startActivityForResult(intentVollansicht, IMAGE_CLICKED);
         }
     }
 }

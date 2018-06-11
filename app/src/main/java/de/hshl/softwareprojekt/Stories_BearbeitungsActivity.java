@@ -250,7 +250,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 if (data != null) {
                     int code = 2;
                     Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
@@ -270,7 +270,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                     int code = 2;
                     Uri uri = data.getData();
                     Bitmap myBitmap = getAndScaleBitmapNormal(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
