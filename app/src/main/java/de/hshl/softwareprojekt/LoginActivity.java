@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button getDaten;
     private Button deleteBtn;
     private ArrayList<String> userList;
-    private DatabaseHelper database;
+    private DatabaseHelperUser database;
     private LinearLayout email_login_form;
     private User user;
 
@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        database = new DatabaseHelper(this);
+        database = new DatabaseHelperUser(this);
         email_login_form = findViewById(R.id.email_login_form);
 
         this.userList = new ArrayList<>();

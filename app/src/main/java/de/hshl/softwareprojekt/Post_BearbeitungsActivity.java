@@ -33,6 +33,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     private Bitmap postBitmap;
     private GridLayout hashGrid;
     private ArrayList<EditText> editList;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         this.postBtn.setOnClickListener(this);
         this.postHashtag.setOnEditorActionListener(this);
         this.postHashtag.selectAll();
-
+        this.user = (User) getIntent.getSerializableExtra("User");
         this.editList = new ArrayList<>();
     }
 
@@ -76,6 +77,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 Intent sendToBearbeitung = new Intent(Post_BearbeitungsActivity.this, BearbeitungsActivity.class);
                 sendToBearbeitung.putExtra("BitmapImage", this.postBitmap);
                 sendToBearbeitung.putExtra("Code", 1);
+                sendToBearbeitung.putExtra("User", this.user);
                 startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 break;
         }

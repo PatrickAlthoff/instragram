@@ -2,6 +2,7 @@ package de.hshl.softwareprojekt;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -32,6 +33,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -57,11 +59,15 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> titelList;
     private ImageView profilBild;
     private ImageView followerBild;
+    private ImageButton refreshBtn;
     private TextView profilName;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
     private ArrayList<TextView> textViewList;
     private ArrayList<String> hashTagList;
+    private ArrayList<String> postList;
+    private DatabaseHelperPosts dataBasePosts;
+
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -103,7 +109,9 @@ public class MainActivity extends AppCompatActivity
         this.profilBild = findViewById(R.id.profilBild);
         this.followerBild = findViewById(R.id.followerNr1);
         this.profilName = findViewById(R.id.profilName);
+        this.refreshBtn = findViewById(R.id.refreshBtn);
 
+        this.refreshBtn.setOnClickListener(this);
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
 
@@ -113,6 +121,9 @@ public class MainActivity extends AppCompatActivity
         this.hashTagList = new ArrayList<>();
 
         this.profilName.setText(this.user.getUsername());
+        this.dataBasePosts = new DatabaseHelperPosts(this);
+
+        this.postList = this.dataBasePosts.getData();
 
     }
 
@@ -307,7 +318,7 @@ public class MainActivity extends AppCompatActivity
                     Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-
+                    sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -327,7 +338,7 @@ public class MainActivity extends AppCompatActivity
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-
+                    sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -347,6 +358,18 @@ public class MainActivity extends AppCompatActivity
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
                     addPostFragment(postImage, titel);
+                    int i = 0;
+                    String hashes = "";
+                    while(i<this.hashTagList.size()){
+
+                        hashes = hashes + ":"+ hashTagList.get(i);
+                        i++;
+                    }
+
+                    String path = getImageUri(this,postImage).toString();
+                    dataBasePosts.insertData(this.user.getUsername(), path, titel, hashes);
+                    ArrayList<String> postList = dataBasePosts.getData();
+                    postList.size();
                 }
             }
 
@@ -504,6 +527,35 @@ public class MainActivity extends AppCompatActivity
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
+        }else if (v.getId() == R.id.refreshBtn) {
+            int i = 0;
+            while(i<postList.size()){
+                String[] pieces = postList.get(i).split(" : ");
+
+                if(pieces[0].equals(user.getUsername())){
+                    Uri uri =  Uri.parse(pieces[1]);
+                    Bitmap bitmap = getAndScaleBitmap(uri ,300,330);
+                    String titel = pieces[2];
+                    String[] hashes = pieces[3].split(":");
+                    int c = 0;
+                    while(c<hashes.length){
+                        this.hashTagList.add(hashes[c]);
+                        c++;
+                    }
+
+                    addPostFragment(bitmap, titel);
+
+                }
+
+                i++;
+                this.hashTagList.clear();
+            }
         }
+    }
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }

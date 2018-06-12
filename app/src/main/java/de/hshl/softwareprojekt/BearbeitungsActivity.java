@@ -49,6 +49,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
     private final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
     private Uri imageUri;
+    private User user;
     private Bitmap bearbeitungsBitmap;
     private Bitmap normalImage;
     private Bitmap resetImage;
@@ -91,7 +92,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         this.normalImage = this.bearbeitungsBitmap;
         this.resetImage = this.normalImage;
         this.editTitel.selectAll();
-
+        this.user = (User) intentG.getSerializableExtra("User");
         TextWatcher test = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
