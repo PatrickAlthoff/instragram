@@ -40,9 +40,7 @@ public class PostFragment extends Fragment {
         this.textViewTitel.setText(titel);
         this.postImage.setContentDescription(this.textViewTitel.getText());
 
-        String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
         this.timeStampView = getView().findViewById(R.id.timeStamp);
-        this.timeStampView.setText(date);
 
         this.delete = getView().findViewById(R.id.deleteButton);
     }

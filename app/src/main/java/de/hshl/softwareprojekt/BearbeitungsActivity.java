@@ -279,8 +279,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
 
         String serverResponse;
-        /* final String text;  /* public void sendToServer(final String text){ */
-
         @Override
         protected Object doInBackground(Object[] params) {
 
@@ -293,7 +291,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
 
             try {
-                /*String textparam = "email1=" + URLEncoder.encode(text, "UTF-8");*/
                 InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
                 int uploadSize = (firstLineBoundary + contentDisposition + newLine + newLine + lastLineBoundary).getBytes().length + imageInputStream.available();
                 uploadDialog.setMax(uploadSize);
@@ -304,12 +301,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 connection.setDoInput(true);
                 connection.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
                 connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setFixedLengthStreamingMode(uploadSize/* + textparam.getBytes().length*/);
-
-                OutputStreamWriter contentWriter = new OutputStreamWriter(connection.getOutputStream());
-                /*contentWriter.write(textparam);
-                contentWriter.flush();
-                contentWriter.close(); */
+                connection.setFixedLengthStreamingMode(uploadSize);
 
                 DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
                 dataOutputStream.writeBytes(firstLineBoundary);
@@ -571,7 +563,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (BearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent (BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }

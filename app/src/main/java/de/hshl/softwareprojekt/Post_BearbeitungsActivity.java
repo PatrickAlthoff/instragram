@@ -3,11 +3,14 @@ package de.hshl.softwareprojekt;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -20,7 +23,10 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class Post_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener, TextView.OnEditorActionListener {
 
@@ -58,6 +64,14 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         this.postHashtag.selectAll();
         this.user = (User) getIntent.getSerializableExtra("User");
         this.editList = new ArrayList<>();
+
+        Toolbar toolbar = findViewById(R.id.toolbar7);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -70,6 +84,8 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 sendBackIntent.putExtra("BitmapImage", this.postBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
                 sendBackIntent.putStringArrayListExtra("Hashtags",convertIntoStringList(this.editList));
+                String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
+                sendBackIntent.putExtra("Date", date);
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -120,6 +136,17 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         }
 
         return stringList;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            Intent sendBackIntent = new Intent (Post_BearbeitungsActivity.this, MainActivity.class);
+            setResult(RESULT_CANCELED, sendBackIntent);
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
 

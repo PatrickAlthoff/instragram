@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity
     private int REQUEST_GETSEND = 12;
     private int IMAGE_CLICKED = 13;
     private float dpi;
+    private String date;
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, String titel){
+    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -138,14 +139,16 @@ public class MainActivity extends AppCompatActivity
         innerLayout.addView(frameInner, 0);
 
         //add fragment
-        String i = Long.toString(System.currentTimeMillis()/1000);
-        int c = Integer.parseInt(i);
+        String i = String.valueOf(id);
+
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
 
         fragmentTransaction.commitNow();
         frontPagePost.addPost(postBitmap, titel);
-        final ArrayList<String> hashList = this.hashTagList;
+        final ArrayList<String> hashList = hashlist;
+        TextView datefield = frontPagePost.timeStampView;
+        datefield.setText(date);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
@@ -205,11 +208,12 @@ public class MainActivity extends AppCompatActivity
 
         this.textViewList.add(profilName);
 
-        deleteButton.setId(c);
+        deleteButton.setId(id);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 removeFragment(frontPagePost);
+                dataBasePosts.deletePost(v.getId());
             }
         });
 
@@ -357,7 +361,10 @@ public class MainActivity extends AppCompatActivity
                     titel = intentVerarbeitet.getStringExtra("Titel");
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
-                    addPostFragment(postImage, titel);
+                    String date = intentVerarbeitet.getStringExtra("Date");
+                    String d = Long.toString(System.currentTimeMillis()/1000);
+                    int c = Integer.parseInt(d);
+                    addPostFragment(postImage, titel, this.hashTagList, date, c);
                     int i = 0;
                     String hashes = "";
                     while(i<this.hashTagList.size()){
@@ -365,9 +372,11 @@ public class MainActivity extends AppCompatActivity
                         hashes = hashes + ":"+ hashTagList.get(i);
                         i++;
                     }
-
+                    if(hashes == null){
+                        hashes = "#NoHashtags";
+                    }
                     String path = getImageUri(this,postImage).toString();
-                    dataBasePosts.insertData(this.user.getUsername(), path, titel, hashes);
+                    dataBasePosts.insertData(c,this.user.getUsername(), path, titel, hashes, date, false);
                     ArrayList<String> postList = dataBasePosts.getData();
                     postList.size();
                 }
@@ -528,28 +537,34 @@ public class MainActivity extends AppCompatActivity
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
         }else if (v.getId() == R.id.refreshBtn) {
-            int i = 0;
-            while(i<postList.size()){
+            int i = postList.size()-1;
+            while(i>=0){
+                this.hashTagList.clear();
                 String[] pieces = postList.get(i).split(" : ");
-
-                if(pieces[0].equals(user.getUsername())){
-                    Uri uri =  Uri.parse(pieces[1]);
-                    Bitmap bitmap = getAndScaleBitmap(uri ,300,330);
-                    String titel = pieces[2];
-                    String[] hashes = pieces[3].split(":");
+                if(pieces[1].equals(user.getUsername())){
+                    String ids = pieces[0];
+                    int id = Integer.parseInt(ids);
+                    Uri uri =  Uri.parse(pieces[2]);
+                    Bitmap bitmap = getAndScaleBitmap(uri ,-1,330);
+                    String titel = pieces[3];
+                    ArrayList<String> hashlist = new ArrayList<>();
+                    String[] hashes = pieces[4].split(":");
+                    String date = pieces[5];
+                    String bool = pieces[6];
                     int c = 0;
                     while(c<hashes.length){
-                        this.hashTagList.add(hashes[c]);
+                        hashlist.add(hashes[c]);
                         c++;
                     }
 
-                    addPostFragment(bitmap, titel);
+                    addPostFragment(bitmap, titel, hashlist, date, id);
 
                 }
 
-                i++;
-                this.hashTagList.clear();
+                i--;
+
             }
+            postList.clear();
         }
     }
     private Uri getImageUri(Context context, Bitmap inImage) {
