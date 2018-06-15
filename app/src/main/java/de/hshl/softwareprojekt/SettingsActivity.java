@@ -1,129 +1,87 @@
 package de.hshl.softwareprojekt;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.graphics.PorterDuff;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class SettingsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-    EditText editName;
+public class SettingsActivity extends AppCompatActivity {
+    //Variablen zur Verarbeitung der Inhalte in der Activity
+    private Button change;
+    private User user;
+    private EditText userChanger;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        Intent intent = getIntent();
+        user = (User) intent.getSerializableExtra("User");
 
-        this.editName = findViewById(R.id.editName);
-        this.editName.addTextChangedListener(new TextWatcher() {
+        userChanger = findViewById(R.id.editUser);
+        change = findViewById(R.id.doStuffBtn);
 
+        userChanger.setText(user.getUsername());
+        change.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            public void onClick(View v) {
 
-            }
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setTitle("Namen bestätigen!");
+                builder.setMessage("Sie sind dabei ihren Namen zu ändern, sind sie sicher, dass sie fortfahren möchten?");
+                builder.setCancelable(false);
+                builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        user.setUsername(userChanger.getText().toString());
+                        Toast.makeText(getApplicationContext(), "Dein Name wurde erfolgreich geändert!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        userChanger.setText(user.getUsername());
+                        Toast.makeText(getApplicationContext(), "Dein ursprünglicher Name wurde wiederhergestellt!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-            }
+                builder.show();
 
-            @Override
-            public void afterTextChanged(Editable s) {
 
             }
         });
 
-        setContentView(R.layout.activity_settings_drawer);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar6);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
-        
-        //Initialisierung des Drawer Layout
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
 
-        //Initialisierung des NavigationView + Listener
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+
     }
 
-
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    //Verarbeitung der Settings Anfrage (noch passiert nichts)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            Intent sendBackIntent = new Intent (SettingsActivity.this, MainActivity.class);
+            sendBackIntent.putExtra("User", user);
+            setResult(RESULT_OK, sendBackIntent);
+            finish(); // close this activity and return to preview activity (if there is any)
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    //Methode zur Verarbeitung der Buttons im  Drawer Menü
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_backHome) {
-            finish();
-        }
-
-        else if (id == R.id.nav_manage) {
-            Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
-            startActivity(intent);
-            finish();
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-        //Shortcut to Logout.
-        else if (id == R.id.nav_logout) {
-            Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
 }

@@ -10,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
-
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
     private int BEARBEITUNG_CODE = 12;
@@ -60,7 +59,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stories_bearbeitungs);
 
-        //Check for permissions
         checkPermission();
         Intent data = getIntent();
         this.titelList = new ArrayList<>();
@@ -97,13 +95,14 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
     }
+    //Get Methode zur Ermittlung der Image Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
-
+    //Konvertiert ArrayList Uri in eine ArrayList Bitmap
     public ArrayList<Bitmap> convertToBitmapList(ArrayList<Uri> uriList){
         int length = uriList.size();
         int i = 0;
@@ -118,7 +117,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         }
         return bitmapList;
     }
-
+    //Konvertiert ArrayList Bitmap in eine ArrayList Bitmap
     public ArrayList<Uri> convertToUriList(ArrayList<Bitmap> bitmapList){
         int length = bitmapList.size();
         int i = 0;
@@ -148,7 +147,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 startBar();
                 break;
             case R.id.publishBtn:
-                Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Storie_Clicked.class);
+                Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
                 sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
                 sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
@@ -184,7 +183,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.storiebar.setProgress(0);
 
     }
-
+    //Enthält die Methode zur Visualisierung der Progressbar
     public void startBar(){
         this.i = 0;
         this.progressBarCount = this.bitmapList.size();
@@ -220,7 +219,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     }
 
 
-    //Methode zum Skallieren der zu übergebenen Bitmap
+    //Methode zum Skalieren der zu übergebenen Bitmap
     private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight){
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -251,7 +250,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 if (data != null) {
                     int code = 2;
                     Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
@@ -271,7 +270,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                     int code = 2;
                     Uri uri = data.getData();
                     Bitmap myBitmap = getAndScaleBitmapNormal(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
@@ -332,6 +331,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         }
     }
 
+    //Kümmert sich um den Klick auf den BackButton
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here

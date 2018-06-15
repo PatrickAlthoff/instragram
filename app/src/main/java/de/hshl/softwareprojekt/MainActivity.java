@@ -2,6 +2,7 @@ package de.hshl.softwareprojekt;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,29 +25,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-    private int BEARBEITUNG_CODE = 12;
-    private int IMAGE_CAPTURE = 4;
-    private int GALLERY_PICK = 5;
-    private int REQUEST_GETSEND = 12;
-    private int IMAGE_CLICKED = 13;
     private int STORIE_PICK = 1;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
+    private int IMAGE_CAPTURE = 4;
+    private int GALLERY_PICK = 5;
+    private int BEARBEITUNG_CODE = 12;
+    private int REQUEST_GETSEND = 12;
+    private int IMAGE_CLICKED = 13;
     private float dpi;
+    private String date;
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
@@ -54,9 +60,15 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> titelList;
     private ImageView profilBild;
     private ImageView followerBild;
+    private ImageButton refreshBtn;
     private TextView profilName;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
+    private ArrayList<TextView> textViewList;
+    private ArrayList<String> hashTagList;
+    private ArrayList<String> postList;
+    private DatabaseHelperPosts dataBasePosts;
+
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -98,19 +110,26 @@ public class MainActivity extends AppCompatActivity
         this.profilBild = findViewById(R.id.profilBild);
         this.followerBild = findViewById(R.id.followerNr1);
         this.profilName = findViewById(R.id.profilName);
+        this.refreshBtn = findViewById(R.id.refreshBtn);
 
+        this.refreshBtn.setOnClickListener(this);
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
 
         this.uriList = new ArrayList<>();
         this.titelList = new ArrayList<>();
+        this.textViewList = new ArrayList<>();
+        this.hashTagList = new ArrayList<>();
 
         this.profilName.setText(this.user.getUsername());
+        this.dataBasePosts = new DatabaseHelperPosts(this);
+
+        this.postList = this.dataBasePosts.getData();
 
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, String titel){
+    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -120,32 +139,86 @@ public class MainActivity extends AppCompatActivity
         innerLayout.addView(frameInner, 0);
 
         //add fragment
-        String i = Long.toString(System.currentTimeMillis()/1000);
-        int c = Integer.parseInt(i);
+        String i = String.valueOf(id);
+
         final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
 
         fragmentTransaction.commitNow();
         frontPagePost.addPost(postBitmap, titel);
-
+        final ArrayList<String> hashList = hashlist;
+        TextView datefield = frontPagePost.timeStampView;
+        datefield.setText(date);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
-        postImage.setOnClickListener(this);
+        postImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
+                Boolean checked = ((CheckBox)nextChild).isChecked();
+                String likes = ((CheckBox) nextChild).getText().toString();
+                int ID = nextChild.getId();
+                //Baut aus den Daten im Cache eine Bitmap
+                v.setDrawingCacheEnabled(true);
+                v.buildDrawingCache();
+                Bitmap parseBit = v.getDrawingCache();
+
+
+                //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
+                Bitmap createBit = scaleBitmap(parseBit,-1,300);
+
+                //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
+                Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
+                intentVollansicht.putExtra("BitmapImage", createBit);
+                intentVollansicht.putExtra("Titel", v.getContentDescription());
+                intentVollansicht.putExtra("User", user);
+                intentVollansicht.putExtra("Likes", likes);
+                intentVollansicht.putExtra("Checked", checked);
+                intentVollansicht.putExtra("ID", ID);
+                intentVollansicht.putStringArrayListExtra("Hashtags", hashList);
+                startActivityForResult(intentVollansicht, IMAGE_CLICKED);
+            }
+        });
 
         ImageButton deleteButton = frontPagePost.delete;
+        TextView profilName = frontPagePost.postProfilName;
+        profilName.setText(user.getUsername());
 
-        deleteButton.setId(c);
+        CheckBox likeCheck = frontPagePost.likeChecker;
+        likeCheck.setId(View.generateViewId());
+        likeCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = ((CheckBox) v).isChecked();
+                String getCount = ((CheckBox) v).getText().toString();
+                String[] pieces = getCount.split(": ");
+                int getInt = Integer.parseInt(pieces[1]);
+
+                if(checked){
+
+                    ((CheckBox) v).setText("Likes: " + (getInt + 1));
+
+                }
+                else{
+                    ((CheckBox) v).setText("Likes: " + (getInt - 1));
+                }
+            }
+        });
+
+        this.textViewList.add(profilName);
+
+        deleteButton.setId(id);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 removeFragment(frontPagePost);
+                dataBasePosts.deletePost(v.getId());
             }
         });
 
     }
-
-
+    //Entfernt das Fragment
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -222,6 +295,7 @@ public class MainActivity extends AppCompatActivity
         }
         return null;
     }
+    //Skaliert eine übergebene Bitmap
     public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
 
         float   srcWidth = bitmap.getWidth(),
@@ -244,11 +318,11 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    int code = 1;
+
                     Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    sendToBearbeitung.putExtra("Code", code);
+                    sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -264,11 +338,11 @@ public class MainActivity extends AppCompatActivity
             if(resultCode == RESULT_OK){
                 if(data != null) {
                     Uri uri = data.getData();
-                    int code = 1;
+
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
                     Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
-                    sendToBearbeitung.putExtra("Code", code);
+                    sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
             }
@@ -286,7 +360,25 @@ public class MainActivity extends AppCompatActivity
                     String titel;
                     titel = intentVerarbeitet.getStringExtra("Titel");
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
-                    addPostFragment(postImage, titel);
+                    this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
+                    String date = intentVerarbeitet.getStringExtra("Date");
+                    String d = Long.toString(System.currentTimeMillis()/1000);
+                    int c = Integer.parseInt(d);
+                    addPostFragment(postImage, titel, this.hashTagList, date, c);
+                    int i = 0;
+                    String hashes = "";
+                    while(i<this.hashTagList.size()){
+
+                        hashes = hashes + ":"+ hashTagList.get(i);
+                        i++;
+                    }
+                    if(hashes == null){
+                        hashes = "#NoHashtags";
+                    }
+                    String path = getImageUri(this,postImage).toString();
+                    dataBasePosts.insertData(c,this.user.getUsername(), path, titel, hashes, date, false);
+                    ArrayList<String> postList = dataBasePosts.getData();
+                    postList.size();
                 }
             }
 
@@ -295,12 +387,13 @@ public class MainActivity extends AppCompatActivity
                 Log.d(MainActivity.class.getSimpleName(),"no picture selected");
             }
         }
+        //Verarbeitet Informationen aus einem Intent, aus der Story Activity
         if(requestCode == STORIE_PICK){
             if(resultCode == RESULT_OK){
                 if(data != null) {
-                    Intent intentStorie = data;
-                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
+                    Intent intentStory = data;
+                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
                 }
             }
             else{
@@ -310,9 +403,36 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == 101){
             if(resultCode == RESULT_OK){
                 if(data != null){
+                    Intent intentStory = data;
+                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
+                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
+                }
+            }
+        }
+        //Enthält das User Objekt aus der Settings Acitivty
+        if(requestCode == 111){
+            if(resultCode == RESULT_OK){
+                if(data != null){
                     Intent intentStorie = data;
-                    this.uriList = intentStorie.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStorie.getStringArrayListExtra("TitelList");
+                    this.user = (User) intentStorie.getSerializableExtra("User");
+                    this.profilName.setText(this.user.getUsername());
+                    int i=0;
+                    while(i < textViewList.size()){
+                        textViewList.get(i).setText(user.getUsername());
+                        i++;
+                    }
+                }
+            }
+        }
+        //Enthält Daten aus der Vollbildansicht
+        if(requestCode == IMAGE_CLICKED) {
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentFromImage = data;
+                    int ID = intentFromImage.getExtras().getInt("ID");
+                    View v = findViewById(ID);
+                    ((CheckBox)v).setText(intentFromImage.getStringExtra("Likes"));
+                    ((CheckBox)v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
                 }
             }
         }
@@ -376,13 +496,16 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
         } else if (id == R.id.nav_slideshow) {
-            Intent intentStories = new Intent(MainActivity.this, Stories_BearbeitungsActivity.class);
-            startActivityForResult(intentStories, RESULT_FIRST_USER);
+            Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
+            intentStories.putParcelableArrayListExtra("UriList", this.uriList);
+            intentStories.putStringArrayListExtra("TitelList", this.titelList);
+            startActivityForResult(intentStories, 101);
         }
         //Startet das Settingslayout
         else if (id == R.id.nav_manage) {
             Intent intentSetting = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intentSetting);
+            intentSetting.putExtra("User", this.user);
+            startActivityForResult(intentSetting, 111);
 
         } else if (id == R.id.nav_share) {
 
@@ -406,27 +529,48 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.followerNr1){
-            Intent intentStorie = new Intent(MainActivity.this, Main_Storie_Clicked.class);
+            Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
             intentStorie.putStringArrayListExtra("TitelList", this.titelList);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             startActivity(intentProfil);
+        }else if (v.getId() == R.id.refreshBtn) {
+            int i = postList.size()-1;
+            while(i>=0){
+                this.hashTagList.clear();
+                String[] pieces = postList.get(i).split(" : ");
+                if(pieces[1].equals(user.getUsername())){
+                    String ids = pieces[0];
+                    int id = Integer.parseInt(ids);
+                    Uri uri =  Uri.parse(pieces[2]);
+                    Bitmap bitmap = getAndScaleBitmap(uri ,-1,330);
+                    String titel = pieces[3];
+                    ArrayList<String> hashlist = new ArrayList<>();
+                    String[] hashes = pieces[4].split(":");
+                    String date = pieces[5];
+                    String bool = pieces[6];
+                    int c = 0;
+                    while(c<hashes.length){
+                        hashlist.add(hashes[c]);
+                        c++;
+                    }
+
+                    addPostFragment(bitmap, titel, hashlist, date, id);
+
+                }
+
+                i--;
+
+            }
+            postList.clear();
         }
-        else {
-        //Baut aus den Daten im Cache eine Bitmap
-        v.setDrawingCacheEnabled(true);
-        v.buildDrawingCache();
-        Bitmap parseBit = v.getDrawingCache();
-
-        //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-        Bitmap createBit = scaleBitmap(parseBit,-1,300);
-
-        //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
-        Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
-        intentVollansicht.putExtra("BitmapImage", createBit);
-        intentVollansicht.putExtra("Titel", v.getContentDescription());
-        startActivityForResult(intentVollansicht, IMAGE_CLICKED);}
+    }
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }

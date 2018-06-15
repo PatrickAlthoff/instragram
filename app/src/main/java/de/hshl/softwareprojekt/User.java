@@ -1,7 +1,7 @@
 package de.hshl.softwareprojekt;
 
 import java.io.Serializable;
-
+//Hält das User Objekt
 public class User implements Serializable {
     private int id;
 

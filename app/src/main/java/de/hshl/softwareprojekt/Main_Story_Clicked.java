@@ -23,8 +23,8 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Main_Storie_Clicked extends AppCompatActivity implements View.OnClickListener {
-
+public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener {
+    //Variablen zur Verarbeitung der Inhalte in der Activity
     private ArrayList<Bitmap> bitmapList;
     private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
@@ -39,11 +39,14 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
     private int i;
     private int checkInt;
     private int start;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main__storie__clicked);
         Intent data = getIntent();
+
+        //Initialisierung der Objekte zur Darstellung der Stories
         this.emptyText = findViewById(R.id.emptyText);
         this.emptyText.setVisibility(View.INVISIBLE);
         this.bitmapList = new ArrayList<>();
@@ -61,10 +64,10 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
 
         scaleUp(this.uriList);
 
+        //Initialisierung der Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar5);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
@@ -73,8 +76,8 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             this.emptyText.setVisibility(View.VISIBLE);
         }
     }
-
-    public void addStorie() {
+    //Added das Storyfragment
+    public void addStory() {
         if (this.uriList.size() > 0) {
             this.checkInt++;
             this.emptyText.setVisibility(View.INVISIBLE);
@@ -84,7 +87,6 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             final StoriesFragment storiesFragment = new StoriesFragment();
 
             //add fragment
-
             final FragmentTransaction storieTransaction = storieManager.beginTransaction();
             storieTransaction.add(R.id.storieConstraints, storiesFragment);
             storieTransaction.commitNow();
@@ -100,7 +102,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             this.emptyText.setVisibility(View.VISIBLE);
         }
     }
-
+    //Enthält die Methode zur Visualisierung der Progressbar
     public void startBar() {
         if (this.uriList.size() == 0) {
             this.emptyText.setVisibility(View.VISIBLE);
@@ -135,6 +137,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         }
     }
 
+    //Wandelt die Pbergebene Uri Arraylist in eine Bitmap Arraylist um
     public ArrayList<Bitmap> scaleUp(ArrayList<Uri> uriList) {
 
         int length = uriList.size();
@@ -153,7 +156,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.addBtn:
-                Intent sendtoStorieBearbeitung = new Intent(Main_Storie_Clicked.this, Stories_BearbeitungsActivity.class);
+                Intent sendtoStorieBearbeitung = new Intent(Main_Story_Clicked.this, Stories_BearbeitungsActivity.class);
                 sendtoStorieBearbeitung.putParcelableArrayListExtra("UriList", this.uriList);
                 sendtoStorieBearbeitung.putStringArrayListExtra("TitelList", this.titelList);
                 startActivityForResult(sendtoStorieBearbeitung, 101);
@@ -166,7 +169,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.startStorie:
                 if(start == 0){
-                    addStorie();
+                    addStory();
                     start++;
                     startBar();
                 }
@@ -177,6 +180,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         }
 
     }
+    //Sorgt beim Delete für eine Leerung der ArrayLists und schaltet Objekte auf INVISIBLE
     public void deleteProcess(){
 
             this.uriList.clear();
@@ -187,11 +191,13 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
             this.titelStory.setVisibility(View.INVISIBLE);
             this.emptyText.setVisibility(View.VISIBLE);
     }
+
+    //Kümmert sich um den Klick auf den BackButton
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent(Main_Storie_Clicked.this, MainActivity.class);
+            Intent sendBackIntent = new Intent(Main_Story_Clicked.this, MainActivity.class);
             sendBackIntent.putParcelableArrayListExtra("UriList", this.uriList);
             sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
             setResult(RESULT_OK, sendBackIntent);
@@ -201,6 +207,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
         return super.onOptionsItemSelected(item);
     }
 
+    //Skaliert eine übergebene Uri auf eine dementsprechende Bitmap
     private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
@@ -232,7 +239,7 @@ public class Main_Storie_Clicked extends AppCompatActivity implements View.OnCli
                     this.bitmapList.clear();
                     scaleUp(this.uriList);
                     start++;
-                    addStorie();
+                    addStory();
                 }
             }
         }

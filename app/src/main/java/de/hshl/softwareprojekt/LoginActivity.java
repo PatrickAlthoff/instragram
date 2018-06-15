@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();
@@ -49,7 +46,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button getDaten;
     private Button deleteBtn;
     private ArrayList<String> userList;
-    private DatabaseHelper database;
+    private DatabaseHelperUser database;
     private LinearLayout email_login_form;
     private User user;
 
@@ -83,7 +80,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        database = new DatabaseHelper(this);
+        database = new DatabaseHelperUser(this);
         email_login_form = findViewById(R.id.email_login_form);
 
         this.userList = new ArrayList<>();
@@ -114,7 +111,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         this.deleteBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                database.deleteData(0);
+                database.deleteData();
 
 
             }

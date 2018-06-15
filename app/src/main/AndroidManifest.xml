@@ -38,24 +38,25 @@
             android:exported="true"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".Post_BearbeitungsActivity"
+            android:name=".BearbeitungsActivity"
             android:exported="true" />
-        <activity android:name=".SettingsActivity" />
         <activity
             android:name=".ProfilActivity"
-            android:exported="true"
             android:configChanges="orientation"
+            android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light"/>
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity android:name=".Main_Image_Clicked" />
         <activity
             android:name=".Profil_BearbeitungActivity"
-            android:parentActivityName=".ProfilActivity"
             android:configChanges="orientation"
+            android:parentActivityName=".ProfilActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light"/>
-        <activity android:name=".Main_Storie_Clicked" />
+            android:theme="@style/Theme.AppCompat.Light" />
+        <activity android:name=".Main_Story_Clicked" />
         <activity android:name=".Stories_BearbeitungsActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".Post_BearbeitungsActivity"></activity>
     </application>
 
 </manifest>
