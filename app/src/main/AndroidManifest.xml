@@ -56,7 +56,8 @@
         <activity android:name=".Main_Story_Clicked" />
         <activity android:name=".Stories_BearbeitungsActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".Post_BearbeitungsActivity"></activity>
+        <activity android:name=".Post_BearbeitungsActivity" />
+        <activity android:name=".SignUpActivity"></activity>
     </application>
 
 </manifest>
