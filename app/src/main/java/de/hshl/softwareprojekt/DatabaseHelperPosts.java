@@ -150,4 +150,36 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             }
         }
     }
+
+    //Get Methode zur Ausgabe der Nutzermailadresse
+    public ArrayList<String> getHashtags(String hashtagInput){
+
+        String[] columns = {"_id", "username", "path", "titel", "hashtags", "date","liked"};
+        ArrayList<String> postList = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try{
+            db = getReadableDatabase();
+            cursor = db.query(TABLE_NAME, columns, "hashtags like " + "'%" + hashtagInput + "%'", null,null,null,null);
+            while(cursor.moveToNext()){
+                postList.add(0,cursor.getString(0) + " : "  +  cursor.getString(1) + " : "  + cursor.getString(2 ) + " : "  + cursor.getString(3 ) +  " : "  + cursor.getString(4 ) + " : " + cursor.getString(5)+ " : " + cursor.getString(6));
+            }
+
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "getHashtags()", exception);
+        }
+        finally {
+            if (cursor != null){
+                cursor.close();
+            }
+            if(db != null){
+                db.close();
+            }
+        }
+
+        return postList;
+    }
+
 }

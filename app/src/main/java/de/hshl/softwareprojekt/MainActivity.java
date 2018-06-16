@@ -1,6 +1,7 @@
 package de.hshl.softwareprojekt;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +36,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -474,6 +478,36 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setQueryHint("Search for #Hashtags...");
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                // This is your adapter that will be filtered
+
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(String query) {
+                // **Here you can get the value "query" which is entered in the search box.**
+
+                Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
+                if(query.contains("#")) {
+                    startSearchIntent.putExtra("Hashtag", query);
+                    startActivity(startSearchIntent);
+                }
+                else{
+                    query = "#" + query;
+                    startSearchIntent.putExtra("Hashtag", query);
+                    startActivity(startSearchIntent);
+                }
+                return true;
+            }
+        };
+        searchView.setOnQueryTextListener(queryTextListener);
+
         return true;
     }
 

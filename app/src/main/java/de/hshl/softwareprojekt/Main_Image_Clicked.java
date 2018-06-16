@@ -55,7 +55,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.hashTags.setOnClickListener(this);
         this.titel.setText(getPost.getStringExtra("Titel"));
         this.user = (User) getPost.getSerializableExtra("User");
-        this.disUser.setText(user.getUsername());
+        String username = getPost.getStringExtra("Username");
+        this.disUser.setText(username);
         this.checkLike = findViewById(R.id.clickedLike);
         this.checkLike.setText(getPost.getStringExtra("Likes"));
         this.checkLike.setChecked(getPost.getExtras().getBoolean("Checked"));
@@ -107,10 +108,20 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 this.gridLayout.setVisibility(View.VISIBLE);
                 int i = 0;
                 while(i<this.hashList.size()){
-                    TextView textview = new TextView(this);
+                    final TextView textview = new TextView(this);
                     textview.setText(this.hashList.get(i));
                     textview.setTextSize(12);
                     this.gridLayout.addView(textview);
+                    textview.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
+
+                            sendToSearchIntent.putExtra("Hashtag", textview.getText().toString());
+                            startActivity(sendToSearchIntent);
+                            finish();
+                        }
+                    });
                     i++;
                 }
                 break;
