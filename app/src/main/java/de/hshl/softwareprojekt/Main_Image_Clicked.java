@@ -32,7 +32,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private User user;
     private GridLayout gridLayout;
     private ArrayList<String> hashList;
-
+    private DatabaseHelperPosts dataBasePosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +69,12 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 int getInt = Integer.parseInt(pieces[1]);
 
                 if(checked){
-
+                    dataBasePosts.updateLike(ID, true);
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
 
                 }
                 else{
+                    dataBasePosts.updateLike(ID, false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                 }
             }
@@ -81,6 +82,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         //Enthält die ID der Checkbox, für die korrekte Übermittlung
         this.ID = getPost.getExtras().getInt("ID");
         this.hashList = getPost.getStringArrayListExtra("Hashtags");
+        this.dataBasePosts = new DatabaseHelperPosts(this);
         //Toolbar Setup
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);

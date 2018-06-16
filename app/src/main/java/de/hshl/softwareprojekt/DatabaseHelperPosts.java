@@ -107,34 +107,28 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         }
         return postList;
     }
-    //Get Methode zur Ausgabe der Nutzermailadresse
-    public String getPost(String username){
+    //Update den Like Status
+    public void updateLike(int id, boolean liked){
 
-        String[] columns = {"path"};
-        String userEntry = "";
-        ArrayList<String> user= new ArrayList<>();
+        int rowsUpdated = 0;
         SQLiteDatabase db = null;
-        Cursor cursor = null;
-
+        int like = liked ? 1:0;
         try{
-            db = getReadableDatabase();
-            cursor = db.query(TABLE_NAME, columns, "email like " + "'%" + username + "%'", null,null,null,null);
-
+            db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("liked", like);
+            rowsUpdated = db.update(TABLE_NAME, values,"_id=" + id, null);
+            Log.d(TAG, "updateLike() affected " + rowsUpdated + " rows");
 
         }
         catch(SQLiteException exception){
-            Log.e(TAG, "getUser()", exception);
+            Log.e(TAG, "updateLike()", exception);
         }
         finally {
-            if (cursor != null){
-                cursor.close();
-            }
             if(db != null){
                 db.close();
             }
         }
-
-        return userEntry;
     }
 
     //Methode zum Löschen des letzten Eintrages

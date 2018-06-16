@@ -26,6 +26,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     private ImageView profilBild;
     private ImageView followerBild;
     private ImageButton refreshBtn;
+    private Button testBtn;
     private TextView profilName;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
@@ -68,7 +70,6 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> hashTagList;
     private ArrayList<String> postList;
     private DatabaseHelperPosts dataBasePosts;
-
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
@@ -111,7 +112,9 @@ public class MainActivity extends AppCompatActivity
         this.followerBild = findViewById(R.id.followerNr1);
         this.profilName = findViewById(R.id.profilName);
         this.refreshBtn = findViewById(R.id.refreshBtn);
+        this.testBtn = findViewById(R.id.testBtn);
 
+        this.testBtn.setOnClickListener(this);
         this.refreshBtn.setOnClickListener(this);
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id){
+    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id, boolean liked){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -186,6 +189,13 @@ public class MainActivity extends AppCompatActivity
         profilName.setText(user.getUsername());
 
         CheckBox likeCheck = frontPagePost.likeChecker;
+        likeCheck.setChecked(liked);
+        if(likeCheck.isChecked() == true){
+            String getCount = likeCheck.getText().toString();
+            String[] pieces = getCount.split(": ");
+            int getInt = Integer.parseInt(pieces[1]);
+            likeCheck.setText("Likes: " + (getInt + 1));
+        }
         likeCheck.setId(View.generateViewId());
         likeCheck.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,13 +204,15 @@ public class MainActivity extends AppCompatActivity
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
+                View deleteButtonId = ((ViewGroup)v.getParent()).getChildAt(7);
 
                 if(checked){
-
+                    dataBasePosts.updateLike(deleteButtonId.getId(), true);
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
 
                 }
                 else{
+                    dataBasePosts.updateLike(deleteButtonId.getId(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                 }
             }
@@ -364,7 +376,7 @@ public class MainActivity extends AppCompatActivity
                     String date = intentVerarbeitet.getStringExtra("Date");
                     String d = Long.toString(System.currentTimeMillis()/1000);
                     int c = Integer.parseInt(d);
-                    addPostFragment(postImage, titel, this.hashTagList, date, c);
+                    addPostFragment(postImage, titel, this.hashTagList, date, c, false);
                     int i = 0;
                     String hashes = "";
                     while(i<this.hashTagList.size()){
@@ -551,13 +563,15 @@ public class MainActivity extends AppCompatActivity
                     String[] hashes = pieces[4].split(":");
                     String date = pieces[5];
                     String bool = pieces[6];
+                    int like = Integer.valueOf(bool);
+                    Boolean liked = (like != 0);
                     int c = 0;
                     while(c<hashes.length){
                         hashlist.add(hashes[c]);
                         c++;
                     }
 
-                    addPostFragment(bitmap, titel, hashlist, date, id);
+                    addPostFragment(bitmap, titel, hashlist, date, id, liked);
 
                 }
 
@@ -565,6 +579,10 @@ public class MainActivity extends AppCompatActivity
 
             }
             postList.clear();
+        }else if(v.getId() == R.id.testBtn){
+            String dstAddress = "http://intranet-secure.de/instragram/upload/1529073.jpeg";
+            HttpConnection httpConnection = new HttpConnection(dstAddress, this);
+            httpConnection.execute();
         }
     }
     private Uri getImageUri(Context context, Bitmap inImage) {

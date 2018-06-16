@@ -41,13 +41,13 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         TextView anzahlFollower = findViewById(R.id.anzFollower);
         TextView anzahlFollowing = findViewById(R.id.anzFollowing);
 
-        final DatabaseHelper dbHelper = new DatabaseHelper(this);
+       // final DatabaseHelper dbHelper = new DatabaseHelper(this);
        // folgen.setOnClickListener(this);
 
         TextView biografie = findViewById(R.id.biografie);
 
         Button folgen = findViewById(R.id.folgen);
-        Button entfolgen = findViewById(R.id.entfolgen);
+      //  Button entfolgen = findViewById(R.id.entfolgen);
 
         View divider = findViewById(R.id.divider);
         //isFollowing();
@@ -74,12 +74,12 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             public void onClick(View v){
                 Log.d(TAG, "onClick: Folgt Nutzer nicht");
                 if(personID > 0){
-                    Cursor rs = dbHelper.getPerson(personID);
+            /*        Cursor rs = dbHelper.getPerson(personID);
                     rs.moveToFirst();
                     String personId = rs.getString(rs.getColumnIndex(DatabaseHelper.COL_01));
                     String personIsFollowing = rs.getString(rs.getColumnIndex(DatabaseHelper.COL_02));
                     String personFollowedBy = rs.getString(rs.getColumnIndex(DatabaseHelper.COL_03));
-
+*/
                     setUnfollowing();
                 }
 
