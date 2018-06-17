@@ -20,7 +20,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     private static final String COL_3 = "pw";
     public static final String SQL_ALTER_TABLE = "ALTER TABLE{"+TABLE_NAME+"} ADD RENAME TO TempOldTable;";
     public static final String SQL_TABLE_CREATE =
-            "CREATE TABLE " + TABLE_NAME + " (_id INTEGER, username TEXT, path TEXT, titel TEXT, hashtags TEXT, date TEXT, liked INTEGER)";
+            "CREATE TABLE " + TABLE_NAME + " (_id INTEGER, username TEXT, path TEXT, titel TEXT, hashtags TEXT, date TEXT, liked INTEGER, userKey INTEGER)";
     private static final String SQL_TABLE_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
     private static final int DATABASE_VERSION = 1;
 
@@ -50,7 +50,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
 
     }
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertData(int id, String name, String path, String titel, String hashtags, String date, boolean liked) {
+    public void insertData(int id, String name, String path, String titel, String hashtags, String date, boolean liked, int userKey) {
         long rowId = -1;
         SQLiteDatabase db = null;
         int like = liked ? 1:0;
@@ -64,6 +64,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             values.put("hashtags", hashtags);
             values.put("date", date);
             values.put("liked", like);
+            values.put("userKey", userKey);
             rowId = db.insert(TABLE_NAME, null, values);
         }
         catch (SQLiteException exception) {
@@ -107,6 +108,29 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         }
         return postList;
     }
+
+    public void updateUserPosts(int id, String username){
+
+        int rowsUpdated = 0;
+        SQLiteDatabase db = null;
+        try{
+            db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("username", username);
+            rowsUpdated = db.update(TABLE_NAME, values,"userKey=" + id, null);
+            Log.d(TAG, "updateUserPosts() affected " + rowsUpdated + " rows");
+
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "updateUserPosts()", exception);
+        }
+        finally {
+            if(db != null){
+                db.close();
+            }
+        }
+    }
+
     //Update den Like Status
     public void updateLike(int id, boolean liked){
 

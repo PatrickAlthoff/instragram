@@ -67,30 +67,38 @@
 
             <Button
                 android:id="@+id/email_sign_in_button"
-                style="?android:textAppearanceSmall"
+                style="@style/Widget.AppCompat.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif"
                 android:text="Login"
-                android:textStyle="bold" />
+                android:textAllCaps="false"
+                android:textAppearance="@android:style/TextAppearance.Medium"
+                android:textSize="18sp" />
 
             <Button
                 android:id="@+id/neuBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Registrieren" />
+                android:fontFamily="sans-serif"
+                android:text="Registrieren"
+                android:textAppearance="@android:style/TextAppearance.Medium" />
 
             <Button
                 android:id="@+id/getDaten"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Datenbank" />
+                android:fontFamily="sans-serif"
+                android:text="Datenbank"
+                android:textAppearance="@android:style/TextAppearance.Medium" />
 
             <Button
                 android:id="@+id/deleteBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Delete" />
+                android:text="Delete"
+                android:textAppearance="@android:style/TextAppearance.Medium" />
 
         </LinearLayout>
     </ScrollView>

@@ -393,7 +393,7 @@ public class MainActivity extends AppCompatActivity
                         hashes = "#NoHashtags";
                     }
                     String path = getImageUri(this,postImage).toString();
-                    dataBasePosts.insertData(c,this.user.getUsername(), path, titel, hashes, date, false);
+                    dataBasePosts.insertData(c,this.user.getUsername(), path, titel, hashes, date, false, this.user.getId());
                     ArrayList<String> postList = dataBasePosts.getData();
                     postList.size();
                 }
