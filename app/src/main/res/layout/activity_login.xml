@@ -71,14 +71,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Sign In"
+                android:text="Login"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/neuBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Neu" />
+                android:text="Registrieren" />
 
             <Button
                 android:id="@+id/getDaten"

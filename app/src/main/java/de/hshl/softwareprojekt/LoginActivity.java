@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private UserLoginTask mAuthTask = null;
 
     // UI references.
+    private int REQUEST_REGIST_CODE = 200;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
@@ -88,7 +89,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         this.neuBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                database.insertData(mEmailView.getText().toString(), mPasswordView.getText().toString());
+            //    database.insertData(mEmailView.getText().toString(), mPasswordView.getText().toString());
+                Intent toRegist = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivityForResult(toRegist,REQUEST_REGIST_CODE);
             }
         });
 
@@ -124,7 +127,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if(requestCode == REQUEST_REGIST_CODE ){
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentVerarbeitet = data;
+                    this.mEmailView.setText(intentVerarbeitet.getStringExtra("email"));
+                    this.mPasswordView.setText(intentVerarbeitet.getStringExtra("pw"));
+                }
+            }
+        }
+    }
 
 
 
@@ -170,8 +186,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            String username = database.getUser(mEmailView.getText().toString());
-            mAuthTask = new UserLoginTask(email, password, username);
+
+            mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -276,14 +292,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private int userID;
         private String username;
         private User user;
+        private DatabaseHelperUser userData;
 
-        UserLoginTask(String email, String password, String username) {
+        UserLoginTask(String email, String password) {
             this.mEmail = email;
             this.mPassword = password;
-            this.username = username;
-            this.user = new User(username,email);
+
         }
 
         @Override
@@ -300,9 +317,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
 
-                if (pieces[0].equals(mEmail)) {
-                    this.username = pieces[0];
-                    return pieces[1].equals(mPassword);
+                if (pieces[2].equals(mEmail)) {
+                    this.username = pieces[1];
+                    this.userID = Integer.parseInt(pieces[0]);
+                    return pieces[3].equals(mPassword);
                 }
             }
 
@@ -316,6 +334,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
+                this.user = new User(userID,username, mEmail);
                 Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
                 intentMain.putExtra("User", this.user);
                 startActivity(intentMain);

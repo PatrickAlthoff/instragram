@@ -3,6 +3,7 @@ package de.hshl.softwareprojekt;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
@@ -10,9 +11,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -43,10 +47,26 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         this.searchText = findViewById(R.id.searchText);
         this.searchButton = findViewById(R.id.searchButton);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
+        this.searchButton.setOnClickListener(this);
         if(getSeachIntent != null) {
             this.searchText.setText(getSeachIntent.getStringExtra("Hashtag"));
+            this.searchButton.post(new Runnable() {
+                @Override
+                public void run() {
+                    searchButton.performClick();
+
+                }
+            });
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         }
-        this.searchButton.setOnClickListener(this);
+        Toolbar toolbar = findViewById(R.id.toolbar8);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
@@ -176,8 +196,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.searchButton:
+
                 View view = this.getCurrentFocus();
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -212,9 +231,20 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
                     }
                     postList.clear();
-                    break;
 
-                }
+
+
             }
         }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     }

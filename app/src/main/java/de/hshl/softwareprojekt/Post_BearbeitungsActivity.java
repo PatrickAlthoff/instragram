@@ -125,7 +125,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                     uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
                     uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     uploadDialog.show();
-                    new Post_BearbeitungsActivity.UploadAsynk().execute();
+                    new Post_BearbeitungsActivity.UploadAsynk(this.user).execute();
                 }
 
                 setResult(RESULT_OK, sendBackIntent);
@@ -208,16 +208,21 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         }
     }
     private class UploadAsynk extends AsyncTask {
-
-
+        DatabaseHelperUser userData;
+        User user;
         String serverResponse;
+        UploadAsynk(User user) {
+            this.user = user;
+            this.userData = new DatabaseHelperUser(Post_BearbeitungsActivity.this);
+        }
+
         @Override
         protected Object doInBackground(Object[] params) {
 
 
             String boundary = "---boundary" + System.currentTimeMillis();
             String firstLineBoundary = "--" + boundary + "\r\n";
-            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload1\";filename=\"imagefile.jpg\"\r\n";
+            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload1\";filename=\""+this.user.getId()+this.user.getUsername()+"\"\r\n";
             String newLine = "\r\n";
             String lastLineBoundary = "--" + boundary + "--\r\n";
 

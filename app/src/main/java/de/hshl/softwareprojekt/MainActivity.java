@@ -29,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -497,11 +498,13 @@ public class MainActivity extends AppCompatActivity
                 if(query.contains("#")) {
                     startSearchIntent.putExtra("Hashtag", query);
                     startActivity(startSearchIntent);
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                 }
                 else{
                     query = "#" + query;
                     startSearchIntent.putExtra("Hashtag", query);
                     startActivity(startSearchIntent);
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                 }
                 return true;
             }
