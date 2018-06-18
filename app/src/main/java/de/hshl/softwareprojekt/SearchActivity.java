@@ -1,5 +1,6 @@
 package de.hshl.softwareprojekt;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,10 +10,13 @@ import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,37 +32,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
     private int IMAGE_CLICKED = 13;
     private DatabaseHelperPosts dataBasePosts;
-    private ImageButton searchButton;
-    private EditText searchText;
     private LinearLayout searchLayout;
     private ArrayList<String> postList;
+    private ArrayList<PostFragment> postFragmentList;
+    private Intent getSeachIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        Intent getSeachIntent = getIntent();
-
+        this.getSeachIntent = getIntent();
+        this.postFragmentList = new ArrayList<>();
         this.dataBasePosts = new DatabaseHelperPosts(this);
-        this.searchText = findViewById(R.id.searchText);
-        this.searchButton = findViewById(R.id.searchButton);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
-        this.searchButton.setOnClickListener(this);
-        if(getSeachIntent != null) {
-            this.searchText.setText(getSeachIntent.getStringExtra("Hashtag"));
-            this.searchButton.post(new Runnable() {
-                @Override
-                public void run() {
-                    searchButton.performClick();
 
-                }
-            });
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        }
         Toolbar toolbar = findViewById(R.id.toolbar8);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
@@ -155,7 +147,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         });
-
+        postFragmentList.add(frontPagePost);
         deleteButton.setVisibility(View.INVISIBLE);
     }
 
@@ -197,21 +189,51 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
 
-                View view = this.getCurrentFocus();
+
+        }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    //Generiert den Inhalt des DrawerLayout aus der main.xml
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setQueryHint("Search for #Hashtags...");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                int index = 0;
+                while(index < postFragmentList.size()){
+                    removeFragment(postFragmentList.get(index));
+                    index++;
+                }
+                View view = getCurrentFocus();
                 if (view != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
-                this.postList =  this.dataBasePosts.getHashtags(this.searchText.getText().toString());
-                if(this.postList.size()>0){
+                postList =  dataBasePosts.getHashtags(query);
+                if(postList.size()>0){
                     int i = postList.size()-1;
-                        while(i>=0){
+                    while(i>=0){
                         String[] pieces = postList.get(i).split(" : ");
                         String ids = pieces[0];
                         String username = pieces[1];
                         int id = Integer.parseInt(ids);
-                        Uri uri =  Uri.parse(pieces[2]);
-                        Bitmap bitmap = getAndScaleBitmap(uri ,-1,330);
+                        String base64 =  pieces[2];
+                        Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
                         String titel = pieces[3];
                         ArrayList<String> hashlist = new ArrayList<>();
                         String[] hashes = pieces[4].split(":");
@@ -234,17 +256,28 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
 
 
+                }
+
+                return false;
             }
-        }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handle arrow click here
-        if (item.getItemId() == android.R.id.home) {
-            finish(); // close this activity and return to preview activity (if there is any)
-        }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
-        return super.onOptionsItemSelected(item);
+        searchView.setQuery(this.getSeachIntent.getStringExtra("Hashtag"), true);
+        searchView.setQuery(this.getSeachIntent.getStringExtra("Hashtag"), false);
+        searchView.clearFocus();
+        return true;
     }
+    //Entfernt das Fragment
+    public void removeFragment(PostFragment pf) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(pf);
+        fragmentTransaction.commitNow();
 
+    }
     }

@@ -392,8 +392,8 @@ public class MainActivity extends AppCompatActivity
                     if(hashes == null){
                         hashes = "#NoHashtags";
                     }
-                    String path = getImageUri(this,postImage).toString();
-                    dataBasePosts.insertData(c,this.user.getUsername(), path, titel, hashes, date, false, this.user.getId());
+                    String base64Code = ImageHelper.bitmapToBase64(postImage);
+                    dataBasePosts.insertData(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
                     ArrayList<String> postList = dataBasePosts.getData();
                     postList.size();
                 }
@@ -593,8 +593,8 @@ public class MainActivity extends AppCompatActivity
                 if(pieces[1].equals(user.getUsername())){
                     String ids = pieces[0];
                     int id = Integer.parseInt(ids);
-                    Uri uri =  Uri.parse(pieces[2]);
-                    Bitmap bitmap = getAndScaleBitmap(uri ,-1,330);
+                    String base64 =  pieces[2];
+                    Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
                     String titel = pieces[3];
                     ArrayList<String> hashlist = new ArrayList<>();
                     String[] hashes = pieces[4].split(":");
