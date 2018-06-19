@@ -61,10 +61,10 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
             rowId = db.insert(TABLE_NAME, null, values);
         }
         catch (SQLiteException exception) {
-            Log.e(TAG, "insertData()", exception);
+            Log.e(TAG, "insertPost()", exception);
         }
         finally {
-            Log.d(TAG, "insertData(rowId:" + rowId + ")");
+            Log.d(TAG, "insertPost(rowId:" + rowId + ")");
 
             if (db != null){
                 db.close();

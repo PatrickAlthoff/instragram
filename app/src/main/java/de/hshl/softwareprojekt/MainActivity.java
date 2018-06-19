@@ -37,7 +37,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -393,7 +392,7 @@ public class MainActivity extends AppCompatActivity
                         hashes = "#NoHashtags";
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
-                    dataBasePosts.insertData(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
+                    dataBasePosts.insertPost(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
                     ArrayList<String> postList = dataBasePosts.getData();
                     postList.size();
                 }
@@ -548,6 +547,7 @@ public class MainActivity extends AppCompatActivity
             Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStories.putParcelableArrayListExtra("UriList", this.uriList);
             intentStories.putStringArrayListExtra("TitelList", this.titelList);
+            intentStories.putExtra("User", this.user);
             startActivityForResult(intentStories, 101);
         }
         //Startet das Settingslayout
@@ -581,6 +581,7 @@ public class MainActivity extends AppCompatActivity
             Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
             intentStorie.putStringArrayListExtra("TitelList", this.titelList);
+            intentStorie.putExtra("User", this.user);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);

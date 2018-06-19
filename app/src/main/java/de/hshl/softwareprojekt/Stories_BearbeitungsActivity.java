@@ -39,6 +39,8 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     private int DESCRIPTION = 3;
     private int i;
     private int progressBarCount;
+    private int id;
+    private User user;
     private Uri imageUri;
     private Button fotoBtn;
     private Button galerieBtn;
@@ -51,6 +53,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     private TextView storieTitel;
     private ProgressBar storiebar;
     private Intent intentCaptureImage;
+    private DatabaseHelperPosts database;
 
 
 
@@ -64,9 +67,12 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.titelList = new ArrayList<>();
         this.bitmapList = new ArrayList<>();
         this.uriList = new ArrayList<>();
-
+        this.database = new DatabaseHelperPosts(this);
         this.uriList = data.getParcelableArrayListExtra("UriList");
         this.titelList = data.getStringArrayListExtra("TitelList");
+        this.user = (User) data.getSerializableExtra("User");
+        this.id = data.getIntExtra("id",0);
+
         this.bitmapList = convertToBitmapList(this.uriList);
 
         this.fotoBtn = findViewById(R.id.fotoEdit);
@@ -93,6 +99,50 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+
+        storiePic.post(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<String> storyList = database.getStory(user.getId());
+
+                if (storyList.size() == 0){
+                    storiePic.setVisibility(View.VISIBLE);
+                } else {
+
+                    String story = storyList.get(0);
+                    String[] pieces = story.split(" : ");
+                    String ids = pieces[0];
+                    int id = Integer.parseInt(ids);
+                    String base64 = pieces[2];
+                    String[] base64Strings = base64.split(":");
+                    int i = 1;
+                    ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
+                    while (i < base64Strings.length) {
+                        base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
+                        i++;
+                    }
+                    String titel = pieces[3];
+                    String[] titleStringsSplit = titel.split(":");
+                    int d = 1;
+                    ArrayList<String> titleStrings = new ArrayList<>();
+
+                    while (d < titleStringsSplit.length) {
+                        titleStrings.add(titleStringsSplit[d]);
+                        d++;
+                    }
+                    bitmapList = base64Bitmap;
+                    titelList = titleStrings;
+                    storiePic.setImageBitmap(bitmapList.get(0));
+                    storieTitel.setText(titelList.get(0));
+                }
+            }
+
+
+
+
+
+        });
+
 
     }
     //Get Methode zur Ermittlung der Image Uri
@@ -151,11 +201,49 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
                 sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
+                String base64 = convertBitMapListtoBase64(this.bitmapList);
+                String titel = convertStringListtoString(this.titelList);
+                int c = this.id;
+                if(c == 0){
+                String d = Long.toString(System.currentTimeMillis()/1000);
+                c = Integer.parseInt(d);
+                }
+
+                ArrayList<String> storyList = database.getStory(user.getId());
+
+                if (storyList.size() == 0) {
+                    database.insertStory(c, this.user.getUsername(), base64, titel, "", "", true, this.user.getId());
+
+                }
+                else{
+                    database.updateStory(user.getId(),base64, titel);
+                }
                 finish();
                 break;
         }
     }
 
+    public String convertStringListtoString (ArrayList<String> stringList){
+        int i = 0;
+        String titel = "";
+        while(i<stringList.size()){
+            titel= titel + ":" + stringList.get(i);
+            i++;
+        }
+
+        return titel;
+    }
+
+    public String convertBitMapListtoBase64 (ArrayList<Bitmap> bitmapList){
+        int i = 0;
+        String base64 = "";
+        while (i < bitmapList.size()){
+            base64 = base64 + ":" +  ImageHelper.bitmapToBase64(bitmapList.get(i));
+            i++;
+        }
+
+        return base64;
+    }
     //Methode zum Start der Camera
     private void startCamera(){
         if (this.permissionGranted){
