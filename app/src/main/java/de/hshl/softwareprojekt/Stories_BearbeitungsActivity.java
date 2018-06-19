@@ -47,7 +47,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     private Button restartbtn;
     private Button publishBtn;
     private ArrayList<Bitmap> bitmapList;
-    private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
     private ImageView storiePic;
     private TextView storieTitel;
@@ -66,14 +65,9 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         Intent data = getIntent();
         this.titelList = new ArrayList<>();
         this.bitmapList = new ArrayList<>();
-        this.uriList = new ArrayList<>();
         this.database = new DatabaseHelperPosts(this);
-        this.uriList = data.getParcelableArrayListExtra("UriList");
-        this.titelList = data.getStringArrayListExtra("TitelList");
         this.user = (User) data.getSerializableExtra("User");
         this.id = data.getIntExtra("id",0);
-
-        this.bitmapList = convertToBitmapList(this.uriList);
 
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
@@ -87,10 +81,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.galerieBtn.setOnClickListener(this);
         this.restartbtn.setOnClickListener(this);
         this.publishBtn.setOnClickListener(this);
-
-        if(this.uriList.size() > 0) {
-            this.storiePic.setImageBitmap(getAndScaleBitmapNormal(this.uriList.get(0), -1, 330));
-        }
 
         Toolbar toolbar = findViewById(R.id.toolbar4);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -137,51 +127,10 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 }
             }
 
-
-
-
-
         });
 
-
     }
-    //Get Methode zur Ermittlung der Image Uri
-    private Uri getImageUri(Context context, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-    //Konvertiert ArrayList Uri in eine ArrayList Bitmap
-    public ArrayList<Bitmap> convertToBitmapList(ArrayList<Uri> uriList){
-        int length = uriList.size();
-        int i = 0;
-        ArrayList<Bitmap> bitmapList =new ArrayList<>();
-        Bitmap bitmap;
 
-        while (length > i){
-            bitmap = getAndScaleBitmapNormal(uriList.get(i),-1,330);
-            bitmapList.add(bitmap);
-            i++;
-
-        }
-        return bitmapList;
-    }
-    //Konvertiert ArrayList Bitmap in eine ArrayList Bitmap
-    public ArrayList<Uri> convertToUriList(ArrayList<Bitmap> bitmapList){
-        int length = bitmapList.size();
-        int i = 0;
-        ArrayList<Uri> uriList =new ArrayList<>();
-        Uri uri;
-
-        while (length > i){
-            uri = getImageUri(this,bitmapList.get(i));
-            uriList.add(uri);
-            i++;
-
-        }
-        return uriList;
-    }
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -198,8 +147,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 break;
             case R.id.publishBtn:
                 Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
-                sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
-                sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
                 String base64 = convertBitMapListtoBase64(this.bitmapList);
                 String titel = convertStringListtoString(this.titelList);

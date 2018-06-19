@@ -26,7 +26,6 @@ import java.util.ArrayList;
 public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private ArrayList<Bitmap> bitmapList;
-    private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
     private ProgressBar progressBar;
     private Button addBtn;
@@ -55,8 +54,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.bitmapList = new ArrayList<>();
         this.titelList = new ArrayList<>();
         this.database = new DatabaseHelperPosts(this);
-        this.uriList = data.getParcelableArrayListExtra("UriList");
-        this.titelList = data.getStringArrayListExtra("TitelList");
         this.user = (User) data.getSerializableExtra("User");
         this.addBtn = findViewById(R.id.addBtn);
         this.deleteBtn = findViewById(R.id.deleteStorie);
@@ -67,7 +64,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.start = 0;
         this.checkInt = 0;
 
-        scaleUp(this.uriList);
 
         //Initialisierung der Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar5);
@@ -108,14 +104,8 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                         d++;
                     }
                     addStory(base64Bitmap, titleStrings);
-
                 }
             }
-
-
-
-
-
         });
 
     }
@@ -139,9 +129,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
             this.titelStory = storiesFragment.storieTitel;
             this.progressBar = storiesFragment.prBar;
             this.storiePic = storiesFragment.storieImage;
-
-
-
 
     }
     //Enthält die Methode zur Visualisierung der Progressbar
@@ -171,26 +158,9 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                     });
                     SystemClock.sleep(2000);
 
-
                 }
             }
         }).start();
-    }
-
-
-    //Wandelt die Pbergebene Uri Arraylist in eine Bitmap Arraylist um
-    public ArrayList<Bitmap> scaleUp(ArrayList<Uri> uriList) {
-
-        int length = uriList.size();
-        int i = 0;
-        Bitmap bitmap;
-        while (length > i) {
-            bitmap = getAndScaleBitmapNormal(uriList.get(i), -1, 330);
-            this.bitmapList.add(i, bitmap);
-            i++;
-
-        }
-        return bitmapList;
     }
 
     @Override
@@ -198,13 +168,10 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         switch (v.getId()) {
             case R.id.addBtn:
                 Intent sendtoStorieBearbeitung = new Intent(Main_Story_Clicked.this, Stories_BearbeitungsActivity.class);
-                sendtoStorieBearbeitung.putParcelableArrayListExtra("UriList", this.uriList);
-                sendtoStorieBearbeitung.putStringArrayListExtra("TitelList", this.titelList);
                 sendtoStorieBearbeitung.putExtra("User", this.user);
                 this.id = database.getID(this.user.getId());
                 sendtoStorieBearbeitung.putExtra("id", this.id);
                 startActivityForResult(sendtoStorieBearbeitung, 101);
-                this.uriList.clear();
                 this.bitmapList.clear();
                 this.titelList.clear();
                 if(id != 0) {
@@ -229,12 +196,9 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                 }
                 break;
         }
-
     }
     //Sorgt beim Delete für eine Leerung der ArrayLists und schaltet Objekte auf INVISIBLE
     public void deleteProcess(){
-
-            this.uriList.clear();
             this.bitmapList.clear();
             this.titelList.clear();
             this.storiePic.setVisibility(View.INVISIBLE);
@@ -250,32 +214,10 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
             Intent sendBackIntent = new Intent(Main_Story_Clicked.this, MainActivity.class);
-            sendBackIntent.putParcelableArrayListExtra("UriList", this.uriList);
-            sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
             setResult(RESULT_OK, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    //Skaliert eine übergebene Uri auf eine dementsprechende Bitmap
-    private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight) {
-        try {
-            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-            float srcWidth = src.getWidth(),
-                    srcHeight = src.getHeight();
-
-            if (dstWidth < 1) {
-                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
-            }
-            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
-            return dst;
-        } catch (IOException e) {
-            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
-        }
-        return null;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -286,11 +228,8 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     Intent intentGet = data;
-                    this.uriList = intentGet.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentGet.getStringArrayListExtra("TitelList");
                     this.id = intentGet.getIntExtra("id",0);
                     this.bitmapList.clear();
-                    scaleUp(this.uriList);
                     start++;
 
                     ArrayList<String> storyList = database.getStory(user.getId()) ;
@@ -316,13 +255,8 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                         d++;
                     }
                     addStory(base64Bitmap, titleStrings);
-
-                }
-
-
+                    }
                 }
             }
         }
     }
-
-

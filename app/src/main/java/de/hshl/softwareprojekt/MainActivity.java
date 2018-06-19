@@ -61,8 +61,6 @@ public class MainActivity extends AppCompatActivity
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
-    private ArrayList<Uri> uriList;
-    private ArrayList<String> titelList;
     private ImageView profilBild;
     private ImageView followerBild;
     private ImageButton refreshBtn;
@@ -123,8 +121,6 @@ public class MainActivity extends AppCompatActivity
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
 
-        this.uriList = new ArrayList<>();
-        this.titelList = new ArrayList<>();
         this.textViewList = new ArrayList<>();
         this.hashTagList = new ArrayList<>();
 
@@ -403,28 +399,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d(MainActivity.class.getSimpleName(),"no picture selected");
             }
         }
-        //Verarbeitet Informationen aus einem Intent, aus der Story Activity
-        if(requestCode == STORIE_PICK){
-            if(resultCode == RESULT_OK){
-                if(data != null) {
-                    Intent intentStory = data;
-                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
-                }
-            }
-            else{
-                Log.d(MainActivity.class.getSimpleName(),"no picture selected");
-            }
-        }
-        if(requestCode == 101){
-            if(resultCode == RESULT_OK){
-                if(data != null){
-                    Intent intentStory = data;
-                    this.uriList = intentStory.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentStory.getStringArrayListExtra("TitelList");
-                }
-            }
-        }
         //Enthält das User Objekt aus der Settings Acitivty
         if(requestCode == 111){
             if(resultCode == RESULT_OK){
@@ -545,8 +519,6 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_slideshow) {
             Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
-            intentStories.putParcelableArrayListExtra("UriList", this.uriList);
-            intentStories.putStringArrayListExtra("TitelList", this.titelList);
             intentStories.putExtra("User", this.user);
             startActivityForResult(intentStories, 101);
         }
@@ -573,14 +545,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
     //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.followerNr1){
             Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
-            intentStorie.putParcelableArrayListExtra("UriList", this.uriList);
-            intentStorie.putStringArrayListExtra("TitelList", this.titelList);
             intentStorie.putExtra("User", this.user);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
