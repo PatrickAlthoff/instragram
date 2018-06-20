@@ -15,15 +15,21 @@ public class XmlHelper {
 
     }
 
-    public static String buildXmlMessage(String title, String description, Bitmap image) {
+    public static String buildXmlMessage(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, int userKey) {
+
+        int like = liked ? 1:0;
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<pictures>" +
                 "<picture>" +
-                "<title>" + title + "</title>"+
-                "<description>" + description + "</description>" +
-                "<timestamp>" + new Timestamp(System.currentTimeMillis()) + "</timestamp>" +
-                "<imagedata>" + ImageHelper.bitmapToBase64(image) + "</imagedata>" +
+                "<id>" + id + "</id>" +
+                "<name>" + name + "</name>" +
+                "<base64>" + base64 + "</base64>" +
+                "<titel>" + titel + "</titel>"+
+                "<hashtags>" + hashtags + "</hashtags>" +
+                "<datum>" + date + "</datum>" +
+                "<like>" + like + "</like>" +
+                "<userKey>" + userKey + "</userKey>" +
                 "</picture>" +
                 "</pictures>" +
                 "</data>";

@@ -389,6 +389,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
                     dataBasePosts.insertPost(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
+                    sendXML(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
                     ArrayList<String> postList = dataBasePosts.getData();
                     postList.size();
                 }
@@ -597,5 +598,16 @@ public class MainActivity extends AppCompatActivity
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+    private void sendXML(int id, String name, String path, String titel, String hashtags, String date, boolean liked, int userKey){
+
+        String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
+
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+
+        httpConnection.setMessage(XmlHelper.buildXmlMessage( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+
+        httpConnection.execute();
     }
 }

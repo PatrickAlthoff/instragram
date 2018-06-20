@@ -1,5 +1,6 @@
 package de.hshl.softwareprojekt;
 
+import android.graphics.Bitmap;
 import android.graphics.Picture;
 import android.icu.util.Output;
 import android.os.AsyncTask;
@@ -37,6 +38,7 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
     private List<Picture> pictureList = null;
     private String response;
     private Document document;
+    private String username;
 
     HttpConnection(String dstAddress, Object resultContainer){
         this.dstAddress = dstAddress;
@@ -45,6 +47,7 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
 
     public void setMessage(String message) {
         this.message = message;
+        this.username = username;
     }
     public void setMode(MODE mode){
         this.mode = mode;
@@ -56,7 +59,6 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
         InputStream inputStream = null;
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;
-
         try {
             URL url = new URL(this.dstAddress);
             urlConnection = (HttpURLConnection)url.openConnection();
@@ -69,7 +71,9 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
                 urlConnection.setDoInput(true);
 
                 OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
+
                 outputStream.write(this.message.getBytes());
+
                 outputStream.flush();
             }
             else{
@@ -189,4 +193,5 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
 
         return value;
     }
+
 }

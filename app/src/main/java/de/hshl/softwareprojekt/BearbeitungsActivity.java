@@ -462,17 +462,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendXML(String title){
-
-        String dstAdress = "http://intranet-secure.de/instragram/Upload_xml.php";
-
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-
-        httpConnection.setMessage(XmlHelper.buildXmlMessage(title, "Filler mit Fillern", this.getAndScaleBitmap(this.imageUri,800,1)));
-        httpConnection.setMode(HttpConnection.MODE.PUT);
-
-        httpConnection.execute();
-    }
 
 
 

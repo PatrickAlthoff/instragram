@@ -121,12 +121,12 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
                 sendBackIntent.putExtra("Date", date);
 
-                if(imageUri!= null && internetAvailable()) {
+                /*if(imageUri!= null && internetAvailable()) {
                     uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
                     uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     uploadDialog.show();
                     new Post_BearbeitungsActivity.UploadAsynk(this.user).execute();
-                }
+                }*/
 
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
@@ -179,6 +179,16 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         }
 
         return stringList;
+    }
+    public String convertToString(ArrayList<String> stringList){
+        String hashtags = "";
+        int i = 0;
+        while (i<stringList.size()) {
+            hashtags = hashtags +  stringList.get(i);
+            i++;
+        }
+
+        return hashtags;
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -303,5 +313,6 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         return networkInfo != null && networkInfo.isConnected();
 
     }
+
 }
 

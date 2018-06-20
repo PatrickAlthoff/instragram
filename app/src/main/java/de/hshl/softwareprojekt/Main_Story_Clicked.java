@@ -64,7 +64,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.start = 0;
         this.checkInt = 0;
 
-
         //Initialisierung der Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar5);
         toolbar.setTitleTextColor(0xFFFFFFFF);
