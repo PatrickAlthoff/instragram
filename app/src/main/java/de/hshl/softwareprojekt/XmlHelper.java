@@ -37,5 +37,19 @@ public class XmlHelper {
 
         return xml;
     }
+    public static String buildXmlUser(String username, String email, String password){
+
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<users>" +
+                "<user>" +
+                "<username>" + username + "</username>" +
+                "<email>" + email + "</email>" +
+                "<password>" + password + "</password>" +
+                "</user>" +
+                "</users>" +
+                "</data>";
+        return xml;
+    }
 
 }

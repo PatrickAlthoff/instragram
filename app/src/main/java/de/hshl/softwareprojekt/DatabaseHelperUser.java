@@ -53,7 +53,6 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         SQLiteDatabase db = null;
         try {
             db = getWritableDatabase();
-            onCreate(db);
             ContentValues values = new ContentValues();
             values.put("username", username);
             values.put("email", email);

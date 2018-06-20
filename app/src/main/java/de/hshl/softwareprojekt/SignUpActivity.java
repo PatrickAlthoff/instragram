@@ -53,6 +53,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             startLogin.putExtra("pw", pw);
 
             setResult(RESULT_OK, startLogin);
+            sendXML(username,email,pw);
             finish();
         }
         else{
@@ -66,5 +67,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendXML(String username, String email, String password){
+
+        String dstAdress = "http://intranet-secure.de/instragram/Upload_User.php";
+
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+
+        httpConnection.setMessage(XmlHelper.buildXmlUser( username,  email,  password));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+
+        httpConnection.execute();
     }
 }
