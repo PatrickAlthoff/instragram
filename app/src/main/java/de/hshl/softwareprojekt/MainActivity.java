@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id, boolean liked){
+    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id, boolean liked, Bitmap profilPic){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -153,6 +153,9 @@ public class MainActivity extends AppCompatActivity
         TextView datefield = frontPagePost.timeStampView;
         datefield.setText(date);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
+
+        ImageView profilBitmap = frontPagePost.profilPicPost;
+        profilBitmap.setImageBitmap(profilPic);
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(new View.OnClickListener() {
@@ -376,7 +379,7 @@ public class MainActivity extends AppCompatActivity
                     String date = intentVerarbeitet.getStringExtra("Date");
                     String d = Long.toString(System.currentTimeMillis()/1000);
                     int c = Integer.parseInt(d);
-                    addPostFragment(postImage, titel, this.hashTagList, date, c, false);
+                    addPostFragment(postImage, titel, this.hashTagList, date, c, false, ImageHelper.base64ToBitmap(user.getBase64()));
                     int i = 0;
                     String hashes = "";
                     while(i<this.hashTagList.size()){
@@ -579,7 +582,7 @@ public class MainActivity extends AppCompatActivity
                         c++;
                     }
 
-                    addPostFragment(bitmap, titel, hashlist, date, id, liked);
+                    addPostFragment(bitmap, titel, hashlist, date, id, liked, ImageHelper.base64ToBitmap(user.getBase64()));
 
                 }
 

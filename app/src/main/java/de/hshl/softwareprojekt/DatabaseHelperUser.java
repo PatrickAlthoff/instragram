@@ -75,6 +75,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         }
     }
 
+
     //Get Methode zur Datenausgabe
     public ArrayList<String> getData(){
 
@@ -104,6 +105,38 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         }
         return userList;
     }
+
+    //Get Methode zur Ausgabe der Nutzermailadresse
+    public String getUserPic(long id){
+
+        String[] columns = {"base64"};
+        String userPic = "";
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try{
+            db = getReadableDatabase();
+            cursor = db.query(TABLE_NAME, columns, "_id="+id, null,null,null,null);
+            while(cursor.moveToNext()){
+                userPic = cursor.getString(0);
+            }
+
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "getUser()", exception);
+        }
+        finally {
+            if (cursor != null){
+                cursor.close();
+            }
+            if(db != null){
+                db.close();
+            }
+        }
+
+        return userPic;
+    }
+
     public void updateRemember(String email, boolean remember){
         int member = remember ? 1:0;
         int rowsUpdated = 0;

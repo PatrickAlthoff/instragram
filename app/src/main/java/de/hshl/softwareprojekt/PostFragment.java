@@ -22,6 +22,7 @@ import java.util.Locale;
 public class PostFragment extends Fragment {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     ImageView postImage;
+    ImageView profilPicPost;
     ImageButton delete;
     TextView textViewTitel;
     TextView timeStampView;
@@ -32,6 +33,8 @@ public class PostFragment extends Fragment {
     public void addPost(Bitmap bitmap, String titel){
         this.postImage = getView().findViewById(R.id.postView);
         this.postImage.setImageBitmap(bitmap);
+
+        this.profilPicPost = getView().findViewById(R.id.profilPicPost);
 
         this.postProfilName = getView().findViewById(R.id.profilNamePost);
         this.likeChecker = getView().findViewById(R.id.iLike);
