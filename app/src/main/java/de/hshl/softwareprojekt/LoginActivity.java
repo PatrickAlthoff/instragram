@@ -24,6 +24,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,AsyncResponse {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();
     private UserLoginTask mAuthTask = null;
@@ -49,7 +50,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ArrayList<String> userList;
     private DatabaseHelperUser database;
     private LinearLayout email_login_form;
+    private CheckBox rememberCheck;
     private User user;
+    private HttpConnection httpConnection;
+    private String response;
+    private boolean valid;
 
 
     @Override
@@ -58,26 +63,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
-
+        rememberCheck = findViewById(R.id.rememberCheck);
 
         mPasswordView = findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+
 
         Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                sendXML(mEmailView.getText().toString());
                 DUMMY_CREDENTIALS = database.getData();
-                attemptLogin();
+
             }
         });
 
@@ -124,9 +121,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        String remember = database.getRemember();
+        if(remember.contains(":")){
+            String[] pieces = remember.split(":");
+            mEmailView.setText(pieces[0]);
+            mPasswordView.setText(pieces[1]);
+            rememberCheck.setChecked(true);
+        }
     }
 
+    private void sendXML(String email){
 
+        String dstAdress = "http://intranet-secure.de/instragram/CheckForUser.php";
+
+        httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.buildXMLCheck(email));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -144,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
 
-    private void attemptLogin() {
+    private void attemptLogin(Boolean remember) {
         if (mAuthTask != null) {
             return;
         }
@@ -187,7 +203,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, remember, valid);
             mAuthTask.execute((Void) null);
         }
     }
@@ -278,6 +294,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    public void processFinish(String output) {
+        this.response = output;
+        if(this.response.contains("UserChecked")){
+            valid = true;
+        }else
+            if(this.response.contains("UserNotChecked")){
+            valid = false;
+        }
+        if(rememberCheck.isChecked()){
+            attemptLogin(true);
+        }
+        else {
+            attemptLogin(false);
+        }
+    }
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -292,15 +325,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
-        private int userID;
+        private long userID;
+        private boolean remember;
+        private boolean valid;
         private String username;
         private User user;
         private DatabaseHelperUser userData;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String password, Boolean remember, boolean valid) {
             this.mEmail = email;
             this.mPassword = password;
-
+            this.remember = remember;
+            this.valid = valid;
+            this.userData = new DatabaseHelperUser(LoginActivity.this);
         }
 
         @Override
@@ -319,7 +356,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 if (pieces[2].equals(mEmail)) {
                     this.username = pieces[1];
-                    this.userID = Integer.parseInt(pieces[0]);
+                    this.userID = Long.parseLong(pieces[0]);
                     return pieces[3].equals(mPassword);
                 }
             }
@@ -333,14 +370,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (success && valid==true) {
                 this.user = new User(userID,username, mEmail);
+                this.userData.updateRemember(mEmail, remember);
                 Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
                 intentMain.putExtra("User", this.user);
                 startActivity(intentMain);
                 finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+            } else if(success && valid == false) {
+                mPasswordView.setError("Deine Mailadresse ist ungültig!");
+                mPasswordView.requestFocus();
+            }else {
+                mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
                 mPasswordView.requestFocus();
             }
         }

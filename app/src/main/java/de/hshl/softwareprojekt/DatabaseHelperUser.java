@@ -19,7 +19,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     private static final String COL_2 = "email";
     private static final String COL_3 = "pw";
     public static final String SQL_TABLE_CREATE =
-            "CREATE TABLE " + TABLE_NAME + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT ,email TEXT, pw TEXT)";
+            "CREATE TABLE " + TABLE_NAME + " (_id INTEGER, username TEXT ,email TEXT, pw TEXT, base64 TEXT, remember INTEGER)";
     private static final String SQL_TABLE_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
     private static final int DATABASE_VERSION = 1;
 
@@ -48,15 +48,19 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
 
     }
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertData(String username, String email, String pw) {
+    public void insertData(long Id,String username, String email, String pw, String base64, boolean remember) {
         long rowId = -1;
+        int member = remember ? 1:0;
         SQLiteDatabase db = null;
         try {
             db = getWritableDatabase();
             ContentValues values = new ContentValues();
+            values.put("_id", Id);
             values.put("username", username);
             values.put("email", email);
             values.put("pw",  pw);
+            values.put("base64", base64);
+            values.put("remember", member);
             rowId = db.insert(TABLE_NAME, null, values);
         }
         catch (SQLiteException exception) {
@@ -74,7 +78,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     //Get Methode zur Datenausgabe
     public ArrayList<String> getData(){
 
-        String[] columns = {"_id","username", "email", "pw"};
+        String[] columns = {"_id","username", "email", "pw", "base64"};
         ArrayList<String> userList = new ArrayList<>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
@@ -84,7 +88,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
             cursor = db.query(TABLE_NAME, columns,  null, null,null,null,null);
 
             while (cursor.moveToNext()) {
-                userList.add(0, cursor.getString(0) + ":" +cursor.getString(1) + ":" + cursor.getString(2) + ":"  + cursor.getString(3));
+                userList.add(0, cursor.getString(0) + ":" +cursor.getString(1) + ":" + cursor.getString(2) + ":"  + cursor.getString(3) + ":" + cursor.getString(4));
             }
         }
         catch(SQLiteException exception) {
@@ -100,8 +104,28 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         }
         return userList;
     }
+    public void updateRemember(String email, boolean remember){
+        int member = remember ? 1:0;
+        int rowsUpdated = 0;
+        SQLiteDatabase db = null;
+        try{
+            db = getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("remember", member);
+            rowsUpdated = db.update(TABLE_NAME, cv, "email='" + email + "'", null);
+            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "updateData()", exception);
+        }
+        finally {
+            if(db != null){
+                db.close();
+            }
+        }
 
-    public void updateEmail(int id,String email){
+    }
+    public void updateEmail(long id, String email){
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
         try{
@@ -122,7 +146,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
 
     }
 
-    public void updateUser(int id,String username){
+    public void updateUser(long id, String username){
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
         try{
@@ -144,19 +168,18 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     }
 
     //Get Methode zur Ausgabe der Nutzermailadresse
-    public String getUser(String email){
+    public String getRemember(){
 
-        String[] columns = {"_id","username", "email"};
+        String[] columns = {"email", "pw"};
         String userEntry = "";
-        ArrayList<String> user= new ArrayList<>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
         try{
             db = getReadableDatabase();
-            cursor = db.query(TABLE_NAME, columns, "email like " + "'%" + email + "%'", null,null,null,null);
+            cursor = db.query(TABLE_NAME, columns, "remember= 1", null,null,null,null);
             while(cursor.moveToNext()){
-                userEntry = cursor.getString(1);
+                userEntry = cursor.getString(0) + ":" + cursor.getString(1);
             }
 
         }

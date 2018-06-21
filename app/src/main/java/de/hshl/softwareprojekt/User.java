@@ -3,13 +3,24 @@ package de.hshl.softwareprojekt;
 import java.io.Serializable;
 //Hält das User Objekt
 public class User implements Serializable {
-    private int id;
+    private long id;
+    private String username;
+    private String email;
 
-    public int getId() {
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
+    }
+
+    private String base64;
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -29,10 +40,9 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    private String username;
-    private String email;
 
-    public User(int id ,String username, String email){
+
+    public User(long id ,String username, String email){
 
         this.id = id;
         this.username = username;

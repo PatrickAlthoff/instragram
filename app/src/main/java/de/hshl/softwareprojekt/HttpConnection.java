@@ -28,7 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
-public class HttpConnection extends AsyncTask<Void, Void, Void> {
+public class HttpConnection extends AsyncTask<Void, Void, String> {
+    public AsyncResponse delegate = null;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     public static enum MODE {GET,PUT};
@@ -36,7 +37,13 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
     private String dstAddress, message = "", respond = "";
     private Object resultContainer;
     private List<Picture> pictureList = null;
+
+    public String getResponse() {
+        return response;
+    }
+
     private String response;
+
     private Document document;
     private String username;
 
@@ -54,7 +61,7 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected String doInBackground(Void... voids) {
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
         InputStreamReader inputStreamReader = null;
@@ -96,6 +103,7 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
                     }
 
                     this.response = result;
+
                 }
             }
         }
@@ -135,18 +143,18 @@ public class HttpConnection extends AsyncTask<Void, Void, Void> {
 
             }
         }
-        return null;
+        return this.response;
     }
 
-    protected void onPostExecution(Void result) {
-        super.onPostExecute(result);
-        pictureList = getPictureList();
-        if (this.mode == MODE.GET){
-
+    @Override
+    protected void onPostExecute(String result) {
+        if(result.contains("Ok")) {
+            delegate.processFinish(result);
+        }else if(result.contains("UserChecked")){
+            delegate.processFinish(result);
         }
-
-
     }
+
     public static Timestamp convertStringToTimestamp(String str_date) {
         try {
             DateFormat formatter;

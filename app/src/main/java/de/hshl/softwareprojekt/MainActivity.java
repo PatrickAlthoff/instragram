@@ -599,7 +599,7 @@ public class MainActivity extends AppCompatActivity
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
-    private void sendXML(int id, String name, String path, String titel, String hashtags, String date, boolean liked, int userKey){
+    private void sendXML(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey){
 
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
 

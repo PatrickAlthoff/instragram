@@ -54,7 +54,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     }
 
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertStory(int id, String name, String path, String titel, String hashtags, String date, boolean liked, int userKey) {
+    public void insertStory(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey) {
         long rowId = -1;
         SQLiteDatabase db = null;
         int like = liked ? 1:0;
@@ -85,7 +85,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
 
 
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, int userKey) {
+    public void insertPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey) {
         long rowId = -1;
         SQLiteDatabase db = null;
         int like = liked ? 1:0;
@@ -115,7 +115,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     }
 
     //Get Methode zur Datenausgabe
-    public ArrayList<String> getStory(int userKey){
+    public ArrayList<String> getStory(long userKey){
 
         String[] columns = {"_id", "username", "base64", "titel", "hashtags", "date","liked","userKey"};
 
@@ -176,7 +176,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         return postList;
     }
 
-    public void updateUserPosts(int id, String username){
+    public void updateUserPosts(long id, String username){
 
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
@@ -199,7 +199,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     }
 
     //Update den Like Status
-    public void updateStory(int id, String bas64, String titel){
+    public void updateStory(long id, String bas64, String titel){
 
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
@@ -247,7 +247,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     }
 
     //Methode zum Löschen des letzten Eintrages
-    public void deleteStory(int id){
+    public void deleteStory(long id){
         int rowsDeleted;
         SQLiteDatabase db = null;
 
@@ -286,7 +286,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         }
     }
 
-    public int getID(int UserKey){
+    public int getID(long UserKey){
 
         String[] columns = {"_id", "userKey"};
         int ID = 0;

@@ -28,10 +28,24 @@
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp">
 
+        <TextView
+            android:id="@+id/profilPic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:fontFamily="sans-serif-medium"
+            android:text="Profilbild"
+            android:textColor="@color/white"
+            android:textSize="30sp" />
+
         <ImageView
             android:id="@+id/imgView_logo"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="44dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_camera" />
@@ -46,7 +60,8 @@
                 android:id="@+id/tv_signup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:fontFamily="sans-serif-medium"
                 android:text="Registrierung"
                 android:textColor="@color/white"
