@@ -61,4 +61,16 @@ public class XmlHelper {
         return xml;
     }
 
+    public static String getUserPic(long id){
+
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<user>" +
+                "<ID>" + id + "</ID>" +
+                "</user>" +
+                "</data>";
+        return xml;
+    }
+
+
 }

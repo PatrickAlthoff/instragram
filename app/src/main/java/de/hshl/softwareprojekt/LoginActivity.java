@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -17,10 +19,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -52,6 +52,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private LinearLayout email_login_form;
     private CheckBox rememberCheck;
     private User user;
+    private ArrayList<String> userTableData;
     private HttpConnection httpConnection;
     private String response;
     private boolean valid;
@@ -81,6 +82,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         database = new DatabaseHelperUser(this);
         email_login_form = findViewById(R.id.email_login_form);
 
+        this.userTableData = new ArrayList<>();
         this.userList = new ArrayList<>();
         this.neuBtn = findViewById(R.id.neuBtn);
         this.neuBtn.setOnClickListener(new OnClickListener() {
@@ -203,7 +205,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
-            mAuthTask = new UserLoginTask(email, password, remember, valid);
+            mAuthTask = new UserLoginTask(email, password, remember, valid, userTableData);
             mAuthTask.execute((Void) null);
         }
     }
@@ -297,6 +299,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void processFinish(String output) {
         this.response = output;
+
+        String[] outputUser = output.split(":");
+        int index =1;
+        while (index < outputUser.length){
+            userTableData.add(outputUser[index]);
+            index++;
+        }
         if(this.response.contains("UserChecked")){
             valid = true;
         }else
@@ -321,23 +330,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> implements AsyncResponse{
 
         private final String mEmail;
         private final String mPassword;
         private long userID;
         private boolean remember;
         private boolean valid;
+        private ArrayList<String> userTableData;
         private String username;
+        private String email;
+        private String pw;
         private User user;
         private DatabaseHelperUser userData;
 
-        UserLoginTask(String email, String password, Boolean remember, boolean valid) {
+        UserLoginTask(String email, String password, Boolean remember, boolean valid, ArrayList<String> userTableData) {
             this.mEmail = email;
             this.mPassword = password;
             this.remember = remember;
             this.valid = valid;
             this.userData = new DatabaseHelperUser(LoginActivity.this);
+            this.userTableData = userTableData;
         }
 
         @Override
@@ -380,16 +393,55 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } else if(success && valid == false) {
                 mPasswordView.setError("Deine Mailadresse ist ungültig!");
                 mPasswordView.requestFocus();
-            }else {
-                mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
-                mPasswordView.requestFocus();
+                userTableData.clear();
+            }else if(!success && valid == true) {
+
+                userID = Long.parseLong(userTableData.get(0));
+                username = userTableData.get(1);
+                email = userTableData.get(2);
+                pw = userTableData.get(3);
+                sendXML(userID);
+
+
+
+
             }
+                else{
+                    mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
+                    mPasswordView.requestFocus();
+                    userTableData.clear();
+                }
+
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        private void sendXML(long id){
+
+            String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+
+            httpConnection = new HttpConnection(dstAdress, this);
+            httpConnection.setMessage(XmlHelper.getUserPic(id));
+            httpConnection.setMode(HttpConnection.MODE.PUT);
+            httpConnection.delegate = this;
+            httpConnection.execute();
+
+
+        }
+
+        @Override
+        public void processFinish(String output) {
+            String[] outputUser = output.split(":");
+            userData.insertData(userID, username, email, pw, outputUser[1],false );
+            this.user = new User(userID,username, mEmail);
+            Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
+            intentMain.putExtra("User", this.user);
+            startActivity(intentMain);
+            finish();
         }
     }
 }

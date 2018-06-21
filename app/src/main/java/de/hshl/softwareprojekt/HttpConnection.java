@@ -99,7 +99,7 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
 
                     String line, result = "";
                     while ((line = bufferedReader.readLine()) != null) {
-                        result += line + "\n";
+                        result += line;
                     }
 
                     this.response = result;
