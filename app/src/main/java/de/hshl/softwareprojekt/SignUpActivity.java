@@ -152,7 +152,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         if(this.response.contains("Not_ok") ){
             this.emailField.setError("Email schon vergeben!");
         }
-        else if(this.response.contains("Ok")){
+        else if(this.response.contains("Is_Ok")){
 
             String[] idPiece = this.response.split(":");
             String idPiec = idPiece[0];

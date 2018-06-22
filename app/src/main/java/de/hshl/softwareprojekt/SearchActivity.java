@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
+public class SearchActivity extends AppCompatActivity implements View.OnClickListener,AsyncResponse {
     private int IMAGE_CLICKED = 13;
     private DatabaseHelperPosts dataBasePosts;
     private LinearLayout searchLayout;
@@ -62,7 +62,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, int id, boolean liked){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, boolean liked){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -209,54 +209,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setQueryHint("Search for #Hashtags...");
+        searchView.setQueryHint("Search for something...");
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                int index = 0;
-                while(index < postFragmentList.size()){
-                    removeFragment(postFragmentList.get(index));
-                    index++;
-                }
-                View view = getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-                postList =  dataBasePosts.getHashtags(query);
-                if(postList.size()>0){
-                    int i = postList.size()-1;
-                    while(i>=0){
-                        String[] pieces = postList.get(i).split(" : ");
-                        String ids = pieces[0];
-                        String username = pieces[1];
-                        int id = Integer.parseInt(ids);
-                        String base64 =  pieces[2];
-                        Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
-                        String titel = pieces[3];
-                        ArrayList<String> hashlist = new ArrayList<>();
-                        String[] hashes = pieces[4].split(":");
-                        String date = pieces[5];
-                        String bool = pieces[6];
-                        int like = Integer.valueOf(bool);
-                        Boolean liked = (like != 0);
-                        int c = 0;
-                        while(c<hashes.length){
-                            hashlist.add(hashes[c]);
-                            c++;
-                        }
 
-                        addPostFragment(bitmap, username,  titel, hashlist, date, id, liked);
-
-                        i--;
-
-                    }
-                    postList.clear();
-
-
-
-                }
+                sendXML(query);
 
                 return false;
             }
@@ -267,8 +226,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        searchView.setQuery(this.getSeachIntent.getStringExtra("Hashtag"), true);
-        searchView.setQuery(this.getSeachIntent.getStringExtra("Hashtag"), false);
+        searchView.setQuery(this.getSeachIntent.getStringExtra("Search"), true);
+        searchView.setQuery(this.getSeachIntent.getStringExtra("Search"), false);
         searchView.clearFocus();
         return true;
     }
@@ -280,4 +239,78 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
 
     }
+    private void sendXML(String query){
+
+        String dstAdress = "http://intranet-secure.de/instragram/search.php";
+
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+
+        httpConnection.setMessage(XmlHelper.buildXmlSearch(query));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
     }
+
+    @Override
+    public void processFinish(String output) {
+        String[] response = output.split(" : ");
+        if(response[0].equals("UserReturn")){
+            int i = 1;
+            while(i<response.length){
+            TextView searchResult = new TextView(this);
+            searchResult.setText(response[i]);
+            searchLayout.addView(searchResult);
+            i++;
+            }
+        }else {
+           /* int index = 1;
+            while (index < response.length) {
+                removeFragment(postFragmentList.get(index));
+                index++;
+            }
+            View view = getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }*/
+
+            postList = new ArrayList<>();
+            if (response.length > 1) {
+                int i = response.length-1;
+                while (i > 0) {
+
+                    String ids = response[i-7];
+                    String username = response[i-6];
+                    long id = Long.parseLong(ids);
+                    String base64 = response[i-5];
+                    Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
+                    String titel = response[i-4];
+                    ArrayList<String> hashlist = new ArrayList<>();
+                    String[] hashes = response[i-3].split(":");
+                    String date = response[i-2];
+                    String bool = response[i-1];
+                    String userKeyString = response[i];
+                    long userKey = Long.parseLong(userKeyString);
+                    int like = Integer.valueOf(bool);
+                    Boolean liked = (like != 0);
+                    int c = 0;
+                    while (c < hashes.length) {
+                        hashlist.add(hashes[c]);
+                        c++;
+                    }
+
+                    addPostFragment(bitmap, username, titel, hashlist, date, id, liked);
+
+                    i -=8;
+
+                }
+                postList.clear();
+            }
+
+        }
+
+
+
+    }
+}
+

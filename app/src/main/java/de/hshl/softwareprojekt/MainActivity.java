@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setQueryHint("Search for #Hashtags...");
+        searchView.setQueryHint("Search for something...");
 
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
             public boolean onQueryTextChange(String newText) {
@@ -472,17 +472,11 @@ public class MainActivity extends AppCompatActivity
                 // **Here you can get the value "query" which is entered in the search box.**
 
                 Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
-                if(query.contains("#")) {
-                    startSearchIntent.putExtra("Hashtag", query);
-                    startActivity(startSearchIntent);
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                }
-                else{
-                    query = "#" + query;
-                    startSearchIntent.putExtra("Hashtag", query);
-                    startActivity(startSearchIntent);
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                }
+
+                startSearchIntent.putExtra("Search", query);
+                startActivity(startSearchIntent);
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
                 return true;
             }
         };

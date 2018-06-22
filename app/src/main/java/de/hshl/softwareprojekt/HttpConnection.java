@@ -148,9 +148,13 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        if(result.contains("Ok")) {
+        if(result.contains("Is_Ok")) {
             delegate.processFinish(result);
         }else if(result.contains("UserChecked")){
+            delegate.processFinish(result);
+        }else if(result.contains("UserReturn")){
+            delegate.processFinish(result);
+        }else if(result.contains("HashReturn")){
             delegate.processFinish(result);
         }
     }
