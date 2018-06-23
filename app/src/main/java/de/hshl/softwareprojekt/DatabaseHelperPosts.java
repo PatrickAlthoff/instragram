@@ -16,9 +16,11 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "post.db";
     private static final String TABLE_POSTS = "posts";
     private static final String TABLE_STORIES = "stories";
+    private static final String TABLE_LIKECOUNT= "likecount";
     private static final String COL_1 = "_id";
     private static final String COL_2 = "email";
     private static final String COL_3 = "pw";
+    public static final String SQL_TABLE_CREATE_POSTLIKECOUNT = "CREATE TABLE " + TABLE_LIKECOUNT + " (_id INTEGER, username TEXT, liked INTEGER)";
     public static final String SQL_TABLE_CREATE_STORIES = "CREATE TABLE " + TABLE_STORIES + " (_id INTEGER, username TEXT, base64 TEXT, titel TEXT, hashtags TEXT, date TEXT, liked INTEGER, userKey INTEGER)";
     public static final String SQL_TABLE_CREATE_POSTS =
             "CREATE TABLE " + TABLE_POSTS + " (_id INTEGER, username TEXT, path TEXT, titel TEXT, hashtags TEXT, date TEXT, liked INTEGER, userKey INTEGER)";
@@ -39,6 +41,8 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             db.execSQL(SQL_TABLE_CREATE_POSTS);
             Log.d(TAG, "Die Tabelle wird mit SQL-Befehl: " + SQL_TABLE_CREATE_STORIES + " angelegt.");
             db.execSQL(SQL_TABLE_CREATE_STORIES);
+            Log.d(TAG, "Die Tabelle wird mit SQL-Befehl: " + SQL_TABLE_CREATE_POSTLIKECOUNT + " angelegt.");
+            db.execSQL(SQL_TABLE_CREATE_POSTLIKECOUNT);
         }
         catch (Exception ex) {
             Log.e(TAG, "Fehler beim Anlegen der Tabelle: " + ex.getMessage());
@@ -52,6 +56,58 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         onCreate(db);
 
     }
+    public int getLikeCount(long id, String username){
+        String[] columns = {"username","liked"};
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        int like = 0;
+        int i = 0;
+        try {
+            db = getReadableDatabase();
+            cursor = db.query(TABLE_LIKECOUNT, columns,  "_id=" + id +" AND " + "username=" + "'"+ username+"'" , null,null,null,null);
+
+            while(cursor.moveToNext()){
+                like = cursor.getInt(1);
+                i++;
+            }
+        }
+        catch(SQLiteException exception) {
+            Log.e(TAG, "getStory()", exception);
+        }
+        finally {
+            if (cursor != null){
+                cursor.close();
+            }
+            if(db != null){
+                db.close();
+            }
+        }
+        return like + i;
+    }
+    public void insertIntoLikeCount(long id, String name, boolean liked) {
+        long rowId = -1;
+        SQLiteDatabase db = null;
+        int like = liked ? 1:0;
+        try {
+            db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("_id", id);
+            values.put("username", name);
+            values.put("liked", like);
+            rowId = db.insert(TABLE_LIKECOUNT, null, values);
+        }
+        catch (SQLiteException exception) {
+            Log.e(TAG, "insertIntoLikeCount()", exception);
+        }
+        finally {
+            Log.d(TAG, "insertIntoLikeCount(rowId:" + rowId + ")");
+
+            if (db != null){
+                db.close();
+            }
+        }
+    }
+
 
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
     public void insertStory(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey) {
@@ -232,7 +288,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             db = getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put("liked", like);
-            rowsUpdated = db.update(TABLE_POSTS, values,"_id=" + id, null);
+            rowsUpdated = db.update(TABLE_LIKECOUNT, values,"_id=" + id, null);
             Log.d(TAG, "updateLike() affected " + rowsUpdated + " rows");
 
         }

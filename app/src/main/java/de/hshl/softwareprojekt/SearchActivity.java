@@ -42,6 +42,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private ArrayList<String> postList;
     private ArrayList<PostFragment> postFragmentList;
     private Intent getSeachIntent;
+    private User user;
+
+    private Bitmap postbitmap;
+    private String titel;
+    private ArrayList<String> hashL;
+    private String date;
+    private long id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +58,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         this.postFragmentList = new ArrayList<>();
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
+        this.user = (User) getSeachIntent.getSerializableExtra("User");
 
         Toolbar toolbar = findViewById(R.id.toolbar8);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -62,7 +71,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, boolean liked){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic){
+
+        this.postbitmap = postbitmap;
+        this.titel = titel;
+        this.hashL = hashlist;
+        this.date = date;
+        this.id = id;
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -83,6 +98,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         TextView datefield = frontPagePost.timeStampView;
         datefield.setText(date);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
+
+        ImageView userImage = frontPagePost.profilPicPost;
+        userImage.setImageBitmap(userPic);
+
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(new View.OnClickListener() {
@@ -119,14 +138,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         profilName.setText(username);
 
         CheckBox likeCheck = frontPagePost.likeChecker;
-        likeCheck.setChecked(liked);
-        if(likeCheck.isChecked() == true){
-            String getCount = likeCheck.getText().toString();
-            String[] pieces = getCount.split(": ");
-            int getInt = Integer.parseInt(pieces[1]);
-            likeCheck.setText("Likes: " + (getInt + 1));
+        int like = dataBasePosts.getLikeCount(id, user.getUsername());
+        if(like==2){
+            likeCheck.setChecked(true);
+
+        }else{
+            likeCheck.setChecked(false);
         }
+        likeCheck.setText("Likes: " + (liked));
         likeCheck.setId(View.generateViewId());
+        String ID = String.valueOf(id);
+        likeCheck.setContentDescription(ID);
         likeCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,13 +159,23 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 View deleteButtonId = ((ViewGroup)v.getParent()).getChildAt(7);
 
                 if(checked){
-                    dataBasePosts.updateLike(deleteButtonId.getId(), true);
+                    String idString = v.getContentDescription().toString();
+                    long id = Long.parseLong(idString);
+                    if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==0){
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
+                    }else if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==1){
+                        dataBasePosts.updateLike(v.getId(), true);
+                    }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
+                    updateLikeStatus(1, id);
 
                 }
                 else{
+                    String idString = v.getContentDescription().toString();
+                    long id = Long.parseLong(idString);
                     dataBasePosts.updateLike(deleteButtonId.getId(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
+                    updateLikeStatus(-1, id);
                 }
             }
         });
@@ -239,18 +271,36 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
 
     }
-    private void sendXML(String query){
 
-        String dstAdress = "http://intranet-secure.de/instragram/search.php";
-
+    private void updateLikeStatus(int status, long id){
+        String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-
-        httpConnection.setMessage(XmlHelper.buildXmlSearch(query));
+        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
 
+    private void sendXML(String query){
+
+        String dstAdress = "http://intranet-secure.de/instragram/search.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.buildXmlSearch(query));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void getUserPic(long query){
+
+        String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+
+        httpConnection.setMessage(XmlHelper.getUserPic(query));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     @Override
     public void processFinish(String output) {
         String[] response = output.split(" : ");
@@ -262,7 +312,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             searchLayout.addView(searchResult);
             i++;
             }
-        }else {
+        }else if(output.contains("Update erfolgreich.")) {
+            String returner = output;
+        }else{
            /* int index = 1;
             while (index < response.length) {
                 removeFragment(postFragmentList.get(index));
@@ -276,32 +328,32 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
             postList = new ArrayList<>();
             if (response.length > 1) {
-                int i = response.length-1;
-                while (i > 0) {
+                int i = 1;
+                while (i < response.length-1) {
 
-                    String ids = response[i-7];
-                    String username = response[i-6];
+                    String ids = response[i];
+                    String username = response[i+1];
                     long id = Long.parseLong(ids);
-                    String base64 = response[i-5];
+                    String base64 = response[i+2];
                     Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
-                    String titel = response[i-4];
+                    String titel = response[i+3];
                     ArrayList<String> hashlist = new ArrayList<>();
-                    String[] hashes = response[i-3].split(":");
-                    String date = response[i-2];
-                    String bool = response[i-1];
-                    String userKeyString = response[i];
+                    String[] hashes = response[i+4].split(":");
+                    String date = response[i+5];
+                    String bool = response[i+6];
+                    String userKeyString = response[i+7];
+                    String userPic = response[i+8];
                     long userKey = Long.parseLong(userKeyString);
                     int like = Integer.valueOf(bool);
-                    Boolean liked = (like != 0);
                     int c = 0;
                     while (c < hashes.length) {
                         hashlist.add(hashes[c]);
                         c++;
                     }
 
-                    addPostFragment(bitmap, username, titel, hashlist, date, id, liked);
+                    addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic));
 
-                    i -=8;
+                    i +=9;
 
                 }
                 postList.clear();

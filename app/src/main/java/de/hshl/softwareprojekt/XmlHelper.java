@@ -11,7 +11,7 @@ public class XmlHelper {
 
     }
 
-    public static String buildXmlMessage(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey) {
+    public static String buildXmlMessage(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
 
         int like = liked ? 1:0;
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
@@ -26,6 +26,7 @@ public class XmlHelper {
                 "<datum>" + date + "</datum>" +
                 "<like>" + like + "</like>" +
                 "<userKey>" + userKey + "</userKey>" +
+                "<userPic>" + userPic + "</userPic>" +
                 "</picture>" +
                 "</pictures>" +
                 "</data>";
@@ -78,6 +79,17 @@ public class XmlHelper {
                 "<search>" +
                 "<query>" + query + "</query>" +
                 "</search>" +
+                "</data>";
+        return xml;
+    }
+    public static String buildXMLUpdateStatus(int status, long id){
+
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<update>" +
+                "<status>" + status + "</status>" +
+                "<ID>" + id + "</ID>" +
+                "</update>" +
                 "</data>";
         return xml;
     }

@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> hashTagList;
     private ArrayList<String> postList;
     private DatabaseHelperPosts dataBasePosts;
-
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
         DisplayMetrics dm = new DisplayMetrics();
@@ -126,7 +125,6 @@ public class MainActivity extends AppCompatActivity
 
         this.profilName.setText(this.user.getUsername());
         this.dataBasePosts = new DatabaseHelperPosts(this);
-
         this.postList = this.dataBasePosts.getData();
 
     }
@@ -212,6 +210,7 @@ public class MainActivity extends AppCompatActivity
                 if(checked){
                     dataBasePosts.updateLike(deleteButtonId.getId(), true);
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
+
 
                 }
                 else{
@@ -391,10 +390,8 @@ public class MainActivity extends AppCompatActivity
                         hashes = "#NoHashtags";
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
-                    dataBasePosts.insertPost(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
                     sendXML(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
-                    ArrayList<String> postList = dataBasePosts.getData();
-                    postList.size();
+
                 }
             }
 
@@ -472,7 +469,7 @@ public class MainActivity extends AppCompatActivity
                 // **Here you can get the value "query" which is entered in the search box.**
 
                 Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
-
+                startSearchIntent.putExtra("User", user);
                 startSearchIntent.putExtra("Search", query);
                 startActivity(startSearchIntent);
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -602,7 +599,7 @@ public class MainActivity extends AppCompatActivity
 
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
 
-        httpConnection.setMessage(XmlHelper.buildXmlMessage( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey));
+        httpConnection.setMessage(XmlHelper.buildXmlMessage( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
         httpConnection.setMode(HttpConnection.MODE.PUT);
 
         httpConnection.execute();

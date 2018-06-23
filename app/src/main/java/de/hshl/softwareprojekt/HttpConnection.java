@@ -156,6 +156,10 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("HashReturn")){
             delegate.processFinish(result);
+        }else if(result.contains("Update erfolgreich.")){
+            delegate.processFinish(result);
+        }else if(result.contains("UserPic")){
+            delegate.processFinish(result);
         }
     }
 
