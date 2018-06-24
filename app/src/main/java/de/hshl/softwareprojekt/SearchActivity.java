@@ -1,13 +1,11 @@
 package de.hshl.softwareprojekt;
 
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -20,11 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,7 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener,AsyncResponse {
@@ -292,11 +285,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
     private void getUserPic(long query){
 
-        String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+        String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
 
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
 
-        httpConnection.setMessage(XmlHelper.getUserPic(query));
+        httpConnection.setMessage(XmlHelper.getUsers(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();

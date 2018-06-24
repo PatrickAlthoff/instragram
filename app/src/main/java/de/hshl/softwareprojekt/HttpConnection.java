@@ -160,6 +160,8 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("UserPic")){
             delegate.processFinish(result);
+        }else if(result.contains(" : ")){
+            delegate.processFinish(result);
         }
     }
 

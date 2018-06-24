@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, AsyncResponse {
 
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity
     private ImageButton refreshBtn;
     private Button testBtn;
     private TextView profilName;
+    private TextView followerCount;
+    private TextView followsCount;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
     private ArrayList<TextView> textViewList;
@@ -114,6 +116,8 @@ public class MainActivity extends AppCompatActivity
         this.profilName = findViewById(R.id.profilName);
         this.refreshBtn = findViewById(R.id.refreshBtn);
         this.testBtn = findViewById(R.id.testBtn);
+        this.followerCount = findViewById(R.id.followerTextView);
+        this.followsCount = findViewById(R.id.followsTextView);
 
         this.testBtn.setOnClickListener(this);
         this.refreshBtn.setOnClickListener(this);
@@ -126,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         this.profilName.setText(this.user.getUsername());
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.postList = this.dataBasePosts.getData();
-
+        sendUpdateFollower(user.getId());
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
@@ -603,5 +607,20 @@ public class MainActivity extends AppCompatActivity
         httpConnection.setMode(HttpConnection.MODE.PUT);
 
         httpConnection.execute();
+    }
+
+    private void sendUpdateFollower(long id){
+
+        String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    @Override
+    public void processFinish(String output) {
+        this.followsCount.setText(followerCount.getText().toString() + output);
     }
 }

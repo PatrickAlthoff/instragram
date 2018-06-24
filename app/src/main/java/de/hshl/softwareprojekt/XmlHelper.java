@@ -62,12 +62,23 @@ public class XmlHelper {
         return xml;
     }
 
-    public static String getUserPic(long id){
+    public static String getUsers(long id){
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<user>" +
                 "<ID>" + id + "</ID>" +
+                "</user>" +
+                "</data>";
+        return xml;
+    }
+    public static String updateFollows(long id, long followerID){
+
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<user>" +
+                "<ID>" + id + "</ID>" +
+                "<FID>" + followerID + "</FID>" +
                 "</user>" +
                 "</data>";
         return xml;

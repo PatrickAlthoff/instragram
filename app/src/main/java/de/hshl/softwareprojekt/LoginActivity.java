@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -423,10 +421,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private void sendXML(long id){
 
-            String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+            String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
 
             httpConnection = new HttpConnection(dstAdress, this);
-            httpConnection.setMessage(XmlHelper.getUserPic(id));
+            httpConnection.setMessage(XmlHelper.getUsers(id));
             httpConnection.setMode(HttpConnection.MODE.PUT);
             httpConnection.delegate = this;
             httpConnection.execute();
