@@ -54,6 +54,8 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         SQLiteDatabase db = null;
         try {
             db = getWritableDatabase();
+            db.execSQL(SQL_TABLE_DROP);
+            db.execSQL(SQL_TABLE_CREATE);
             ContentValues values = new ContentValues();
             values.put("_id", Id);
             values.put("username", username);

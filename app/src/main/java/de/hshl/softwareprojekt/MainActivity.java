@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.postList = this.dataBasePosts.getData();
         sendUpdateFollower(user.getId());
+        this.profilBild.setImageBitmap(ImageHelper.base64ToBitmap(user.getBase64()));
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
@@ -621,6 +622,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void processFinish(String output) {
-        this.followsCount.setText(followerCount.getText().toString() + output);
+        String[] firstSplit = output.split( " : " );
+        this.followerCount.setText(followerCount.getText().toString() + firstSplit[0]);
+        String[] secondSplit =  firstSplit[1].split(":");
+        this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length));
     }
 }

@@ -421,7 +421,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private void sendXML(long id){
 
-            String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
+            String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
 
             httpConnection = new HttpConnection(dstAdress, this);
             httpConnection.setMessage(XmlHelper.getUsers(id));

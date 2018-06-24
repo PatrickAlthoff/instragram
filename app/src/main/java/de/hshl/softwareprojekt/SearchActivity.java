@@ -283,6 +283,15 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    private void updateFollowStatus(long userkey, long FID){
+
+        String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     private void getUserPic(long query){
 
         String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
@@ -301,9 +310,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             int i = 1;
             while(i<response.length){
             TextView searchResult = new TextView(this);
-            searchResult.setText(response[i]);
+            searchResult.setText(response[i+1]);
+            searchResult.setContentDescription(response[i]);
             searchLayout.addView(searchResult);
-            i++;
+            searchResult.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    long id = Long.parseLong(v.getContentDescription().toString());
+                    updateFollowStatus(user.getId(), id);
+                }
+            });
+            i += 2;
             }
         }else if(output.contains("Update erfolgreich.")) {
             String returner = output;
