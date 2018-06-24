@@ -37,12 +37,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private Intent getSeachIntent;
     private User user;
 
-    private Bitmap postbitmap;
-    private String titel;
-    private ArrayList<String> hashL;
-    private String date;
-    private long id;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,12 +59,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
     public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic){
-
-        this.postbitmap = postbitmap;
-        this.titel = titel;
-        this.hashL = hashlist;
-        this.date = date;
-        this.id = id;
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -97,6 +85,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
+        postImage.setContentDescription(i);
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,7 +109,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 intentVollansicht.putExtra("Username", username);
                 intentVollansicht.putExtra("Likes", likes);
                 intentVollansicht.putExtra("Checked", checked);
-                intentVollansicht.putExtra("ID", ID);
+                intentVollansicht.putExtra("ID", v.getContentDescription());
+                intentVollansicht.putExtra("User", user);
                 intentVollansicht.putStringArrayListExtra("Hashtags", hashList);
                 startActivityForResult(intentVollansicht, IMAGE_CLICKED);
             }
@@ -154,10 +144,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 if(checked){
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==0){
+                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
                         dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
-                    }else if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==1){
-                        dataBasePosts.updateLike(v.getId(), true);
+                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
+                        dataBasePosts.updateLike(id,user.getUsername(), true);
                     }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
                     updateLikeStatus(1, id);
@@ -166,7 +156,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 else{
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    dataBasePosts.updateLike(deleteButtonId.getId(), false);
+                    dataBasePosts.updateLike(id,user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                     updateLikeStatus(-1, id);
                 }

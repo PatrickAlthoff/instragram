@@ -279,7 +279,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     }
 
     //Update den Like Status
-    public void updateLike(int id, boolean liked){
+    public void updateLike(long id, String username, boolean liked){
 
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
@@ -288,7 +288,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             db = getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put("liked", like);
-            rowsUpdated = db.update(TABLE_LIKECOUNT, values,"_id=" + id, null);
+            rowsUpdated = db.update(TABLE_LIKECOUNT, values,"_id=" + id +" AND " + "username=" + "'"+ username+"'", null);
             Log.d(TAG, "updateLike() affected " + rowsUpdated + " rows");
 
         }

@@ -195,14 +195,17 @@ public class MainActivity extends AppCompatActivity
         profilName.setText(user.getUsername());
 
         CheckBox likeCheck = frontPagePost.likeChecker;
-        likeCheck.setChecked(liked);
-        if(likeCheck.isChecked() == true){
-            String getCount = likeCheck.getText().toString();
-            String[] pieces = getCount.split(": ");
-            int getInt = Integer.parseInt(pieces[1]);
-            likeCheck.setText("Likes: " + (getInt + 1));
+        int like = dataBasePosts.getLikeCount(id, user.getUsername());
+        if(like==2){
+            likeCheck.setChecked(true);
+
+        }else{
+            likeCheck.setChecked(false);
         }
+        likeCheck.setText("Likes: " + (liked));
         likeCheck.setId(View.generateViewId());
+        String ID = String.valueOf(id);
+        likeCheck.setContentDescription(ID);
         likeCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,14 +216,23 @@ public class MainActivity extends AppCompatActivity
                 View deleteButtonId = ((ViewGroup)v.getParent()).getChildAt(7);
 
                 if(checked){
-                    dataBasePosts.updateLike(deleteButtonId.getId(), true);
+                    String idString = v.getContentDescription().toString();
+                    long id = Long.parseLong(idString);
+                    if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==0){
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
+                    }else if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==1){
+                        dataBasePosts.updateLike(v.getId(),user.getUsername(), true);
+                    }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
-
+                    updateLikeStatus(1, id);
 
                 }
                 else{
-                    dataBasePosts.updateLike(deleteButtonId.getId(), false);
+                    String idString = v.getContentDescription().toString();
+                    long id = Long.parseLong(idString);
+                    dataBasePosts.updateLike(deleteButtonId.getId(),user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
+                    updateLikeStatus(-1, id);
                 }
             }
         });
@@ -615,6 +627,14 @@ public class MainActivity extends AppCompatActivity
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
         httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void updateLikeStatus(int status, long id){
+        String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
