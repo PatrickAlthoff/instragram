@@ -653,12 +653,17 @@ public class MainActivity extends AppCompatActivity
             this.followerCount.setText(firstSplit[0]);
             String[] secondSplit =  firstSplit[1].split(": ");
             this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length - 1));
-            int i = 1;
-            while(i<secondSplit.length){
-                long followerID = Long.parseLong(secondSplit[i]);
-                getUserPic(followerID);
-                i++;
+            if(secondSplit.length >1){
+                String[] thirdSplit = secondSplit[1].split(":");
+                int i = 0;
+                while(i<thirdSplit.length){
+                    long followerID = Long.parseLong(thirdSplit[i]);
+                    getUserPic(followerID);
+                    i++;
+                }
             }
+
+
         }
 
         }

@@ -436,7 +436,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 String[] outputUser = output.split(":");
                 userData.insertData(userID, username, email, pw, outputUser[2],false );
                 this.user = new User(userID,username, mEmail);
-                this.user.setBase64(outputUser[1]);
+                this.user.setBase64(outputUser[2]);
                 Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
                 intentMain.putExtra("User", this.user);
                 startActivity(intentMain);
