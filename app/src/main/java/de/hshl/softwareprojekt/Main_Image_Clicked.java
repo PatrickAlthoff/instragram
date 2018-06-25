@@ -126,7 +126,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                         public void onClick(View v) {
                             Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
 
-                            sendToSearchIntent.putExtra("Hashtag", textview.getText().toString());
+                            sendToSearchIntent.putExtra("Search", textview.getText().toString());
+                            sendToSearchIntent.putExtra("User", user);
                             startActivity(sendToSearchIntent);
                             finish();
                         }

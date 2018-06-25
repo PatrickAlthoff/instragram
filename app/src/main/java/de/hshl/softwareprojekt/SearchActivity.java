@@ -36,6 +36,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private LinearLayout searchLayout;
     private ArrayList<String> postList;
     private ArrayList<PostFragment> postFragmentList;
+    private ArrayList<SearchUserFragment> searchFragmentList;
     private Intent getSeachIntent;
     private User user;
 
@@ -45,6 +46,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_search);
         this.getSeachIntent = getIntent();
         this.postFragmentList = new ArrayList<>();
+        this.searchFragmentList = new ArrayList<>();
         this.response = new ArrayList<>();
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
@@ -234,6 +236,18 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             public boolean onQueryTextSubmit(String query) {
 
                 sendXML(query);
+                response.clear();
+                int i = 0;
+                while(i<postFragmentList.size()){
+                    removeFragment(postFragmentList.get(i));
+                    i++;
+                }
+                int d = 0;
+                while(d<searchFragmentList.size()){
+                    removeSearchFragment(searchFragmentList.get(d));
+                    d++;
+                }
+
 
                 return false;
             }
@@ -251,6 +265,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
     //Entfernt das Fragment
     public void removeFragment(PostFragment pf) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(pf);
+        fragmentTransaction.commitNow();
+
+    }
+    public void removeSearchFragment(SearchUserFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
@@ -306,6 +327,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
         searchFragment.init(postBitmap, username, contentDis);
         TextView searchName = searchFragment.profilName;
+        this.searchFragmentList.add(searchFragment);
         searchName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
