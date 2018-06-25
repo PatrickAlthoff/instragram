@@ -127,12 +127,12 @@
                         android:layout_marginTop="5dp"
                         android:background="@drawable/et_bg"
                         android:fontFamily="sans-serif-light"
+                        android:hint="Password"
+                        android:inputType="textPassword"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:inputType="textPassword"
-                        android:hint="@string/prompt_password"/>
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 

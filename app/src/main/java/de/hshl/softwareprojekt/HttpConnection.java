@@ -166,6 +166,8 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("NoStory")){
             delegate.processFinish(result);
+        }else if(result.contains("FollowExc")) {
+            delegate.processFinish(result);
         }
     }
 

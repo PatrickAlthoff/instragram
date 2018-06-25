@@ -24,12 +24,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener,AsyncResponse {
     private int IMAGE_CLICKED = 13;
+    private ArrayList<String> response;
     private DatabaseHelperPosts dataBasePosts;
     private LinearLayout searchLayout;
     private ArrayList<String> postList;
@@ -43,6 +45,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_search);
         this.getSeachIntent = getIntent();
         this.postFragmentList = new ArrayList<>();
+        this.response = new ArrayList<>();
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
         this.user = (User) getSeachIntent.getSerializableExtra("User");
@@ -265,7 +268,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void sendXML(String query){
-
         String dstAdress = "http://intranet-secure.de/instragram/search.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
         httpConnection.setMessage(XmlHelper.buildXmlSearch(query));
@@ -274,7 +276,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
     private void updateFollowStatus(long userkey, long FID){
-
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
         httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
@@ -283,35 +284,66 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
     private void getUserPic(long query){
-
-        String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
+        String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
         httpConnection.setMessage(XmlHelper.getUsers(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
+
+        //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SearchUserFragment searchFragment = new SearchUserFragment();
+        FrameLayout frameInner = new FrameLayout(this);
+        frameInner.setId(View.generateViewId());
+        searchLayout.addView(frameInner, 0);
+
+        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(frameInner.getId(), searchFragment);
+
+        fragmentTransaction.commitNow();
+        searchFragment.init(postBitmap, username, contentDis);
+        TextView searchName = searchFragment.profilName;
+        searchName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long id = Long.parseLong(v.getContentDescription().toString());
+                updateFollowStatus(user.getId(), id);
+            }
+        });
+
+    }
     @Override
     public void processFinish(String output) {
         String[] response = output.split(" : ");
         if(response[0].equals("UserReturn")){
             int i = 1;
+            int d = 1;
             while(i<response.length){
-            TextView searchResult = new TextView(this);
-            searchResult.setText(response[i+1]);
-            searchResult.setContentDescription(response[i]);
-            searchLayout.addView(searchResult);
-            searchResult.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    long id = Long.parseLong(v.getContentDescription().toString());
-                    updateFollowStatus(user.getId(), id);
-                }
-            });
-            i += 2;
+                this.response.add(response[i]);
+
+            i++;
             }
+            while(d<response.length){
+                getUserPic(Long.parseLong(response[d]));
+                d+=2;
+            }
+        }else if(output.contains("UserPic")) {
+            String[] bitmapCodes = output.split(":");
+            int i = 0;
+            while(i<this.response.size()){
+                if(bitmapCodes[1].equals(this.response.get(i))){
+                    addSearchUser(ImageHelper.base64ToBitmap(bitmapCodes[2]), this.response.get(i+1),this.response.get(i));
+                }
+                i+=2;
+            }
+
         }else if(output.contains("Update erfolgreich.")) {
             String returner = output;
+        }else if(output.contains("FollowExc")) {
+            Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
         }else{
            /* int index = 1;
             while (index < response.length) {
