@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -446,14 +447,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void createFollower(){
-        ImageView followerPic = new ImageView(this);
-        this.horiInner.addView(followerPic);
-        followerPic.setImageResource(R.drawable.ic_menu_gallery);
-        followerPic.setId(this.horiInner.getId());
-        followerPic.setOnClickListener(this);
-    }
-
     //Schließt bei einem Backpress das DrawerLayout, falls dies offen ist
     @Override
     public void onBackPressed() {
@@ -563,6 +556,8 @@ public class MainActivity extends AppCompatActivity
         if(v.getId() == R.id.followerNr1){
             Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStorie.putExtra("User", this.user);
+            String userID = String.valueOf(this.user.getId());
+            intentStorie.putExtra("User_ID", userID);
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
@@ -613,17 +608,21 @@ public class MainActivity extends AppCompatActivity
     private void sendXML(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey){
 
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
-
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-
         httpConnection.setMessage(XmlHelper.buildXmlMessage( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
         httpConnection.setMode(HttpConnection.MODE.PUT);
-
+        httpConnection.execute();
+    }
+    private void getUserPic(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
         httpConnection.execute();
     }
 
     private void sendUpdateFollower(long id){
-
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
         httpConnection.setMessage(XmlHelper.getUsers(id));
@@ -640,11 +639,43 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+
+
     @Override
     public void processFinish(String output) {
-        String[] firstSplit = output.split( " : " );
-        this.followerCount.setText(followerCount.getText().toString() + firstSplit[0]);
-        String[] secondSplit =  firstSplit[1].split(":");
-        this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length));
+        if(output.contains("UserPic")){
+            String[] input = output.split(":");
+            long inputLong = Long.valueOf(input[1]);
+            Bitmap bitmap = ImageHelper.base64ToBitmap(input[2]);
+            createFollower(inputLong, bitmap);
+        }else{
+            String[] firstSplit = output.split( " : " );
+            this.followerCount.setText(followerCount.getText().toString() + firstSplit[0]);
+            String[] secondSplit =  firstSplit[1].split(":");
+            this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length));
+            int i = 0;
+            while(i<secondSplit.length){
+                long followerID = Long.parseLong(secondSplit[i]);
+                getUserPic(followerID);
+                i++;
+            }
+        }
+    }
+    public void createFollower(long id, Bitmap bitmap){
+        ImageView followerPic = new ImageView(this);
+        this.horiInner.addView(followerPic);
+        String descriLong = String.valueOf(id);
+        followerPic.setImageBitmap(bitmap);
+        followerPic.setId(View.generateViewId());
+        followerPic.setContentDescription(descriLong);
+        followerPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
+                intentStorie.putExtra("User", user);
+                intentStorie.putExtra("User_ID", v.getContentDescription());
+                startActivityForResult(intentStorie, 101);
+            }
+        });
     }
 }

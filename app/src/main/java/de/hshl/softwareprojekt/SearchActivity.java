@@ -285,9 +285,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private void getUserPic(long query){
 
         String dstAdress = "http://intranet-secure.de/instragram/getUsers.php";
-
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-
         httpConnection.setMessage(XmlHelper.getUsers(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;

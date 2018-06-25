@@ -3,6 +3,7 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
@@ -19,7 +20,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener {
+public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private ArrayList<Bitmap> bitmapList;
     private ArrayList<String> titelList;
@@ -37,6 +38,8 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     private int id = 0;
     private int checkInt;
     private int start;
+    private long userid;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,8 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.titelList = new ArrayList<>();
         this.database = new DatabaseHelperPosts(this);
         this.user = (User) data.getSerializableExtra("User");
+        String userID = data.getStringExtra("User_ID");
+        this.userid = Long.parseLong(userID);
         this.addBtn = findViewById(R.id.addBtn);
         this.deleteBtn = findViewById(R.id.deleteStorie);
         this.startBtn = findViewById(R.id.startStorie);
@@ -71,35 +76,42 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         emptyText.post(new Runnable() {
             @Override
             public void run() {
-                ArrayList<String> storyList = database.getStory(user.getId());
-
-                if (storyList.size() == 0) {
-                    emptyText.setVisibility(View.VISIBLE);
-                } else {
-
-                    String story = storyList.get(0);
-                    String[] pieces = story.split(" : ");
-                    String ids = pieces[0];
-                    int id = Integer.parseInt(ids);
-                    String base64 = pieces[2];
-                    String[] base64Strings = base64.split(":");
-                    int i = 1;
-                    ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
-                    while (i < base64Strings.length) {
-                        base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
-                        i++;
-                    }
-                    String titel = pieces[3];
-                    String[] titleStringsSplit = titel.split(":");
-                    int d = 1;
-                    ArrayList<String> titleStrings = new ArrayList<>();
-
-                    while (d < titleStringsSplit.length) {
-                        titleStrings.add(titleStringsSplit[d]);
-                        d++;
-                    }
-                    addStory(base64Bitmap, titleStrings);
+                if(user.getId()!=userid){
+                    updateStoryboard(userid);
+                    addBtn.setVisibility(View.INVISIBLE);
+                    deleteBtn.setVisibility(View.INVISIBLE);
                 }
+                else{
+                    ArrayList<String> storyList = database.getStory(user.getId());
+                    if (storyList.size() == 0) {
+                        updateStoryboard(user.getId());
+                    } else {
+
+                        String story = storyList.get(0);
+                        String[] pieces = story.split(" : ");
+                        String ids = pieces[0];
+                        int id = Integer.parseInt(ids);
+                        String base64 = pieces[2];
+                        String[] base64Strings = base64.split(":");
+                        int i = 1;
+                        ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
+                        while (i < base64Strings.length) {
+                            base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
+                            i++;
+                        }
+                        String titel = pieces[3];
+                        String[] titleStringsSplit = titel.split(":");
+                        int d = 1;
+                        ArrayList<String> titleStrings = new ArrayList<>();
+
+                        while (d < titleStringsSplit.length) {
+                            titleStrings.add(titleStringsSplit[d]);
+                            d++;
+                        }
+                        addStory(base64Bitmap, titleStrings);
+                    }
+                }
+
             }
         });
 
@@ -194,13 +206,15 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     }
     //Sorgt beim Delete für eine Leerung der ArrayLists und schaltet Objekte auf INVISIBLE
     public void deleteProcess(){
-            this.bitmapList.clear();
+            /*this.bitmapList.clear();
             this.titelList.clear();
             this.storiePic.setVisibility(View.INVISIBLE);
             this.progressBar.setVisibility(View.INVISIBLE);
             this.titelStory.setVisibility(View.INVISIBLE);
             this.emptyText.setVisibility(View.VISIBLE);
+            */
             database.deleteStory(user.getId());
+            deleteStory(user.getId());
     }
 
     //Kümmert sich um den Klick auf den BackButton
@@ -214,7 +228,22 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         }
         return super.onOptionsItemSelected(item);
     }
-
+    private void deleteStory(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/deleteStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void updateStoryboard(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -254,4 +283,37 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                 }
             }
         }
+
+    @Override
+    public void processFinish(String output) {
+        if(output.contains("StoryReturn")){
+            ArrayList<String> titelList = new ArrayList<>();
+            ArrayList<Bitmap> bitmapList = new ArrayList<>();
+            String[] storyPieces = output.split(" : ");
+            String[] titelsPieces = storyPieces[2].split(":");
+            String[] base64Pieces = storyPieces[3].split(":");
+            int index = 1;
+            while(index<titelsPieces.length){
+                titelList.add(titelsPieces[index]);
+                index++;
+            }
+            index = 1;
+            while(index<base64Pieces.length){
+                bitmapList.add(ImageHelper.base64ToBitmap(base64Pieces[index]));
+                index++;
+            }
+            addStory(bitmapList,titelList);
+            int id = Integer.valueOf(storyPieces[1]);
+            if(database.getID(user.getId()) == 0 && user.getId() == userid){
+                database.insertStory(id, this.user.getUsername(), storyPieces[3], storyPieces[2], "", "", true, this.user.getId());
+            }else if(database.getID(user.getId()) != 0 && user.getId() == userid){
+                database.updateStory(user.getId(),storyPieces[3],storyPieces[2]);
+            }
+
+        }else{
+            emptyText.setText("Die Story ist leer.");
+            emptyText.setVisibility(View.VISIBLE);
+        }
+
     }
+}

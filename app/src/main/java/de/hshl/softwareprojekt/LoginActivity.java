@@ -420,22 +420,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         private void sendXML(long id){
-
             String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
-
             httpConnection = new HttpConnection(dstAdress, this);
             httpConnection.setMessage(XmlHelper.getUsers(id));
             httpConnection.setMode(HttpConnection.MODE.PUT);
             httpConnection.delegate = this;
             httpConnection.execute();
-
-
         }
 
         @Override
         public void processFinish(String output) {
             String[] outputUser = output.split(":");
-            userData.insertData(userID, username, email, pw, outputUser[1],false );
+            userData.insertData(userID, username, email, pw, outputUser[2],false );
             this.user = new User(userID,username, mEmail);
             this.user.setBase64(outputUser[1]);
             Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);

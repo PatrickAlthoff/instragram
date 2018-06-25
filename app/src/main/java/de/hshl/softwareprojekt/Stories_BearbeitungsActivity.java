@@ -25,7 +25,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
@@ -152,8 +152,10 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 if(c == 0){
                 String d = Long.toString(System.currentTimeMillis()/1000);
                 c = Integer.parseInt(d);
+
                 }
 
+                long storyID = System.currentTimeMillis()/1000;
                 ArrayList<String> storyList = database.getStory(user.getId());
 
                 if (storyList.size() == 0) {
@@ -163,9 +165,20 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 else{
                     database.updateStory(user.getId(),base64, titel);
                 }
+                uploadStory(storyID, user.getId(), titel, base64);
                 finish();
                 break;
         }
+    }
+
+    private void uploadStory(long id, long userKey, String titels, String base64){
+
+        String dstAdress = "http://intranet-secure.de/instragram/uploadStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.uploadXMLStory(id,userKey, titels, base64));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
     }
 
     public String convertStringListtoString (ArrayList<String> stringList){
@@ -377,4 +390,8 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void processFinish(String output) {
+
+    }
 }

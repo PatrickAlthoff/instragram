@@ -104,6 +104,19 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
+    public static String uploadXMLStory(long id, long userKey, String titels, String base64){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<story>" +
+                "<id>" + id + "</id>" +
+                "<userKey>" + userKey + "</userKey>" +
+                "<titels>" + titels + "</titels>" +
+                "<base64>" + base64 + "</base64>" +
+                "</story>" +
+                "</data>";
+
+        return xml;
+    }
 
 
 }
