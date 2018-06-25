@@ -150,7 +150,9 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String result) {
         if(result.contains("Is_Ok")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserChecked")){
+        }else if(result.contains("UserChecked")) {
+            delegate.processFinish(result);
+        }else if(result.contains("UserNotChecked")){
             delegate.processFinish(result);
         }else if(result.contains("UserReturn")){
             delegate.processFinish(result);

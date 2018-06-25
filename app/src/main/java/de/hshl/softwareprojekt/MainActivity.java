@@ -650,24 +650,19 @@ public class MainActivity extends AppCompatActivity
             createFollower(inputLong, bitmap);
         }else{
             String[] firstSplit = output.split( " : " );
-
-            if(firstSplit.length == 1){
-                this.followsCount.setText("No Follows");
-                this.followerCount.setText("No Follower");
-            }else{
-                this.followerCount.setText(followerCount.getText().toString() + firstSplit[0]);
-                String[] secondSplit =  firstSplit[1].split(":");
-                this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length));
-                int i = 0;
-                while(i<secondSplit.length){
-                    long followerID = Long.parseLong(secondSplit[i]);
-                    getUserPic(followerID);
-                    i++;
-                }
+            this.followerCount.setText(firstSplit[0]);
+            String[] secondSplit =  firstSplit[1].split(": ");
+            this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length - 1));
+            int i = 1;
+            while(i<secondSplit.length){
+                long followerID = Long.parseLong(secondSplit[i]);
+                getUserPic(followerID);
+                i++;
             }
+        }
 
         }
-    }
+
     public void createFollower(long id, Bitmap bitmap){
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);
