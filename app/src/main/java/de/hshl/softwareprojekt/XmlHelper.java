@@ -112,7 +112,7 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String uploadKommentar(long id, String username, String userPic, String kommentar){
+    public static String uploadKommentar(long id, String username, String userPic, String kommentar, long postTime){
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<Kommentar>" +
@@ -120,6 +120,7 @@ public class XmlHelper {
                 "<username>" + username + "</username>" +
                 "<userPic>" + userPic + "</userPic>" +
                 "<komment>" + kommentar + "</komment>" +
+                "<postTime>" + postTime + "</postTime>" +
                 "</Kommentar>" +
                 "</data>";
 

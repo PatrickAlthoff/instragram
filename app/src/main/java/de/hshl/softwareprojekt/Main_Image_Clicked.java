@@ -161,7 +161,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 if(editKomm.getText().length()>10){
                     long id = Long.parseLong(this.checkLike.getContentDescription().toString());
                     uploadKommentar(id,editKomm.getText().toString());
-                    addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString());
+                    addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString(), System.currentTimeMillis());
                 }else{
                     this.editKomm.setError("Kommentare müssen mind. 10 Charakter lang sein.");
                 }
@@ -204,7 +204,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private void uploadKommentar(long id, String kommentar){
         String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar));
+        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar, System.currentTimeMillis()));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
@@ -220,14 +220,15 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             String[] usernamePieces = outputPieces[1].split(":");
             String[] userPicPieces = outputPieces[2].split(":");
             String[] kommentarPieces = outputPieces[3].split(":_:");
+            String[] postTimePieces = outputPieces[4].split(":");
             int i = 0;
             while(usernamePieces.length>i){
-                addKommentar(ImageHelper.base64ToBitmap(userPicPieces[i]),usernamePieces[i], kommentarPieces[i]);
+                addKommentar(ImageHelper.base64ToBitmap(userPicPieces[i]),usernamePieces[i], kommentarPieces[i], Long.parseLong(postTimePieces[i]));
                 i++;
             }
         }
     }
-    public void addKommentar(Bitmap profilPic, String username, String kommentar) {
+    public void addKommentar(Bitmap profilPic, String username, String kommentar, long kommentTime) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         FragmentManager fragmentManagerKommentar = getSupportFragmentManager();
@@ -240,6 +241,6 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         fragmentTransactionKommentar.add(frameInner.getId(), kommentarFragment);
 
         fragmentTransactionKommentar.commitNow();
-        kommentarFragment.creatKomment(profilPic,username,kommentar);
+        kommentarFragment.creatKomment(profilPic,username,kommentar, kommentTime);
     }
 }
