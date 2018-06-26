@@ -3,18 +3,21 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -24,14 +27,16 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private ImageView clickedImage;
     private TextView kommentar;
     private TextView titel;
-    private TextView disUser;
     private TextView hashTags;
     private EditText editKomm;
     private Bitmap getBitmap;
     private CheckBox checkLike;
+    private Button subButton;
     private User user;
     private GridLayout gridLayout;
+    private LinearLayout underKomm;
     private ArrayList<String> hashList;
+    private ArrayList<TextView> hashTextViewList;
     private DatabaseHelperPosts dataBasePosts;
 
     @Override
@@ -47,16 +52,16 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.kommentar = findViewById(R.id.clickedKomment);
         this.titel = findViewById(R.id.titel);
         this.editKomm = findViewById(R.id.editKomment);
-        this.disUser = findViewById(R.id.displayUser);
         this.hashTags = findViewById(R.id.hashTags);
         this.gridLayout = findViewById(R.id.gridLayout);
+        this.subButton = findViewById(R.id.submitButton);
+        this.underKomm = findViewById(R.id.underKomm);
         //Enthält weitere Informationen für den individuellen Post
+        this.subButton.setOnClickListener(this);
         this.kommentar.setOnClickListener(this);
         this.hashTags.setOnClickListener(this);
         this.titel.setText(getPost.getStringExtra("Titel"));
         this.user = (User) getPost.getSerializableExtra("User");
-        String username = getPost.getStringExtra("Username");
-        this.disUser.setText(username);
         this.checkLike = findViewById(R.id.clickedLike);
         this.checkLike.setText(getPost.getStringExtra("Likes"));
         this.checkLike.setChecked(getPost.getExtras().getBoolean("Checked"));
@@ -90,7 +95,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             }
         });
         //Enthält die ID der Checkbox, für die korrekte Übermittlung
-
+        this.hashTextViewList = new ArrayList<>();
         this.hashList = getPost.getStringArrayListExtra("Hashtags");
         this.dataBasePosts = new DatabaseHelperPosts(this);
         //Toolbar Setup
@@ -109,31 +114,54 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
                 this.gridLayout.setVisibility(View.INVISIBLE);
                 this.editKomm.setVisibility(View.VISIBLE);
+                this.subButton.setVisibility(View.VISIBLE);
                 this.editKomm.requestFocus();
                 this.editKomm.setText("");
+                int d = 0;
+                while(d<this.hashTextViewList.size()){
+                    this.hashTextViewList.get(d).setVisibility(View.INVISIBLE);
+                    d++;
+                }
+                long idPost = Long.parseLong(this.checkLike.getContentDescription().toString());
+                getKommentar(idPost);
                 break;
             case R.id.hashTags:
                 this.editKomm.setVisibility(View.INVISIBLE);
+                this.subButton.setVisibility(View.INVISIBLE);
                 this.gridLayout.setVisibility(View.VISIBLE);
                 int i = 0;
-                while(i<this.hashList.size()){
-                    final TextView textview = new TextView(this);
-                    textview.setText(this.hashList.get(i));
-                    textview.setTextSize(12);
-                    this.gridLayout.addView(textview);
-                    textview.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
+                if(this.hashTextViewList.size()>0){
+                    while(i<this.hashTextViewList.size()){
+                        this.hashTextViewList.get(i).setVisibility(View.VISIBLE);
+                        i++;
+                    }
+                }else{
+                    while(i<this.hashList.size()){
+                        final TextView textview = new TextView(this);
+                        this.hashTextViewList.add(textview);
+                        textview.setText(this.hashList.get(i));
+                        textview.setTextSize(14);
+                        this.gridLayout.addView(textview);
+                        textview.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
 
-                            sendToSearchIntent.putExtra("Search", textview.getText().toString());
-                            sendToSearchIntent.putExtra("User", user);
-                            startActivity(sendToSearchIntent);
-                            finish();
-                        }
-                    });
-                    i++;
+                                sendToSearchIntent.putExtra("Search", textview.getText().toString());
+                                sendToSearchIntent.putExtra("User", user);
+                                startActivity(sendToSearchIntent);
+                                finish();
+                            }
+                        });
+                        i++;
+                    }
                 }
+
+                break;
+            case R.id.submitButton:
+                long id = Long.parseLong(this.checkLike.getContentDescription().toString());
+                uploadKommentar(id,editKomm.getText().toString());
+                addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString());
                 break;
         }
     }
@@ -157,9 +185,24 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
+        httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void getKommentar(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getKommentare.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getKommentar(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void uploadKommentar(long id, String kommentar){
+        String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
 
@@ -167,6 +210,33 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     public void processFinish(String output) {
         if(output.contains("Update erfolgreich.")) {
             String returner = output;
+        }else if (output.contains("KommentarUploaded")){
+
+        }else if (output.contains("getKommentare")){
+            String[] outputPieces = output.split(" : ");
+            String[] usernamePieces = outputPieces[1].split(":");
+            String[] userPicPieces = outputPieces[2].split(":");
+            String[] kommentarPieces = outputPieces[3].split(":_:");
+            int i = 0;
+            while(usernamePieces.length>i){
+                addKommentar(ImageHelper.base64ToBitmap(userPicPieces[i]),usernamePieces[i], kommentarPieces[i]);
+                i++;
+            }
         }
+    }
+    public void addKommentar(Bitmap profilPic, String username, String kommentar) {
+
+        //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
+        FragmentManager fragmentManagerKommentar = getSupportFragmentManager();
+        KommentarFragment kommentarFragment = new KommentarFragment();
+        FrameLayout frameInner = new FrameLayout(this);
+        frameInner.setId(View.generateViewId());
+        underKomm.addView(frameInner);
+
+        final FragmentTransaction fragmentTransactionKommentar = fragmentManagerKommentar.beginTransaction();
+        fragmentTransactionKommentar.add(frameInner.getId(), kommentarFragment);
+
+        fragmentTransactionKommentar.commitNow();
+        kommentarFragment.creatKomment(profilPic,username,kommentar);
     }
 }

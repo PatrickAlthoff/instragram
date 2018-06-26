@@ -66,7 +66,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentManager fragmentManagerSearchPost = getSupportFragmentManager();
         final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
@@ -75,10 +75,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         //add fragment
         String i = String.valueOf(id);
 
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
+        final FragmentTransaction fragmentTransactionSearchPost = fragmentManagerSearchPost.beginTransaction();
+        fragmentTransactionSearchPost.add(frameInner.getId(), frontPagePost, i);
 
-        fragmentTransaction.commitNow();
+        fragmentTransactionSearchPost.commitNow();
         frontPagePost.addPost(postBitmap, titel);
         final ArrayList<String> hashList = hashlist;
         TextView datefield = frontPagePost.timeStampView;
@@ -95,7 +95,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onClick(View v) {
                 View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
+                View titelView = ((ViewGroup)v.getParent()).getChildAt(3);
                 Boolean checked = ((CheckBox)nextChild).isChecked();
+                String titel = ((TextView)titelView).getText().toString();
                 String likes = ((CheckBox) nextChild).getText().toString();
                 int ID = nextChild.getId();
                 //Baut aus den Daten im Cache eine Bitmap
@@ -110,8 +112,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
                 Intent intentVollansicht = new Intent(SearchActivity.this, Main_Image_Clicked.class);
                 intentVollansicht.putExtra("BitmapImage", createBit);
-                intentVollansicht.putExtra("Titel", v.getContentDescription());
-                intentVollansicht.putExtra("Username", username);
+                intentVollansicht.putExtra("Titel", titel);
                 intentVollansicht.putExtra("Likes", likes);
                 intentVollansicht.putExtra("Checked", checked);
                 intentVollansicht.putExtra("ID", v.getContentDescription());
@@ -282,7 +283,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
+        httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
@@ -291,7 +292,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     private void sendXML(String query){
         String dstAdress = "http://intranet-secure.de/instragram/search.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXmlSearch(query));
+        httpConnection.setMessage(XmlHelper.sendSearchRequest(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
@@ -315,16 +316,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManagerSearchUser = getSupportFragmentManager();
         SearchUserFragment searchFragment = new SearchUserFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
         searchLayout.addView(frameInner, 0);
 
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(frameInner.getId(), searchFragment);
+        final FragmentTransaction fragmentTransactionSearchUser = fragmentManagerSearchUser.beginTransaction();
+        fragmentTransactionSearchUser.add(frameInner.getId(), searchFragment);
 
-        fragmentTransaction.commitNow();
+        fragmentTransactionSearchUser.commitNow();
         searchFragment.init(postBitmap, username, contentDis);
         TextView searchName = searchFragment.profilName;
         this.searchFragmentList.add(searchFragment);

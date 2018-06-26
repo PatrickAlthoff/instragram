@@ -175,7 +175,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
 
         String dstAdress = "http://intranet-secure.de/instragram/uploadStory.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.uploadXMLStory(id,userKey, titels, base64));
+        httpConnection.setMessage(XmlHelper.uploadStory(id,userKey, titels, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();

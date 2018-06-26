@@ -38,7 +38,7 @@
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
         android:layout_width="300dp"
-        android:layout_height="54dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
@@ -55,8 +55,8 @@
 
             <ImageView
                 android:id="@+id/followerNr1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_weight="1"
                 app:srcCompat="@mipmap/ic_launcher" />
 

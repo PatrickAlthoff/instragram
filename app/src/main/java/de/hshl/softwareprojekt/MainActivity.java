@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity
     public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id, boolean liked, Bitmap profilPic){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        final FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentManager fragmentManagerPost = getSupportFragmentManager();
         final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity
         //add fragment
         String i = String.valueOf(id);
 
-        final FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        final FragmentTransaction fragmentTransaction = fragmentManagerPost.beginTransaction();
         fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
 
         fragmentTransaction.commitNow();
@@ -609,7 +608,7 @@ public class MainActivity extends AppCompatActivity
 
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXmlMessage( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
+        httpConnection.setMessage(XmlHelper.uploadPost( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
@@ -633,7 +632,7 @@ public class MainActivity extends AppCompatActivity
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
+        httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
@@ -671,6 +670,8 @@ public class MainActivity extends AppCompatActivity
     public void createFollower(long id, Bitmap bitmap){
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);
+        followerPic.getLayoutParams().height = 180;
+        followerPic.getLayoutParams().width = 180;
         String descriLong = String.valueOf(id);
         followerPic.setImageBitmap(bitmap);
         followerPic.setId(View.generateViewId());

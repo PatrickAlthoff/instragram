@@ -11,7 +11,7 @@ public class XmlHelper {
 
     }
 
-    public static String buildXmlMessage(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
+    public static String uploadPost(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
 
         int like = liked ? 1:0;
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
@@ -34,7 +34,7 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String buildXmlUser(String username, String email, String password, String base64){
+    public static String uploadUser(String username, String email, String password, String base64){
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -51,7 +51,7 @@ public class XmlHelper {
         return xml;
     }
 
-    public static String buildXMLCheck(String email){
+    public static String checkEmail(String email){
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -83,7 +83,7 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String buildXmlSearch(String query){
+    public static String sendSearchRequest(String query){
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -93,7 +93,7 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String buildXMLUpdateStatus(int status, long id){
+    public static String updateStatus(int status, long id){
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -104,7 +104,7 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String uploadXMLStory(long id, long userKey, String titels, String base64){
+    public static String uploadStory(long id, long userKey, String titels, String base64){
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<story>" +
@@ -113,6 +113,29 @@ public class XmlHelper {
                 "<titels>" + titels + "</titels>" +
                 "<base64>" + base64 + "</base64>" +
                 "</story>" +
+                "</data>";
+
+        return xml;
+    }
+    public static String uploadKommentar(long id, String username, String userPic, String kommentar){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<Kommentar>" +
+                "<postid>" + id + "</postid>" +
+                "<username>" + username + "</username>" +
+                "<userPic>" + userPic + "</userPic>" +
+                "<komment>" + kommentar + "</komment>" +
+                "</Kommentar>" +
+                "</data>";
+
+        return xml;
+    }
+    public static String getKommentar(long id){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<Kommentar>" +
+                "<postid>" + id + "</postid>" +
+                "</Kommentar>" +
                 "</data>";
 
         return xml;

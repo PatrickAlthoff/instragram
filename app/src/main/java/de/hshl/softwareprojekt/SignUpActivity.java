@@ -127,7 +127,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         String dstAdress = "http://intranet-secure.de/instragram/Upload_User.php";
 
         httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXmlUser( username,  email,  password, base64));
+        httpConnection.setMessage(XmlHelper.uploadUser( username,  email,  password, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();

@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String dstAdress = "http://intranet-secure.de/instragram/CheckForUser.php";
 
         httpConnection = new HttpConnection(dstAdress, this);
-        httpConnection.setMessage(XmlHelper.buildXMLCheck(email));
+        httpConnection.setMessage(XmlHelper.checkEmail(email));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
