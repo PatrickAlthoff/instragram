@@ -28,7 +28,7 @@ public class GridAdapter extends BaseAdapter {
             R.drawable.hannah,
             R.drawable.hannah,
             R.drawable.hannah,
-//
+
 
     };
     public GridAdapter(Context context) {

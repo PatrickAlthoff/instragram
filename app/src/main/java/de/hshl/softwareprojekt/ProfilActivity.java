@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 public class ProfilActivity extends AppCompatActivity implements OnClickListener {
 
-    private TextView anzahlFollower, anzahlFollowing, biografie, folgen, entfolgen;
+    private TextView anzahlFollower, anzahlFollowing, benutzerName, folgen, entfolgen;
     private static final String TAG = "ProfilActivity";
     private static final int NUM_COL_GRID = 3;
 
@@ -79,7 +79,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             }
         });
 
-//
+
 
 
         // Zeigt Liste Following

@@ -19,4 +19,4 @@ public class Full_ImageActivity extends ProfilActivity {
         ImageView imageView = (ImageView) findViewById(R.id.full_image_view);
         imageView.setImageResource(imageAdapter.images[position]);
     }
-}//
+}
