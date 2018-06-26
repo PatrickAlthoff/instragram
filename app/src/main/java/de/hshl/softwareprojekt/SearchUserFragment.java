@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,8 @@ import android.widget.TextView;
 public class SearchUserFragment extends Fragment {
     ImageView profilPic;
     TextView profilName;
+    Button followBtn;
+    Button unfollowBtn;
 
     public void init(Bitmap bitmap, String username, String contentDis){
         this.profilPic = getView().findViewById(R.id.profilSearchPic);
@@ -20,6 +23,10 @@ public class SearchUserFragment extends Fragment {
         this.profilName = getView().findViewById(R.id.profilSearchName);
         this.profilName.setText(username);
         this.profilName.setContentDescription(contentDis);
+        this.followBtn = getView().findViewById(R.id.followBtn);
+        this.unfollowBtn = getView().findViewById(R.id.unfollowBtn);
+        this.followBtn.setContentDescription(contentDis);
+        this.unfollowBtn.setContentDescription(contentDis);
     }
 
     @Override

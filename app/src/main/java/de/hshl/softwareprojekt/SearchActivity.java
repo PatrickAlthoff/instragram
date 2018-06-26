@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -269,6 +270,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    private void updateunfollowStatus(long userkey, long FID){
+        String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     private void getUserPic(long query){
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -291,13 +300,21 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         fragmentTransactionSearchUser.commitNow();
         searchFragment.init(postBitmap, username, contentDis);
-        TextView searchName = searchFragment.profilName;
+        Button followBtn = searchFragment.followBtn;
+        Button unfollowBtn = searchFragment.unfollowBtn;
         this.searchFragmentList.add(searchFragment);
-        searchName.setOnClickListener(new View.OnClickListener() {
+        followBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long id = Long.parseLong(v.getContentDescription().toString());
                 updateFollowStatus(user.getId(), id);
+            }
+        });
+        unfollowBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long id = Long.parseLong(v.getContentDescription().toString());
+                updateunfollowStatus(user.getId(), id);
             }
         });
 
@@ -327,11 +344,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 i+=2;
             }
 
-        }else if(output.contains("Update erfolgreich.")) {
-            String returner = output;
+        }else if(output.contains("Followed")) {
+            Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
         }else if(output.contains("FollowExc")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
+        }else if(output.contains("UnfollowNotPossible")) {
+            Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
+        }else if(output.contains("Unfollowed")) {
+            Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
         }else{
+
            /* int index = 1;
             while (index < response.length) {
                 removeFragment(postFragmentList.get(index));

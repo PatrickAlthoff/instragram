@@ -621,8 +621,6 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
-
-
     @Override
     public void processFinish(String output) {
         if(output.contains("UserPic")){

@@ -123,7 +123,7 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("HashReturn")){
             delegate.processFinish(result);
-        }else if(result.contains("Update erfolgreich.")){
+        }else if(result.contains("Followed")){
             delegate.processFinish(result);
         }else if(result.contains("UserPic")){
             delegate.processFinish(result);
@@ -134,6 +134,10 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
         }else if(result.contains("FollowExc")) {
             delegate.processFinish(result);
         }else if(result.contains("getKommentare")) {
+            delegate.processFinish(result);
+        }else if(result.contains("Unfollowed")) {
+            delegate.processFinish(result);
+        }else if(result.contains("UnfollowNotPossible")) {
             delegate.processFinish(result);
         }
     }
