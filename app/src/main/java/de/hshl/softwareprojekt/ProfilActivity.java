@@ -79,7 +79,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             }
         });
 
-
+//
 
 
         // Zeigt Liste Following
