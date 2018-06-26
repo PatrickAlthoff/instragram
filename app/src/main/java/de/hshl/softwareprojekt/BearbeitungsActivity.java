@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -40,14 +41,13 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
 public class BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private final int PIC_CROP = 1;
     private int IMAGE_FROM_CROP = 1;
-    private final int PICK_IMAGE_REQ_CODE = 12;
-    private final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
-    private final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
     private Uri imageUri;
     private User user;
     private Bitmap bearbeitungsBitmap;
@@ -66,7 +66,6 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     private Button storieBtn;
     private Button scaleBtn;
     private Button resetBtn;
-    private ProgressDialog uploadDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,12 +190,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
                 imageUriÜbergabe();
-                if(imageUri!= null && internetAvailable()) {
-                    uploadDialog = new ProgressDialog(BearbeitungsActivity.this);
-                    uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    uploadDialog.show();
-                    new UploadImageAsyncTask().execute();
-                }
+                //sendXML(sendTitelPost);
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -250,20 +244,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
         }
     }
-    public void pickImage(){
 
-        Intent pickImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        pickImageIntent.setType("image/*");
-        startActivityForResult(pickImageIntent, PICK_IMAGE_REQ_CODE);
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == EXTERNAL_STORAGE_PERMISSION_REQ_CODE && grantResults.length >0 && grantResults[0] ==
-                PackageManager.PERMISSION_GRANTED){
-            pickImage();
-        }
-    }
     //Enthält die Funktion, welche die "Croppen"-Funktion für eine Uri aufruft
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -275,97 +256,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
         }
     }
-    private class UploadImageAsyncTask extends AsyncTask {
 
-
-        String serverResponse;
-        @Override
-        protected Object doInBackground(Object[] params) {
-
-
-            String boundary = "---boundary" + System.currentTimeMillis();
-            String firstLineBoundary = "--" + boundary + "\r\n";
-            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload1\";filename=\"imagefile.jpg\"\r\n";
-            String newLine = "\r\n";
-            String lastLineBoundary = "--" + boundary + "--\r\n";
-
-
-            try {
-                InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
-                int uploadSize = (firstLineBoundary + contentDisposition + newLine + newLine + lastLineBoundary).getBytes().length + imageInputStream.available();
-                uploadDialog.setMax(uploadSize);
-
-                URL uploadUrl = new URL(uploadUrlString);
-                HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();
-                connection.setDoOutput(true);
-                connection.setDoInput(true);
-                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setFixedLengthStreamingMode(uploadSize);
-
-                DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
-                dataOutputStream.writeBytes(firstLineBoundary);
-                dataOutputStream.writeBytes(contentDisposition);
-                dataOutputStream.writeBytes(newLine);
-
-                int byteCounter = 0;
-
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = imageInputStream.read(buffer)) != -1) {
-                    dataOutputStream.write(buffer, 0, read);
-                    byteCounter+=1024;
-                    uploadDialog.setProgress(byteCounter);
-                }
-
-                dataOutputStream.writeBytes(newLine);
-                dataOutputStream.writeBytes(lastLineBoundary);
-                dataOutputStream.flush();
-                dataOutputStream.close();
-
-                serverResponse = getTextFromInputStream(connection.getInputStream());
-                connection.getInputStream().close();
-                connection.disconnect();
-            }
-            catch (MalformedURLException e) {
-                e.printStackTrace();
-                Toast.makeText(BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object o) {
-            uploadDialog.dismiss();
-            super.onPostExecute(o);
-        }
-    }
-    public String getTextFromInputStream(InputStream is) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder stringBuilder = new StringBuilder();
-        String aktuelleZeile;
-        try {
-            while ((aktuelleZeile = reader.readLine()) != null) {
-                stringBuilder.append(aktuelleZeile);
-                stringBuilder.append("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuilder.toString().trim();
-    }
-
-    private boolean internetAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-
-    }
     //Enthält die Funktionen zum Skalieren einer Bitmap
     private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
         try {
@@ -570,5 +461,8 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
 }

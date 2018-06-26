@@ -1,10 +1,18 @@
 package de.hshl.softwareprojekt;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
@@ -20,9 +28,19 @@ import android.widget.EditText;
 
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +58,11 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     private GridLayout hashGrid;
     private ArrayList<EditText> editList;
     private User user;
+    private final String uploadUrlString = "http://intranet-secure.de/instragram/Upload.php";
+    private Uri imageUri;
+    private ProgressDialog uploadDialog;
+    private final int PICK_IMAGE_REQ_CODE = 12;
+    private final int EXTERNAL_STORAGE_PERMISSION_REQ_CODE = 14;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +97,17 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public void imageUriÜbergabe(){
+        this.imageUri = getImageUri(this, this.postBitmap);
+    }
+
     @Override
     public void onClick(View v) {
 
@@ -86,6 +120,14 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 sendBackIntent.putStringArrayListExtra("Hashtags",convertIntoStringList(this.editList));
                 String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
                 sendBackIntent.putExtra("Date", date);
+
+                /*if(imageUri!= null && internetAvailable()) {
+                    uploadDialog = new ProgressDialog(Post_BearbeitungsActivity.this);
+                    uploadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    uploadDialog.show();
+                    new Post_BearbeitungsActivity.UploadAsynk(this.user).execute();
+                }*/
+
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
@@ -110,6 +152,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                     this.postTitel.setText(intentVerarbeitet.getStringExtra("Titel"));
                     this.postBitmap = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.postImage.setImageBitmap(this.postBitmap);
+                    imageUriÜbergabe();
                 }
             }
         }
@@ -137,6 +180,16 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
 
         return stringList;
     }
+    public String convertToString(ArrayList<String> stringList){
+        String hashtags = "";
+        int i = 0;
+        while (i<stringList.size()) {
+            hashtags = hashtags +  stringList.get(i);
+            i++;
+        }
+
+        return hashtags;
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -148,5 +201,118 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void pickImage(){
+
+        Intent pickImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        pickImageIntent.setType("image/*");
+        startActivityForResult(pickImageIntent, PICK_IMAGE_REQ_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == EXTERNAL_STORAGE_PERMISSION_REQ_CODE && grantResults.length >0 && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED){
+            pickImage();
+        }
+    }
+    private class UploadAsynk extends AsyncTask {
+        DatabaseHelperUser userData;
+        User user;
+        String serverResponse;
+        UploadAsynk(User user) {
+            this.user = user;
+            this.userData = new DatabaseHelperUser(Post_BearbeitungsActivity.this);
+        }
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+
+
+            String boundary = "---boundary" + System.currentTimeMillis();
+            String firstLineBoundary = "--" + boundary + "\r\n";
+            String contentDisposition = "Content-Disposition: form-data;name=\"fileupload1\";filename=\""+this.user.getId()+this.user.getUsername()+"\"\r\n";
+            String newLine = "\r\n";
+            String lastLineBoundary = "--" + boundary + "--\r\n";
+
+
+            try {
+                InputStream imageInputStream = getContentResolver().openInputStream(imageUri);
+                int uploadSize = (firstLineBoundary + contentDisposition + newLine + newLine + lastLineBoundary).getBytes().length + imageInputStream.available();
+                uploadDialog.setMax(uploadSize);
+
+                URL uploadUrl = new URL(uploadUrlString);
+                HttpURLConnection connection = (HttpURLConnection) uploadUrl.openConnection();
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setRequestProperty("Content-Type", "multipart/form-data; boundary="+boundary);
+                connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setFixedLengthStreamingMode(uploadSize);
+
+                DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
+                dataOutputStream.writeBytes(firstLineBoundary);
+                dataOutputStream.writeBytes(contentDisposition);
+                dataOutputStream.writeBytes(newLine);
+
+                int byteCounter = 0;
+
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = imageInputStream.read(buffer)) != -1) {
+                    dataOutputStream.write(buffer, 0, read);
+                    byteCounter+=1024;
+                    uploadDialog.setProgress(byteCounter);
+                }
+
+                dataOutputStream.writeBytes(newLine);
+                dataOutputStream.writeBytes(lastLineBoundary);
+                dataOutputStream.flush();
+                dataOutputStream.close();
+
+                serverResponse = getTextFromInputStream(connection.getInputStream());
+                connection.getInputStream().close();
+                connection.disconnect();
+            }
+            catch (MalformedURLException e) {
+                e.printStackTrace();
+                Toast.makeText(Post_BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(Post_BearbeitungsActivity.this, "Fehler aufgetreten!", Toast.LENGTH_SHORT).show();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            uploadDialog.dismiss();
+            super.onPostExecute(o);
+        }
+    }
+    public String getTextFromInputStream(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder stringBuilder = new StringBuilder();
+        String aktuelleZeile;
+        try {
+            while ((aktuelleZeile = reader.readLine()) != null) {
+                stringBuilder.append(aktuelleZeile);
+                stringBuilder.append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString().trim();
+    }
+
+    private boolean internetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+
+    }
+
 }
 

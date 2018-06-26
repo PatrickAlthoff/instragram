@@ -18,9 +18,9 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
-public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener {
+public class Main_Image_Clicked extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
-    private int ID;
+    private String ID;
     private ImageView clickedImage;
     private TextView kommentar;
     private TextView titel;
@@ -32,7 +32,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private User user;
     private GridLayout gridLayout;
     private ArrayList<String> hashList;
-
+    private DatabaseHelperPosts dataBasePosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +55,12 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.hashTags.setOnClickListener(this);
         this.titel.setText(getPost.getStringExtra("Titel"));
         this.user = (User) getPost.getSerializableExtra("User");
-        this.disUser.setText(user.getUsername());
+        String username = getPost.getStringExtra("Username");
+        this.disUser.setText(username);
         this.checkLike = findViewById(R.id.clickedLike);
         this.checkLike.setText(getPost.getStringExtra("Likes"));
         this.checkLike.setChecked(getPost.getExtras().getBoolean("Checked"));
+        this.checkLike.setContentDescription(getPost.getStringExtra("ID"));
         this.checkLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,18 +71,28 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 int getInt = Integer.parseInt(pieces[1]);
 
                 if(checked){
-
+                    long id = Long.parseLong(v.getContentDescription().toString());
+                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
+                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
+                        dataBasePosts.updateLike(id,user.getUsername(), true);
+                    }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
+                    updateLikeStatus(1, id);
 
                 }
                 else{
+                    long id = Long.parseLong(v.getContentDescription().toString());
+                    dataBasePosts.updateLike(id,user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
+                    updateLikeStatus(-1, id);
                 }
             }
         });
         //Enthält die ID der Checkbox, für die korrekte Übermittlung
-        this.ID = getPost.getExtras().getInt("ID");
+
         this.hashList = getPost.getStringArrayListExtra("Hashtags");
+        this.dataBasePosts = new DatabaseHelperPosts(this);
         //Toolbar Setup
         Toolbar toolbar = findViewById(R.id.toolbar2);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -105,10 +117,21 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 this.gridLayout.setVisibility(View.VISIBLE);
                 int i = 0;
                 while(i<this.hashList.size()){
-                    TextView textview = new TextView(this);
+                    final TextView textview = new TextView(this);
                     textview.setText(this.hashList.get(i));
                     textview.setTextSize(12);
                     this.gridLayout.addView(textview);
+                    textview.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
+
+                            sendToSearchIntent.putExtra("Search", textview.getText().toString());
+                            sendToSearchIntent.putExtra("User", user);
+                            startActivity(sendToSearchIntent);
+                            finish();
+                        }
+                    });
                     i++;
                 }
                 break;
@@ -129,5 +152,21 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateLikeStatus(int status, long id){
+        String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.buildXMLUpdateStatus(status, id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    @Override
+    public void processFinish(String output) {
+        if(output.contains("Update erfolgreich.")) {
+            String returner = output;
+        }
     }
 }

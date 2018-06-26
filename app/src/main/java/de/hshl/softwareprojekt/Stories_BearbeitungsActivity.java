@@ -2,7 +2,6 @@ package de.hshl.softwareprojekt;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -23,11 +22,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
@@ -39,18 +37,20 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     private int DESCRIPTION = 3;
     private int i;
     private int progressBarCount;
+    private int id;
+    private User user;
     private Uri imageUri;
     private Button fotoBtn;
     private Button galerieBtn;
     private Button restartbtn;
     private Button publishBtn;
     private ArrayList<Bitmap> bitmapList;
-    private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
     private ImageView storiePic;
     private TextView storieTitel;
     private ProgressBar storiebar;
     private Intent intentCaptureImage;
+    private DatabaseHelperPosts database;
 
 
 
@@ -63,11 +63,9 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         Intent data = getIntent();
         this.titelList = new ArrayList<>();
         this.bitmapList = new ArrayList<>();
-        this.uriList = new ArrayList<>();
-
-        this.uriList = data.getParcelableArrayListExtra("UriList");
-        this.titelList = data.getStringArrayListExtra("TitelList");
-        this.bitmapList = convertToBitmapList(this.uriList);
+        this.database = new DatabaseHelperPosts(this);
+        this.user = (User) data.getSerializableExtra("User");
+        this.id = data.getIntExtra("id",0);
 
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
@@ -82,10 +80,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.restartbtn.setOnClickListener(this);
         this.publishBtn.setOnClickListener(this);
 
-        if(this.uriList.size() > 0) {
-            this.storiePic.setImageBitmap(getAndScaleBitmapNormal(this.uriList.get(0), -1, 330));
-        }
-
         Toolbar toolbar = findViewById(R.id.toolbar4);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
@@ -94,44 +88,47 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-    }
-    //Get Methode zur Ermittlung der Image Uri
-    private Uri getImageUri(Context context, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-    //Konvertiert ArrayList Uri in eine ArrayList Bitmap
-    public ArrayList<Bitmap> convertToBitmapList(ArrayList<Uri> uriList){
-        int length = uriList.size();
-        int i = 0;
-        ArrayList<Bitmap> bitmapList =new ArrayList<>();
-        Bitmap bitmap;
+        storiePic.post(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<String> storyList = database.getStory(user.getId());
 
-        while (length > i){
-            bitmap = getAndScaleBitmapNormal(uriList.get(i),-1,330);
-            bitmapList.add(bitmap);
-            i++;
+                if (storyList.size() == 0){
+                    storiePic.setVisibility(View.VISIBLE);
+                } else {
 
-        }
-        return bitmapList;
+                    String story = storyList.get(0);
+                    String[] pieces = story.split(" : ");
+                    String ids = pieces[0];
+                    int id = Integer.parseInt(ids);
+                    String base64 = pieces[2];
+                    String[] base64Strings = base64.split(":");
+                    int i = 1;
+                    ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
+                    while (i < base64Strings.length) {
+                        base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
+                        i++;
+                    }
+                    String titel = pieces[3];
+                    String[] titleStringsSplit = titel.split(":");
+                    int d = 1;
+                    ArrayList<String> titleStrings = new ArrayList<>();
+
+                    while (d < titleStringsSplit.length) {
+                        titleStrings.add(titleStringsSplit[d]);
+                        d++;
+                    }
+                    bitmapList = base64Bitmap;
+                    titelList = titleStrings;
+                    storiePic.setImageBitmap(bitmapList.get(0));
+                    storieTitel.setText(titelList.get(0));
+                }
+            }
+
+        });
+
     }
-    //Konvertiert ArrayList Bitmap in eine ArrayList Bitmap
-    public ArrayList<Uri> convertToUriList(ArrayList<Bitmap> bitmapList){
-        int length = bitmapList.size();
-        int i = 0;
-        ArrayList<Uri> uriList =new ArrayList<>();
-        Uri uri;
 
-        while (length > i){
-            uri = getImageUri(this,bitmapList.get(i));
-            uriList.add(uri);
-            i++;
-
-        }
-        return uriList;
-    }
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -148,14 +145,63 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 break;
             case R.id.publishBtn:
                 Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
-                sendBackIntent.putParcelableArrayListExtra("UriList", convertToUriList(this.bitmapList));
-                sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
                 setResult(RESULT_OK, sendBackIntent);
+                String base64 = convertBitMapListtoBase64(this.bitmapList);
+                String titel = convertStringListtoString(this.titelList);
+                int c = this.id;
+                if(c == 0){
+                String d = Long.toString(System.currentTimeMillis()/1000);
+                c = Integer.parseInt(d);
+
+                }
+
+                long storyID = System.currentTimeMillis()/1000;
+                ArrayList<String> storyList = database.getStory(user.getId());
+
+                if (storyList.size() == 0) {
+                    database.insertStory(c, this.user.getUsername(), base64, titel, "", "", true, this.user.getId());
+
+                }
+                else{
+                    database.updateStory(user.getId(),base64, titel);
+                }
+                uploadStory(storyID, user.getId(), titel, base64);
                 finish();
                 break;
         }
     }
 
+    private void uploadStory(long id, long userKey, String titels, String base64){
+
+        String dstAdress = "http://intranet-secure.de/instragram/uploadStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.uploadXMLStory(id,userKey, titels, base64));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    public String convertStringListtoString (ArrayList<String> stringList){
+        int i = 0;
+        String titel = "";
+        while(i<stringList.size()){
+            titel= titel + ":" + stringList.get(i);
+            i++;
+        }
+
+        return titel;
+    }
+
+    public String convertBitMapListtoBase64 (ArrayList<Bitmap> bitmapList){
+        int i = 0;
+        String base64 = "";
+        while (i < bitmapList.size()){
+            base64 = base64 + ":" +  ImageHelper.bitmapToBase64(bitmapList.get(i));
+            i++;
+        }
+
+        return base64;
+    }
     //Methode zum Start der Camera
     private void startCamera(){
         if (this.permissionGranted){
@@ -344,4 +390,8 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void processFinish(String output) {
+
+    }
 }

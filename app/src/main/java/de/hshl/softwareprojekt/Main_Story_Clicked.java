@@ -3,15 +3,13 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.net.Uri;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,13 +18,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener {
+public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private ArrayList<Bitmap> bitmapList;
-    private ArrayList<Uri> uriList;
     private ArrayList<String> titelList;
     private ProgressBar progressBar;
     private Button addBtn;
@@ -35,10 +31,15 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     private TextView emptyText;
     private TextView titelStory;
     private ImageView storiePic;
+    private User user;
+    private DatabaseHelperPosts database;
     private int progressBarCount;
     private int i;
+    private int id = 0;
     private int checkInt;
     private int start;
+    private long userid;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,10 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.emptyText.setVisibility(View.INVISIBLE);
         this.bitmapList = new ArrayList<>();
         this.titelList = new ArrayList<>();
-        this.uriList = data.getParcelableArrayListExtra("UriList");
-        this.titelList = data.getStringArrayListExtra("TitelList");
+        this.database = new DatabaseHelperPosts(this);
+        this.user = (User) data.getSerializableExtra("User");
+        String userID = data.getStringExtra("User_ID");
+        this.userid = Long.parseLong(userID);
         this.addBtn = findViewById(R.id.addBtn);
         this.deleteBtn = findViewById(R.id.deleteStorie);
         this.startBtn = findViewById(R.id.startStorie);
@@ -62,8 +65,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.start = 0;
         this.checkInt = 0;
 
-        scaleUp(this.uriList);
-
         //Initialisierung der Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar5);
         toolbar.setTitleTextColor(0xFFFFFFFF);
@@ -72,13 +73,53 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        if(this.uriList.size() == 0 ){
-            this.emptyText.setVisibility(View.VISIBLE);
-        }
+        emptyText.post(new Runnable() {
+            @Override
+            public void run() {
+                if(user.getId()!=userid){
+                    updateStoryboard(userid);
+                    addBtn.setVisibility(View.INVISIBLE);
+                    deleteBtn.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    ArrayList<String> storyList = database.getStory(user.getId());
+                    if (storyList.size() == 0) {
+                        updateStoryboard(user.getId());
+                    } else {
+
+                        String story = storyList.get(0);
+                        String[] pieces = story.split(" : ");
+                        String ids = pieces[0];
+                        int id = Integer.parseInt(ids);
+                        String base64 = pieces[2];
+                        String[] base64Strings = base64.split(":");
+                        int i = 1;
+                        ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
+                        while (i < base64Strings.length) {
+                            base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
+                            i++;
+                        }
+                        String titel = pieces[3];
+                        String[] titleStringsSplit = titel.split(":");
+                        int d = 1;
+                        ArrayList<String> titleStrings = new ArrayList<>();
+
+                        while (d < titleStringsSplit.length) {
+                            titleStrings.add(titleStringsSplit[d]);
+                            d++;
+                        }
+                        addStory(base64Bitmap, titleStrings);
+                    }
+                }
+
+            }
+        });
+
     }
     //Added das Storyfragment
-    public void addStory() {
-        if (this.uriList.size() > 0) {
+    public void addStory(ArrayList<Bitmap> bitmapList, ArrayList<String> titelList) {
+            this.bitmapList = bitmapList;
+            this.titelList = titelList;
             this.checkInt++;
             this.emptyText.setVisibility(View.INVISIBLE);
 
@@ -96,60 +137,37 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
             this.progressBar = storiesFragment.prBar;
             this.storiePic = storiesFragment.storieImage;
 
-
-
-        } else {
-            this.emptyText.setVisibility(View.VISIBLE);
-        }
     }
     //Enthält die Methode zur Visualisierung der Progressbar
     public void startBar() {
-        if (this.uriList.size() == 0) {
-            this.emptyText.setVisibility(View.VISIBLE);
-        } else {
-            this.progressBarCount = this.bitmapList.size();
-            final ImageView storiePic = this.storiePic;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    i = 0;
-                    while (i < progressBarCount) {
+        this.progressBarCount = this.bitmapList.size();
+        final ImageView storiePic = this.storiePic;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                i = 0;
+                while (i < progressBarCount) {
 
-                        storiePic.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                storiePic.setImageBitmap(bitmapList.get(i));
-                                titelStory.setText(titelList.get(i));
-                                i++;
-                            }
-                        });
-                        progressBar.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setProgress((i) * 100 / progressBarCount);
-                            }
-                        });
-                        SystemClock.sleep(2000);
-                    }
+                    storiePic.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            storiePic.setImageBitmap(bitmapList.get(i));
+                            titelStory.setText(titelList.get(i));
+                            i++;
+                        }
+                    });
+                    progressBar.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setProgress((i) * 100 / progressBarCount);
+                        }
+                    });
+                    SystemClock.sleep(2000);
 
                 }
-            }).start();
-        }
-    }
-
-    //Wandelt die Pbergebene Uri Arraylist in eine Bitmap Arraylist um
-    public ArrayList<Bitmap> scaleUp(ArrayList<Uri> uriList) {
-
-        int length = uriList.size();
-        int i = 0;
-        Bitmap bitmap;
-        while (length > i) {
-            bitmap = getAndScaleBitmapNormal(uriList.get(i), -1, 330);
-            this.bitmapList.add(i, bitmap);
-            i++;
-
-        }
-        return bitmapList;
+            }
+        }).start();
     }
 
     @Override
@@ -157,19 +175,26 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         switch (v.getId()) {
             case R.id.addBtn:
                 Intent sendtoStorieBearbeitung = new Intent(Main_Story_Clicked.this, Stories_BearbeitungsActivity.class);
-                sendtoStorieBearbeitung.putParcelableArrayListExtra("UriList", this.uriList);
-                sendtoStorieBearbeitung.putStringArrayListExtra("TitelList", this.titelList);
+                sendtoStorieBearbeitung.putExtra("User", this.user);
+                this.id = database.getID(this.user.getId());
+                sendtoStorieBearbeitung.putExtra("id", this.id);
                 startActivityForResult(sendtoStorieBearbeitung, 101);
-                if(this.uriList.size() > 0 && this.checkInt != 0 ){
-                    deleteProcess();
+                this.bitmapList.clear();
+                this.titelList.clear();
+                if(id != 0) {
+                    this.storiePic.setVisibility(View.INVISIBLE);
+                    this.progressBar.setVisibility(View.INVISIBLE);
+                    this.titelStory.setVisibility(View.INVISIBLE);
+                    this.emptyText.setVisibility(View.VISIBLE);
                 }
                 break;
             case R.id.deleteStorie:
                 deleteProcess();
                 break;
             case R.id.startStorie:
+
+
                 if(start == 0){
-                    addStory();
                     start++;
                     startBar();
                 }
@@ -178,18 +203,18 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                 }
                 break;
         }
-
     }
     //Sorgt beim Delete für eine Leerung der ArrayLists und schaltet Objekte auf INVISIBLE
     public void deleteProcess(){
-
-            this.uriList.clear();
-            this.bitmapList.clear();
+            /*this.bitmapList.clear();
             this.titelList.clear();
             this.storiePic.setVisibility(View.INVISIBLE);
             this.progressBar.setVisibility(View.INVISIBLE);
             this.titelStory.setVisibility(View.INVISIBLE);
             this.emptyText.setVisibility(View.VISIBLE);
+            */
+            database.deleteStory(user.getId());
+            deleteStory(user.getId());
     }
 
     //Kümmert sich um den Klick auf den BackButton
@@ -198,34 +223,27 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
             Intent sendBackIntent = new Intent(Main_Story_Clicked.this, MainActivity.class);
-            sendBackIntent.putParcelableArrayListExtra("UriList", this.uriList);
-            sendBackIntent.putStringArrayListExtra("TitelList", this.titelList);
             setResult(RESULT_OK, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
-
         return super.onOptionsItemSelected(item);
     }
-
-    //Skaliert eine übergebene Uri auf eine dementsprechende Bitmap
-    private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight) {
-        try {
-            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-            float srcWidth = src.getWidth(),
-                    srcHeight = src.getHeight();
-
-            if (dstWidth < 1) {
-                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
-            }
-            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
-            return dst;
-        } catch (IOException e) {
-            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
-        }
-        return null;
+    private void deleteStory(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/deleteStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
     }
-
+    private void updateStoryboard(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getStory.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -234,15 +252,68 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     Intent intentGet = data;
-                    this.uriList = intentGet.getParcelableArrayListExtra("UriList");
-                    this.titelList = intentGet.getStringArrayListExtra("TitelList");
+                    this.id = intentGet.getIntExtra("id",0);
                     this.bitmapList.clear();
-                    scaleUp(this.uriList);
                     start++;
-                    addStory();
+
+                    ArrayList<String> storyList = database.getStory(user.getId()) ;
+                    String story = storyList.get(0);
+                    String[] pieces = story.split(" : ");
+                    String ids = pieces[0];
+                    int id = Integer.parseInt(ids);
+                    String base64 =  pieces[2];
+                    String[] base64Strings = base64.split(":");
+                    int i = 1;
+                    ArrayList<Bitmap> base64Bitmap = new ArrayList<>();
+                    while(i < base64Strings.length) {
+                        base64Bitmap.add(ImageHelper.base64ToBitmap(base64Strings[i]));
+                        i++;
+                    }
+                    String titel = pieces[3];
+                    String[] titleStringsSplit = titel.split(":");
+                    int d = 1;
+                    ArrayList<String> titleStrings = new ArrayList<>();
+
+                    while(d < titleStringsSplit.length){
+                        titleStrings.add(titleStringsSplit[d]);
+                        d++;
+                    }
+                    addStory(base64Bitmap, titleStrings);
+                    }
                 }
             }
         }
+
+    @Override
+    public void processFinish(String output) {
+        if(output.contains("StoryReturn")){
+            ArrayList<String> titelList = new ArrayList<>();
+            ArrayList<Bitmap> bitmapList = new ArrayList<>();
+            String[] storyPieces = output.split(" : ");
+            String[] titelsPieces = storyPieces[2].split(":");
+            String[] base64Pieces = storyPieces[3].split(":");
+            int index = 1;
+            while(index<titelsPieces.length){
+                titelList.add(titelsPieces[index]);
+                index++;
+            }
+            index = 1;
+            while(index<base64Pieces.length){
+                bitmapList.add(ImageHelper.base64ToBitmap(base64Pieces[index]));
+                index++;
+            }
+            addStory(bitmapList,titelList);
+            int id = Integer.valueOf(storyPieces[1]);
+            if(database.getID(user.getId()) == 0 && user.getId() == userid){
+                database.insertStory(id, this.user.getUsername(), storyPieces[3], storyPieces[2], "", "", true, this.user.getId());
+            }else if(database.getID(user.getId()) != 0 && user.getId() == userid){
+                database.updateStory(user.getId(),storyPieces[3],storyPieces[2]);
+            }
+
+        }else{
+            emptyText.setText("Die Story ist leer.");
+            emptyText.setVisibility(View.VISIBLE);
+        }
+
     }
 }
-

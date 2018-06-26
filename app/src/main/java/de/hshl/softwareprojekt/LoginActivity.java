@@ -17,13 +17,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,12 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>,AsyncResponse {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();
     private UserLoginTask mAuthTask = null;
 
     // UI references.
+    private int REQUEST_REGIST_CODE = 200;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
@@ -48,7 +48,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ArrayList<String> userList;
     private DatabaseHelperUser database;
     private LinearLayout email_login_form;
+    private CheckBox rememberCheck;
     private User user;
+    private ArrayList<String> userTableData;
+    private HttpConnection httpConnection;
+    private String response;
+    private boolean valid;
 
 
     @Override
@@ -57,38 +62,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
-
+        rememberCheck = findViewById(R.id.rememberCheck);
 
         mPasswordView = findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+
 
         Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                sendXML(mEmailView.getText().toString());
                 DUMMY_CREDENTIALS = database.getData();
-                attemptLogin();
+
             }
         });
 
         database = new DatabaseHelperUser(this);
         email_login_form = findViewById(R.id.email_login_form);
 
+        this.userTableData = new ArrayList<>();
         this.userList = new ArrayList<>();
         this.neuBtn = findViewById(R.id.neuBtn);
         this.neuBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                database.insertData(mEmailView.getText().toString(), mPasswordView.getText().toString());
+            //    database.insertData(mEmailView.getText().toString(), mPasswordView.getText().toString());
+                Intent toRegist = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivityForResult(toRegist,REQUEST_REGIST_CODE);
             }
         });
 
@@ -121,14 +121,46 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        String remember = database.getRemember();
+        if(remember.contains(":")){
+            String[] pieces = remember.split(":");
+            mEmailView.setText(pieces[0]);
+            mPasswordView.setText(pieces[1]);
+            rememberCheck.setChecked(true);
+        }
+    }
+
+    private void sendXML(String email){
+
+        String dstAdress = "http://intranet-secure.de/instragram/CheckForUser.php";
+
+        httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.buildXMLCheck(email));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+
+
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUEST_REGIST_CODE ){
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    Intent intentVerarbeitet = data;
+                    this.mEmailView.setText(intentVerarbeitet.getStringExtra("email"));
+                    this.mPasswordView.setText(intentVerarbeitet.getStringExtra("pw"));
+                }
+            }
+        }
     }
 
 
 
-
-
-
-    private void attemptLogin() {
+    private void attemptLogin(Boolean remember) {
         if (mAuthTask != null) {
             return;
         }
@@ -170,8 +202,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            String username = database.getUser(mEmailView.getText().toString());
-            mAuthTask = new UserLoginTask(email, password, username);
+
+            mAuthTask = new UserLoginTask(email, password, remember, valid, userTableData);
             mAuthTask.execute((Void) null);
         }
     }
@@ -262,6 +294,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    @Override
+    public void processFinish(String output) {
+        this.response = output;
+
+        String[] outputUser = output.split(":");
+        int index =1;
+        while (index < outputUser.length){
+            userTableData.add(outputUser[index]);
+            index++;
+        }
+        if(this.response.contains("UserChecked")){
+            valid = true;
+        }else
+            if(this.response.contains("UserNotChecked")){
+            valid = false;
+        }
+        if(rememberCheck.isChecked()){
+            attemptLogin(true);
+        }
+        else {
+            attemptLogin(false);
+        }
+    }
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -272,18 +328,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int ADDRESS = 0;
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> implements AsyncResponse{
 
         private final String mEmail;
         private final String mPassword;
+        private long userID;
+        private boolean remember;
+        private boolean valid;
+        private ArrayList<String> userTableData;
         private String username;
+        private String email;
+        private String pw;
         private User user;
+        private DatabaseHelperUser userData;
 
-        UserLoginTask(String email, String password, String username) {
+        UserLoginTask(String email, String password, Boolean remember, boolean valid, ArrayList<String> userTableData) {
             this.mEmail = email;
             this.mPassword = password;
-            this.username = username;
-            this.user = new User(username,email);
+            this.remember = remember;
+            this.valid = valid;
+            this.userData = new DatabaseHelperUser(LoginActivity.this);
+            this.userTableData = userTableData;
         }
 
         @Override
@@ -300,9 +365,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
 
-                if (pieces[0].equals(mEmail)) {
-                    this.username = pieces[0];
-                    return pieces[1].equals(mPassword);
+                if (pieces[2].equals(mEmail)) {
+                    this.username = pieces[1];
+                    this.userID = Long.parseLong(pieces[0]);
+                    return pieces[3].equals(mPassword);
                 }
             }
 
@@ -315,21 +381,68 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (success && valid==true) {
+                this.user = new User(userID,username, mEmail);
+                this.user.setBase64(userData.getUserPic(user.getId()));
+                this.userData.updateRemember(mEmail, remember);
                 Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
                 intentMain.putExtra("User", this.user);
                 startActivity(intentMain);
                 finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+            } else if(success && valid == false) {
+                mPasswordView.setError("Deine Mailadresse ist ungültig!");
                 mPasswordView.requestFocus();
+                userTableData.clear();
+            }else if(!success && valid == true) {
+
+                userID = Long.parseLong(userTableData.get(0));
+                username = userTableData.get(1);
+                email = userTableData.get(2);
+                pw = userTableData.get(3);
+                sendXML(userID);
+
+
+
+
             }
+                else{
+                    mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
+                    mPasswordView.requestFocus();
+                    userTableData.clear();
+                }
+
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        private void sendXML(long id){
+            String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
+            httpConnection = new HttpConnection(dstAdress, this);
+            httpConnection.setMessage(XmlHelper.getUsers(id));
+            httpConnection.setMode(HttpConnection.MODE.PUT);
+            httpConnection.delegate = this;
+            httpConnection.execute();
+        }
+
+        @Override
+        public void processFinish(String output) {
+            if(output.contains("UserNotChecked")){
+                mEmailView.setError("Ungültige Login-Daten");
+            }else{
+                String[] outputUser = output.split(":");
+                userData.insertData(userID, username, email, pw, outputUser[2],false );
+                this.user = new User(userID,username, mEmail);
+                this.user.setBase64(outputUser[2]);
+                Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
+                intentMain.putExtra("User", this.user);
+                startActivity(intentMain);
+                finish();
+            }
+
         }
     }
 }

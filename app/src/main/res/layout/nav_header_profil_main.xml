@@ -30,11 +30,23 @@
         android:text="@string/acc_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/follower_follows" />
+    <LinearLayout
+        android:layout_width="206dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/followerTextView"
+            android:layout_width="91dp"
+            android:layout_height="wrap_content"
+            android:text="Follower:" />
+
+        <TextView
+            android:id="@+id/followsTextView"
+            android:layout_width="83dp"
+            android:layout_height="wrap_content"
+            android:text="Follows:" />
+    </LinearLayout>
 
 </LinearLayout>
 
