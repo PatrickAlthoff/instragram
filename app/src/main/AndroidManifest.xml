@@ -57,6 +57,11 @@
         <activity android:name=".Stories_BearbeitungsActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".Post_BearbeitungsActivity"></activity>
+        <activity android:name=".ListeFollowing"
+        android:parentActivityName=".ProfilActivity"/>
+        <activity android:name=".ListeFollower"
+            android:parentActivityName=".ProfilActivity"/>
+        <activity android:name=".Full_ImageActivity"></activity>
     </application>
 
 </manifest>

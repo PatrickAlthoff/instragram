@@ -28,7 +28,7 @@
     <string name="button_folgen">Folgen</string>
     <string name="anzahl_following">Following</string>
     <string name="anzahl_follower">Follower</string>
-    <string name="biografie">Bio</string>
+    <string name="benutzerName"></string>
 
     <!-- Strings related to Bearbeitung des Profils -->
     <string name="Profilbild"></string>
