@@ -15,7 +15,6 @@
 
     <uses-permission-sdk-23 android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission-sdk-23 android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -58,9 +57,7 @@
         <activity android:name=".Main_Story_Clicked" />
         <activity android:name=".Stories_BearbeitungsActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".Post_BearbeitungsActivity" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".Post_BearbeitungsActivity"></activity>
     </application>
 
 </manifest>
