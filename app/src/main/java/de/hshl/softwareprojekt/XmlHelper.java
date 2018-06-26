@@ -140,6 +140,19 @@ public class XmlHelper {
 
         return xml;
     }
+    public static String updateData(long id, String userName, String userMail){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<User>" +
+                "<UserID>" + id + "</UserID>" +
+                "<UserName>" + userName + "</UserName>" +
+                "<UserMail>" + userMail + "</UserMail>" +
+                "</User>" +
+                "</data>";
+
+        return xml;
+    }
+
 
 
 }

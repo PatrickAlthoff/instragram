@@ -21,7 +21,7 @@
         app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     <Button
-        android:id="@+id/applyName"
+        android:id="@+id/applyChanges"
         android:layout_width="70dp"
         android:layout_height="45dp"
         android:layout_marginBottom="8dp"
@@ -31,26 +31,10 @@
         android:text="Apply"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.765"
+        app:layout_constraintHorizontal_bias="0.026"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.264" />
-
-    <Button
-        android:id="@+id/applyEmail"
-        android:layout_width="70dp"
-        android:layout_height="45dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Apply"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.765"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.472" />
+        app:layout_constraintVertical_bias="0.59" />
 
     <TextView
         android:id="@+id/displayStuff"

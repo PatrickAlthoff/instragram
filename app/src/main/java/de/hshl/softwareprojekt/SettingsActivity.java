@@ -15,8 +15,7 @@ import android.widget.Toast;
 
 public class SettingsActivity extends AppCompatActivity {
     //Variablen zur Verarbeitung der Inhalte in der Activity
-    private Button applyName;
-    private Button applyEmail;
+    private Button applyChanges;
     private User user;
     private EditText userChanger;
     private EditText emailChanger;
@@ -33,18 +32,16 @@ public class SettingsActivity extends AppCompatActivity {
         this.databasePosts = new DatabaseHelperPosts(this);
         this.userChanger = findViewById(R.id.editUser);
         this.emailChanger = findViewById(R.id.editEmail);
-        this.applyName = findViewById(R.id.applyName);
-        this.applyEmail = findViewById(R.id.applyEmail);
-
+        this.applyChanges = findViewById(R.id.applyChanges);
         this.emailChanger.setText(user.getEmail());
         this.userChanger.setText(user.getUsername());
-        this.applyName.setOnClickListener(new View.OnClickListener() {
+        this.applyChanges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Namen bestätigen!");
-                builder.setMessage("Sie sind dabei ihren Namen zu ändern, sind sie sicher, dass sie fortfahren möchten?");
+                builder.setTitle("Änderungen bestätigen!");
+                builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
                 builder.setCancelable(false);
                 builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
                     @Override
@@ -52,7 +49,8 @@ public class SettingsActivity extends AppCompatActivity {
                         user.setUsername(userChanger.getText().toString());
                         databaseHelperUser.updateUser(user.getId(), userChanger.getText().toString());
                         databasePosts.updateUserPosts(user.getId(), userChanger.getText().toString());
-                        Toast.makeText(getApplicationContext(), "Dein Name wurde erfolgreich geändert!", Toast.LENGTH_SHORT).show();
+                        updateData(user.getId());
+                        Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -60,7 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         userChanger.setText(user.getUsername());
-                        Toast.makeText(getApplicationContext(), "Dein ursprünglicher Name wurde wiederhergestellt!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Dein ursprünglicher Nutzerdaten wurden wiederhergestellt!", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -69,40 +67,6 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         });
-
-        this.applyEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("E-mail Adresse bestätigen!");
-                builder.setMessage("Sie sind dabei ihre E-mail Adresse zu ändern, sind sie sicher, dass sie fortfahren möchten?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(emailChanger.getText().toString().contains("@")) {
-                            user.setEmail(emailChanger.getText().toString());
-                            databaseHelperUser.updateEmail(user.getId(), emailChanger.getText().toString());
-                            Toast.makeText(getApplicationContext(), "Deine E-mail Adresse wurde erfolgreich geändert!", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(), "Deine angegebene E-mail Adresse ist ungültig!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-                builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        emailChanger.setText(user.getEmail());
-                        Toast.makeText(getApplicationContext(), "Deine  ursprünglicher E-mail Adresse wurde wiederhergestellt!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
         Toolbar toolbar = findViewById(R.id.toolbar6);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
@@ -124,6 +88,14 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateData(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/updateUserData.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection.setMessage(XmlHelper.updateData(id,userChanger.getText().toString(), emailChanger.getText().toString()));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.execute();
     }
 
 }
