@@ -30,14 +30,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
-    private int STORIE_PICK = 1;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
@@ -57,14 +54,12 @@ public class MainActivity extends AppCompatActivity
     private int REQUEST_GETSEND = 12;
     private int IMAGE_CLICKED = 13;
     private float dpi;
-    private String date;
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
     private ImageView profilBild;
     private ImageView followerBild;
     private ImageButton refreshBtn;
-    private Button testBtn;
     private TextView profilName;
     private TextView followerCount;
     private TextView followsCount;
@@ -115,11 +110,9 @@ public class MainActivity extends AppCompatActivity
         this.followerBild = findViewById(R.id.followerNr1);
         this.profilName = findViewById(R.id.profilName);
         this.refreshBtn = findViewById(R.id.refreshBtn);
-        this.testBtn = findViewById(R.id.testBtn);
         this.followerCount = findViewById(R.id.followerTextView);
         this.followsCount = findViewById(R.id.followsTextView);
 
-        this.testBtn.setOnClickListener(this);
         this.refreshBtn.setOnClickListener(this);
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
@@ -130,7 +123,7 @@ public class MainActivity extends AppCompatActivity
         this.profilName.setText(this.user.getUsername());
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.postList = this.dataBasePosts.getData();
-        sendUpdateFollower(user.getId());
+        updateFollower(user.getId());
         this.profilBild.setImageBitmap(ImageHelper.base64ToBitmap(user.getBase64()));
     }
 
@@ -328,7 +321,6 @@ public class MainActivity extends AppCompatActivity
     }
     //Skaliert eine übergebene Bitmap
     public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
-
         float   srcWidth = bitmap.getWidth(),
                 srcHeight = bitmap.getHeight();
 
@@ -407,11 +399,10 @@ public class MainActivity extends AppCompatActivity
                         hashes = "#NoHashtags";
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
-                    sendXML(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
+                    uploadPost(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
 
                 }
             }
-
 
             else {
                 Log.d(MainActivity.class.getSimpleName(),"no picture selected");
@@ -470,7 +461,6 @@ public class MainActivity extends AppCompatActivity
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
             public boolean onQueryTextChange(String newText) {
                 // This is your adapter that will be filtered
-
                 return true;
             }
 
@@ -585,17 +575,11 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     addPostFragment(bitmap, titel, hashlist, date, id, liked, ImageHelper.base64ToBitmap(user.getBase64()));
-
                 }
 
                 i--;
-
             }
             postList.clear();
-        }else if(v.getId() == R.id.testBtn){
-            String dstAddress = "http://intranet-secure.de/instragram/upload/1529073.jpeg";
-            HttpConnection httpConnection = new HttpConnection(dstAddress, this);
-            httpConnection.execute();
         }
     }
     private Uri getImageUri(Context context, Bitmap inImage) {
@@ -604,26 +588,25 @@ public class MainActivity extends AppCompatActivity
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
-    private void sendXML(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey){
-
+    private void uploadPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey){
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.uploadPost( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
     private void getUserPic(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
 
-    private void sendUpdateFollower(long id){
+    private void updateFollower(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -631,7 +614,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -651,9 +634,9 @@ public class MainActivity extends AppCompatActivity
             String[] firstSplit = output.split( " : " );
             this.followerCount.setText(firstSplit[0]);
             String[] secondSplit =  firstSplit[1].split(": ");
-            this.followsCount.setText(followsCount.getText().toString() + (secondSplit.length - 1));
             if(secondSplit.length >1){
                 String[] thirdSplit = secondSplit[1].split(":");
+                this.followsCount.setText(followsCount.getText().toString() + (thirdSplit.length));
                 int i = 0;
                 while(i<thirdSplit.length){
                     long followerID = Long.parseLong(thirdSplit[i]);
@@ -661,8 +644,6 @@ public class MainActivity extends AppCompatActivity
                     i++;
                 }
             }
-
-
         }
 
         }

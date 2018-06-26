@@ -146,7 +146,6 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                             @Override
                             public void onClick(View v) {
                                 Intent sendToSearchIntent = new Intent(Main_Image_Clicked.this, SearchActivity.class);
-
                                 sendToSearchIntent.putExtra("Search", textview.getText().toString());
                                 sendToSearchIntent.putExtra("User", user);
                                 startActivity(sendToSearchIntent);
@@ -159,9 +158,14 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
 
                 break;
             case R.id.submitButton:
-                long id = Long.parseLong(this.checkLike.getContentDescription().toString());
-                uploadKommentar(id,editKomm.getText().toString());
-                addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString());
+                if(editKomm.getText().length()>10){
+                    long id = Long.parseLong(this.checkLike.getContentDescription().toString());
+                    uploadKommentar(id,editKomm.getText().toString());
+                    addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString());
+                }else{
+                    this.editKomm.setError("Kommentare müssen mind. 10 Charakter lang sein.");
+                }
+
                 break;
         }
     }
@@ -171,7 +175,6 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
             Intent sendBackIntent = new Intent(Main_Image_Clicked.this, MainActivity.class);
-
             sendBackIntent.putExtra("ID", this.ID);
             sendBackIntent.putExtra("Likes", this.checkLike.getText().toString());
             sendBackIntent.putExtra("Checked", this.checkLike.isChecked());
@@ -184,7 +187,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
 
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -192,7 +195,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     }
     private void getKommentar(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getKommentare.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getKommentar(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -200,7 +203,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     }
     private void uploadKommentar(long id, String kommentar){
         String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();

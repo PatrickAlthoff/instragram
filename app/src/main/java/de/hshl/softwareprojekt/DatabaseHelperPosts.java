@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
 
 public class DatabaseHelperPosts extends SQLiteOpenHelper {
@@ -17,9 +16,6 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
     private static final String TABLE_POSTS = "posts";
     private static final String TABLE_STORIES = "stories";
     private static final String TABLE_LIKECOUNT= "likecount";
-    private static final String COL_1 = "_id";
-    private static final String COL_2 = "email";
-    private static final String COL_3 = "pw";
     public static final String SQL_TABLE_CREATE_POSTLIKECOUNT = "CREATE TABLE " + TABLE_LIKECOUNT + " (_id INTEGER, username TEXT, liked INTEGER)";
     public static final String SQL_TABLE_CREATE_STORIES = "CREATE TABLE " + TABLE_STORIES + " (_id INTEGER, username TEXT, base64 TEXT, titel TEXT, hashtags TEXT, date TEXT, liked INTEGER, userKey INTEGER)";
     public static final String SQL_TABLE_CREATE_POSTS =
@@ -126,37 +122,6 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
             values.put("liked", like);
             values.put("userKey", userKey);
             rowId = db.insert(TABLE_STORIES, null, values);
-        }
-        catch (SQLiteException exception) {
-            Log.e(TAG, "insertPost()", exception);
-        }
-        finally {
-            Log.d(TAG, "insertPost(rowId:" + rowId + ")");
-
-            if (db != null){
-                db.close();
-            }
-        }
-    }
-
-
-    //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey) {
-        long rowId = -1;
-        SQLiteDatabase db = null;
-        int like = liked ? 1:0;
-        try {
-            db = getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put("_id", id);
-            values.put("username", name);
-            values.put("path",  path);
-            values.put("titel", titel);
-            values.put("hashtags", hashtags);
-            values.put("date", date);
-            values.put("liked", like);
-            values.put("userKey", userKey);
-            rowId = db.insert(TABLE_POSTS, null, values);
         }
         catch (SQLiteException exception) {
             Log.e(TAG, "insertPost()", exception);
@@ -372,36 +337,4 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
 
         return ID;
     }
-
-    //Get Methode zur Ausgabe der Nutzermailadresse
-    public ArrayList<String> getHashtags(String hashtagInput){
-
-        String[] columns = {"_id", "username", "path", "titel", "hashtags", "date","liked"};
-        ArrayList<String> postList = new ArrayList<>();
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-
-        try{
-            db = getReadableDatabase();
-            cursor = db.query(TABLE_POSTS, columns, "hashtags like " + "'%" + hashtagInput + "%'", null,null,null,null);
-            while(cursor.moveToNext()){
-                postList.add(0,cursor.getString(0) + " : "  +  cursor.getString(1) + " : "  + cursor.getString(2 ) + " : "  + cursor.getString(3 ) +  " : "  + cursor.getString(4 ) + " : " + cursor.getString(5)+ " : " + cursor.getString(6));
-            }
-
-        }
-        catch(SQLiteException exception){
-            Log.e(TAG, "getHashtags()", exception);
-        }
-        finally {
-            if (cursor != null){
-                cursor.close();
-            }
-            if(db != null){
-                db.close();
-            }
-        }
-
-        return postList;
-    }
-
 }

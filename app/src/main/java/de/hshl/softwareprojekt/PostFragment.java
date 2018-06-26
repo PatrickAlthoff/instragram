@@ -11,14 +11,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-
 public class PostFragment extends Fragment {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     ImageView postImage;

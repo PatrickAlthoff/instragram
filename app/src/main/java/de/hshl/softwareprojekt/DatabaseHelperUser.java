@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
 
 public class DatabaseHelperUser extends SQLiteOpenHelper {
@@ -15,9 +14,6 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String DATABASE_NAME = "user.db";
     private static final String TABLE_NAME = "User_Table";
-    private static final String COL_1 = "_id";
-    private static final String COL_2 = "email";
-    private static final String COL_3 = "pw";
     public static final String SQL_TABLE_CREATE =
             "CREATE TABLE " + TABLE_NAME + " (_id INTEGER, username TEXT ,email TEXT, pw TEXT, base64 TEXT, remember INTEGER)";
     private static final String SQL_TABLE_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
@@ -146,26 +142,6 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
             ContentValues cv = new ContentValues();
             cv.put("remember", member);
             rowsUpdated = db.update(TABLE_NAME, cv, "email='" + email + "'", null);
-            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
-        }
-        catch(SQLiteException exception){
-            Log.e(TAG, "updateData()", exception);
-        }
-        finally {
-            if(db != null){
-                db.close();
-            }
-        }
-
-    }
-    public void updateEmail(long id, String email){
-        int rowsUpdated = 0;
-        SQLiteDatabase db = null;
-        try{
-            db = getWritableDatabase();
-            ContentValues cv = new ContentValues();
-            cv.put("email", email);
-            rowsUpdated = db.update(TABLE_NAME, cv, "_id=" + id, null);
             Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
         }
         catch(SQLiteException exception){

@@ -6,13 +6,11 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -26,7 +24,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +46,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private DatabaseHelperUser database;
     private LinearLayout email_login_form;
     private CheckBox rememberCheck;
-    private User user;
     private ArrayList<String> userTableData;
     private HttpConnection httpConnection;
     private String response;
@@ -112,13 +108,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View v) {
                 database.deleteData();
-
-
             }
         });
-
-
-
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
@@ -135,13 +126,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         String dstAdress = "http://intranet-secure.de/instragram/CheckForUser.php";
 
-        httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.checkEmail(email));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
-
-
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -157,8 +146,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
     }
-
-
 
     private void attemptLogin(Boolean remember) {
         if (mAuthTask != null) {
@@ -209,12 +196,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
+
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
+
         return password.length() > 3;
     }
 
@@ -318,7 +305,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -353,7 +339,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
             try {
                 // Simulate network access.
@@ -372,7 +357,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }
 
-            // TODO: register the new account here.
             return false;
         }
 
@@ -400,10 +384,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 email = userTableData.get(2);
                 pw = userTableData.get(3);
                 sendXML(userID);
-
-
-
-
             }
                 else{
                     mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
@@ -421,7 +401,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private void sendXML(long id){
             String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
-            httpConnection = new HttpConnection(dstAdress, this);
+            httpConnection = new HttpConnection(dstAdress);
             httpConnection.setMessage(XmlHelper.getUsers(id));
             httpConnection.setMode(HttpConnection.MODE.PUT);
             httpConnection.delegate = this;

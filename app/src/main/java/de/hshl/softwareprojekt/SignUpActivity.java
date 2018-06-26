@@ -106,12 +106,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         Toast.makeText(getApplicationContext(), "Profilbild aktualisiert", Toast.LENGTH_SHORT).show();
                     }
                 });
-
                 builder.show();
-
                 break;
         }
-
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -123,16 +120,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void sendXML(String username, String email, String password, String base64){
-
         String dstAdress = "http://intranet-secure.de/instragram/Upload_User.php";
-
-        httpConnection = new HttpConnection(dstAdress, this);
+        httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.uploadUser( username,  email,  password, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
-
-
     }
 
     @Override
@@ -141,14 +134,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         String username = this.userNameField.getText().toString();
         String pw = this.pwField.getText().toString();
         String email = this.emailField.getText().toString();
-
         Intent startLogin = new Intent(SignUpActivity.this, LoginActivity.class);
         startLogin.putExtra("email", email);
         startLogin.putExtra("pw", pw);
-
-
-
-
         if(this.response.contains("Not_ok") ){
             this.emailField.setError("Email schon vergeben!");
         }
@@ -161,8 +149,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             setResult(RESULT_OK, startLogin);
             finish();
         }
-
-
     }
 
     //Methode zum Start der Camera

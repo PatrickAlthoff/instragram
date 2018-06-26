@@ -4,8 +4,6 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -13,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity implements View.OnClickListener,AsyncResponse {
@@ -87,7 +82,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         ImageView userImage = frontPagePost.profilPicPost;
         userImage.setImageBitmap(userPic);
-
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setContentDescription(i);
@@ -104,7 +98,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 v.setDrawingCacheEnabled(true);
                 v.buildDrawingCache();
                 Bitmap parseBit = v.getDrawingCache();
-
 
                 //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
                 Bitmap createBit = scaleBitmap(parseBit,-1,300);
@@ -145,8 +138,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
-                View deleteButtonId = ((ViewGroup)v.getParent()).getChildAt(7);
-
                 if(checked){
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
@@ -172,26 +163,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         deleteButton.setVisibility(View.INVISIBLE);
     }
 
-    //Methode zum Skallieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
-        try {
-            Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-
-            float   srcWidth = src.getWidth(),
-                    srcHeight = src.getHeight();
-
-            if (dstWidth < 1) {
-                dstWidth = (int) (srcWidth / srcHeight * dstHeight);
-            }
-            Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
-            return dst;
-        }
-        catch (IOException e) {
-            Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
-        }
-        return null;
-    }
-
     //Skaliert eine übergebene Bitmap
     public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
 
@@ -202,15 +173,12 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             dstWidth = (int) (srcWidth / srcHeight * dstHeight);
         }
         Bitmap dst = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false);
-
         return dst;
     }
 
 
     @Override
     public void onClick(View v) {
-
-
         }
 
     @Override
@@ -248,8 +216,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     removeSearchFragment(searchFragmentList.get(d));
                     d++;
                 }
-
-
                 return false;
             }
 
@@ -270,19 +236,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
-
     }
     public void removeSearchFragment(SearchUserFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
-
     }
 
     private void updateLikeStatus(int status, long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -291,7 +255,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void sendXML(String query){
         String dstAdress = "http://intranet-secure.de/instragram/search.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.sendSearchRequest(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -299,7 +263,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
     private void updateFollowStatus(long userkey, long FID){
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -307,7 +271,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
     private void getUserPic(long query){
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(query));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;

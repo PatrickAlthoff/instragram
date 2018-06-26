@@ -1,11 +1,6 @@
 package de.hshl.softwareprojekt;
 
-import android.provider.DocumentsContract;
-
 public class XmlHelper {
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private DocumentsContract.Document document = null;
 
     XmlHelper(){
 

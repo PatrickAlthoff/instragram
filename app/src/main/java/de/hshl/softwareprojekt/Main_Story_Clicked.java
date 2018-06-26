@@ -3,7 +3,6 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentManager;
@@ -17,7 +16,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 
 public class Main_Story_Clicked extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
@@ -36,7 +34,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     private int progressBarCount;
     private int i;
     private int id = 0;
-    private int checkInt;
     private int start;
     private long userid;
 
@@ -63,7 +60,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         this.deleteBtn.setOnClickListener(this);
         this.startBtn.setOnClickListener(this);
         this.start = 0;
-        this.checkInt = 0;
+
 
         //Initialisierung der Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar5);
@@ -89,8 +86,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
 
                         String story = storyList.get(0);
                         String[] pieces = story.split(" : ");
-                        String ids = pieces[0];
-                        int id = Integer.parseInt(ids);
                         String base64 = pieces[2];
                         String[] base64Strings = base64.split(":");
                         int i = 1;
@@ -120,7 +115,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     public void addStory(ArrayList<Bitmap> bitmapList, ArrayList<String> titelList) {
             this.bitmapList = bitmapList;
             this.titelList = titelList;
-            this.checkInt++;
             this.emptyText.setVisibility(View.INVISIBLE);
 
             //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
@@ -192,8 +186,6 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                 deleteProcess();
                 break;
             case R.id.startStorie:
-
-
                 if(start == 0){
                     start++;
                     startBar();
@@ -230,7 +222,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     }
     private void deleteStory(long id){
         String dstAdress = "http://intranet-secure.de/instragram/deleteStory.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -238,7 +230,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
     }
     private void updateStoryboard(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getStory.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
@@ -255,12 +247,9 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
                     this.id = intentGet.getIntExtra("id",0);
                     this.bitmapList.clear();
                     start++;
-
                     ArrayList<String> storyList = database.getStory(user.getId()) ;
                     String story = storyList.get(0);
                     String[] pieces = story.split(" : ");
-                    String ids = pieces[0];
-                    int id = Integer.parseInt(ids);
                     String base64 =  pieces[2];
                     String[] base64Strings = base64.split(":");
                     int i = 1;

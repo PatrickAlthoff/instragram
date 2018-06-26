@@ -1,17 +1,7 @@
 package de.hshl.softwareprojekt;
 
-import android.graphics.Bitmap;
-import android.graphics.Picture;
-import android.icu.util.Output;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageButton;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,13 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
 
 public class HttpConnection extends AsyncTask<Void, Void, String> {
     public AsyncResponse delegate = null;
@@ -34,27 +17,16 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static enum MODE {GET,PUT};
     private MODE mode;
-    private String dstAddress, message = "", respond = "";
-    private Object resultContainer;
-    private List<Picture> pictureList = null;
-
-    public String getResponse() {
-        return response;
-    }
+    private String dstAddress, message = "";
 
     private String response;
 
-    private Document document;
-    private String username;
-
-    HttpConnection(String dstAddress, Object resultContainer){
+    HttpConnection(String dstAddress){
         this.dstAddress = dstAddress;
-        this.resultContainer = resultContainer;
     }
 
     public void setMessage(String message) {
         this.message = message;
-        this.username = username;
     }
     public void setMode(MODE mode){
         this.mode = mode;
@@ -78,16 +50,12 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
                 urlConnection.setDoInput(true);
 
                 OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
-
                 outputStream.write(this.message.getBytes());
-
                 outputStream.flush();
             }
             else{
                 urlConnection.setRequestMethod("GET");
             }
-
-
 
             int responseCode = urlConnection.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_OK){
@@ -103,7 +71,6 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
                     }
 
                     this.response = result;
-
                 }
             }
         }
@@ -139,8 +106,6 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             if(urlConnection != null) {
                 urlConnection.disconnect();
 
-
-
             }
         }
         return this.response;
@@ -172,52 +137,4 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }
     }
-
-    public static Timestamp convertStringToTimestamp(String str_date) {
-        try {
-            DateFormat formatter;
-            formatter = new SimpleDateFormat("dd/MM/yyyy");
-            // you can change format of date
-            Date date = formatter.parse(str_date);
-            java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
-
-            return timeStampDate;
-        } catch (ParseException e) {
-            System.out.println("Exception :" + e);
-            return null;
-        }
-    }
-    public List<Picture> getPictureList(){
-        List<Picture> pictures = new Vector<>();
-
-        if(this.document != null) {
-            NodeList nodeList = document.getElementsByTagName("picture");
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Element node = (Element) nodeList.item(i);
-                NodeList childNodes = node.getChildNodes();
-
-                String title = "", description = "", imageData = "";
-                Timestamp timestamp = null;
-
-                title = getNodeValue(node, "title");
-                description = getNodeValue(node, "description");
-                imageData = getNodeValue(node, "imagedata");
-                timestamp = convertStringToTimestamp(getNodeValue(node, "timestamp"));
-
-
-            }
-        }
-        return pictures;
-    }
-    private String getNodeValue(Element node, String nodename){
-        NodeList childNodes = node.getElementsByTagName(nodename);
-        String value = "";
-
-        if(childNodes.getLength() > 0 ){
-            value = childNodes.item(0).getTextContent();
-        }
-
-        return value;
-    }
-
 }

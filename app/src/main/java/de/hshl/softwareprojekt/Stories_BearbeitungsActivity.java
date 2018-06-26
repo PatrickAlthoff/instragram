@@ -21,11 +21,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
+public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
@@ -172,12 +171,10 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     }
 
     private void uploadStory(long id, long userKey, String titels, String base64){
-
         String dstAdress = "http://intranet-secure.de/instragram/uploadStory.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.uploadStory(id,userKey, titels, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
-        httpConnection.delegate = this;
         httpConnection.execute();
     }
 
@@ -188,7 +185,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             titel= titel + ":" + stringList.get(i);
             i++;
         }
-
         return titel;
     }
 
@@ -199,7 +195,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             base64 = base64 + ":" +  ImageHelper.bitmapToBase64(bitmapList.get(i));
             i++;
         }
-
         return base64;
     }
     //Methode zum Start der Camera
@@ -224,7 +219,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
         this.storiePic.setImageBitmap(bitmapList.get(0));
         this.storieTitel.setText(titelList.get(0));
-
         this.restartbtn.setText("Start");
         this.storiebar.setProgress(0);
 
@@ -247,23 +241,18 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                             i++;
                         }
                     });
-
                     storiebar.post(new Runnable() {
                         @Override
                         public void run() {
                             storiebar.setProgress((i)* 100 / progressBarCount);
-
                         }
                     });
                     SystemClock.sleep(2000);
-
                 }
             }
         }).start();
-
         this.restartbtn.setText("Restart");
     }
-
 
     //Methode zum Skalieren der zu übergebenen Bitmap
     private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight){
@@ -305,7 +294,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             else {
                 int rowsDeleted = getContentResolver().delete(imageUri, null, null);
                 Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
-                //startCamera();
             }
         }
 
@@ -386,12 +374,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void processFinish(String output) {
-
-    }
 }

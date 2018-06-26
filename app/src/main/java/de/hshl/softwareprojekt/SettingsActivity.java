@@ -74,7 +74,6 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-
     }
 
     @Override
@@ -92,7 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void updateData(long id){
         String dstAdress = "http://intranet-secure.de/instragram/updateUserData.php";
-        HttpConnection httpConnection = new HttpConnection(dstAdress, this);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateData(id,userChanger.getText().toString(), emailChanger.getText().toString()));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
