@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity
             case PERMISSION_REQUEST:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 this.permissionGranted = true;
-                startCamera();
+
                 }
                 else  {
                     this.permissionGranted = false;
@@ -466,13 +466,12 @@ public class MainActivity extends AppCompatActivity
 
             public boolean onQueryTextSubmit(String query) {
                 // **Here you can get the value "query" which is entered in the search box.**
-
                 Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
                 startSearchIntent.putExtra("User", user);
                 startSearchIntent.putExtra("Search", query);
                 startActivity(startSearchIntent);
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
+                searchView.setQuery("",false);
                 return true;
             }
         };

@@ -378,7 +378,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 mPasswordView.requestFocus();
                 userTableData.clear();
             }else if(!success && valid == true) {
-
                 userID = Long.parseLong(userTableData.get(0));
                 username = userTableData.get(1);
                 email = userTableData.get(2);

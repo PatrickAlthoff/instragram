@@ -196,7 +196,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint("Search for something...");
@@ -217,6 +217,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     removeSearchFragment(searchFragmentList.get(d));
                     d++;
                 }
+                searchView.setQuery("",false);
                 return false;
             }
 
@@ -352,6 +353,13 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
         }else if(output.contains("Unfollowed")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
+        }else if(output.contains("HashInput")) {
+            String[] hashtags = output.split(" : ");
+            int i = 1;
+            while (hashtags.length > i) {
+                sendXML(hashtags[i]);
+                i++;
+            }
         }else{
 
            /* int index = 1;

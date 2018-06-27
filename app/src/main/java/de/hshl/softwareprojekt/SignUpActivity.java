@@ -187,7 +187,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             case PERMISSION_REQUEST:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.permissionGranted = true;
-                    startCamera();
                 }
                 else  {
                     this.permissionGranted = false;
