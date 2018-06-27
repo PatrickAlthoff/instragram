@@ -16,12 +16,11 @@ public class KommentarFragment extends Fragment {
     TextView kommentar;
     TextView dateKomment;
 
-    public void creatKomment(Bitmap bitmap, String username, String kommentar, long kommentTime){
+    public void creatKomment(String username, String kommentar, long kommentTime){
         this.profilPicKomm = getView().findViewById(R.id.profilPicKomm);
         this.profilNameKomm = getView().findViewById(R.id.usernameKomm);
         this.kommentar = getView().findViewById(R.id.kommentarView);
         this.dateKomment = getView().findViewById(R.id.dateKomment);
-        this.profilPicKomm.setImageBitmap(bitmap);
         this.profilNameKomm.setText(username);
         this.kommentar.setText(kommentar);
         this.dateKomment.setText(getRelativeTimeSpanString(kommentTime));

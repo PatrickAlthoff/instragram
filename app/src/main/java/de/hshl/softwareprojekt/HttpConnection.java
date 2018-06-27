@@ -141,6 +141,8 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("UnfollowNotPossible")) {
             delegate.processFinish(result);
+        }else if(result.contains("UserData")) {
+            delegate.processFinish(result);
         }
     }
 }

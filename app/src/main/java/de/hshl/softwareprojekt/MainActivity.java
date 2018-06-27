@@ -15,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.util.DisplayMetrics;
@@ -124,7 +126,8 @@ public class MainActivity extends AppCompatActivity
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.postList = this.dataBasePosts.getData();
         updateFollower(user.getId());
-        this.profilBild.setImageBitmap(ImageHelper.base64ToBitmap(user.getBase64()));
+        this.profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
 
         ImageView profilBitmap = frontPagePost.profilPicPost;
-        profilBitmap.setImageBitmap(profilPic);
+        profilBitmap.setImageDrawable(roundImage(profilPic));
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setOnClickListener(new View.OnClickListener() {
@@ -242,6 +245,13 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
+
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        return roundedBitmapDrawable;
+    }
+
     //Entfernt das Fragment
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -549,6 +559,10 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intentStorie, 101);
         }else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
+            intentProfil.putExtra("User", user);
+            intentProfil.putExtra("Code", 2);
+            intentProfil.putExtra("Follower", this.followerCount.getText().toString());
+            intentProfil.putExtra("Follows", this.followsCount.getText().toString());
             startActivity(intentProfil);
         }else if (v.getId() == R.id.refreshBtn) {
             int i = postList.size()-1;
@@ -640,6 +654,8 @@ public class MainActivity extends AppCompatActivity
                     getUserPic(followerID);
                     i++;
                 }
+            }else{
+                this.followsCount.setText(followsCount.getText().toString() + "0");
             }
         }
 
@@ -648,10 +664,10 @@ public class MainActivity extends AppCompatActivity
     public void createFollower(long id, Bitmap bitmap){
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);
-        followerPic.getLayoutParams().height = 180;
-        followerPic.getLayoutParams().width = 180;
+        followerPic.getLayoutParams().height = 155;
+        followerPic.getLayoutParams().width = 155;
         String descriLong = String.valueOf(id);
-        followerPic.setImageBitmap(bitmap);
+        followerPic.setImageDrawable(roundImage(bitmap));
         followerPic.setId(View.generateViewId());
         followerPic.setContentDescription(descriLong);
         followerPic.setOnClickListener(new View.OnClickListener() {

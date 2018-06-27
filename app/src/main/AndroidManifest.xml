@@ -60,6 +60,8 @@
         <activity android:name=".Post_BearbeitungsActivity"></activity>
         <activity android:name=".SearchActivity"></activity>
         <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".ListeFollower"></activity>
+        <activity android:name=".ListeFollowing"></activity>
     </application>
 
 </manifest>

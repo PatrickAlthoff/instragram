@@ -1,13 +1,8 @@
 package de.hshl.softwareprojekt;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 
-import android.provider.ContactsContract;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -24,41 +19,49 @@ import android.widget.Button;
 
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
-
-import com.amitshekhar.utils.DatabaseHelper;
-
-import java.util.ArrayList;
+import android.widget.Toast;
 
 
-public class ProfilActivity extends AppCompatActivity implements OnClickListener {
+public class ProfilActivity extends AppCompatActivity implements OnClickListener, AsyncResponse {
 
-    private TextView anzahlFollower, anzahlFollowing, benutzerName, folgen, entfolgen;
     private static final String TAG = "ProfilActivity";
-    private static final int NUM_COL_GRID = 3;
-
+    private ImageView profilbild;
+    private TextView follower;
+    private TextView following;
+    private TextView benutzerName;
+    private Button folgen;
+    private Button entfolgen;
+    private User user;
+    private String followerList;
+    private String followsList;
+    private long id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil);
+        Intent getIntent = getIntent();
 
-        ImageView profilbild = findViewById(R.id.profilbild);
-
-        TextView follower = findViewById(R.id.follower);
-        TextView following = findViewById(R.id.following);
-
-        TextView anzahlFollower = findViewById(R.id.anzFollower);
-        TextView anzahlFollowing = findViewById(R.id.anzFollowing);
-
-        TextView benutzerName = findViewById(R.id.benutzerName);
-
-        Button folgen = findViewById(R.id.folgen);
-        Button entfolgen = findViewById(R.id.entfolgen);
-
-        View divider = findViewById(R.id.divider);
-
+        this.follower = findViewById(R.id.follower);
+        this.following = findViewById(R.id.following);
+        this.profilbild = findViewById(R.id.profilbild);
+        this.benutzerName = findViewById(R.id.benutzerName);
+        this.folgen = findViewById(R.id.folgen);
+        this.entfolgen = findViewById(R.id.entfolgen);
+        this.user= (User) getIntent.getSerializableExtra("User");
+        if(getIntent.getIntExtra("Code", 1)== 2){
+            this.folgen.setVisibility(View.INVISIBLE);
+            this.entfolgen.setVisibility(View.INVISIBLE);
+            this.benutzerName.setText(this.user.getUsername());
+            profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+            updateFollower(user.getId());
+        }
+        else{
+            id = Long.parseLong(getIntent.getStringExtra("UserKey"));
+            getUserData(id);
+            updateFollower(id);
+        }
         final DatabaseHelperFollow dbHelper = new DatabaseHelperFollow(this);
         // folgen.setOnClickListener(this);
         // isFollowing();
@@ -87,6 +90,8 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfilActivity.this, ListeFollowing.class);
+                intent.putExtra("FollowsList", followsList);
+                intent.putExtra("User", user);
                 startActivity(intent);
 
             }
@@ -96,6 +101,8 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfilActivity.this, ListeFollower.class);
+                intent.putExtra("FollowerList",followerList);
+                intent.putExtra("User", user);
                 startActivity(intent);
 
             }
@@ -105,11 +112,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         folgen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: Folgt Nutzer");
-                //Intent intent = new Intent();
-                //startActivity(intent);
-                dbHelper.setIsFollowing();
-                setUnfollowing();
+                updateFollowStatus(user.getId(),id);
 
             }
         });
@@ -118,23 +121,52 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         entfolgen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClick: Folgt Nutzer nicht");
-
-                dbHelper.setIsFollowedBy();
-                setFollowing();
+                updateunfollowStatus(user.getId(),id);
 
 
             }
         });
 
         // stellt Profilbild rund dar
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.hannah);
+
+    }
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
-        profilbild.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        profilbild.setImageDrawable(roundedBitmapDrawable);
+        return roundedBitmapDrawable;
     }
-
+    private void updateFollower(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void updateFollowStatus(long userkey, long FID){
+        String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void updateunfollowStatus(long userkey, long FID){
+        String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void getUserData(long query){
+        String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getUsers(query));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     //überprüft ob man dem Nutzer folgt
     private void isFollowing() {
         Log.d(TAG, "Überprüft ob dem Nutzer gefolgt wird");
@@ -143,16 +175,13 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
 
     // zeigt an, dass man dem Nutzer folgt
     private void setFollowing() {
-        folgen.setVisibility(View.GONE);
-        entfolgen.setVisibility(View.VISIBLE);
+
 
     }
 
     // zeigt an, dass man dem Nutzer nicht folgt
     private void setUnfollowing() {
-        folgen.setVisibility(View.VISIBLE);
-        entfolgen.setVisibility(View.GONE);
-        folgen.setBackgroundColor(Color.GREEN);
+
     }
 
     // erstellt Menuleiste
@@ -174,21 +203,40 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
 
     }
 
+    @Override
+    public void processFinish(String output) {
+        if(output.contains("UserData")){
+            String[] userDataSplit = output.split(" : ");
+            this.profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(userDataSplit[2])));
+            this.benutzerName.setText(userDataSplit[1]);
 
-    /** @Override public void onClick(View v) {
-    switch (v.getId()) {
+        }else if(output.contains("Follower: ")){
+            String[] firstSplit = output.split( " : " );
+            this.follower.setText(firstSplit[0]);
+            String[] secondSplit =  firstSplit[1].split(": ");
+            if(firstSplit.length>2){
+                this.followerList = firstSplit[2];
+            }
+            if(secondSplit.length >1){
+                this.followsList = secondSplit[1];
+                String[] thirdSplit = secondSplit[1].split(":");
+                this.following.setText(secondSplit[0] +": "+ (thirdSplit.length));
+            }else{
+                this.following.setText(secondSplit[0] +": "+ "0");
 
-    // Weiterleitung auf Profil_BearbeitungActivity
-    case R.id.action_settings:
-    Intent intent = new Intent(ProfilActivity.this,
-    Profil_BearbeitungActivity.class);
-    startActivity(intent);
-    break;
-
-    default:
-    break;
-
-     **/
+            }
+        }else if(output.contains("Followed")) {
+            Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
+            updateFollower(id);
+        }else if(output.contains("FollowExc")) {
+            Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
+        }else if(output.contains("UnfollowNotPossible")) {
+            Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
+        }else if(output.contains("Unfollowed")) {
+            Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
+            updateFollower(id);
+        }
+    }
 }
 
 

@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
@@ -176,6 +178,12 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         }
     }
 
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        return roundedBitmapDrawable;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -247,6 +255,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         fragmentTransactionKommentar.add(frameInner.getId(), kommentarFragment);
 
         fragmentTransactionKommentar.commitNow();
-        kommentarFragment.creatKomment(profilPic,username,kommentar, kommentTime);
+        kommentarFragment.creatKomment(username,kommentar, kommentTime);
+        ImageView profilBild = kommentarFragment.profilPicKomm;
+        profilBild.setImageDrawable(roundImage(profilPic));
     }
 }

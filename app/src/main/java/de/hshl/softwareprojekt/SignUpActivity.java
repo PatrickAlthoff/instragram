@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -164,7 +166,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
         }
     }
-
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        return roundedBitmapDrawable;
+    }
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
     protected void checkPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -206,7 +212,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 if (data != null) {
 
                     this.profilBitmap = getAndScaleBitmap(this.imageUri, 80, 80);
-                    this.profilPic.setImageBitmap(this.profilBitmap);
+                    this.profilPic.setImageDrawable(roundImage(this.profilBitmap));
                 }
             } else {
                 int rowsDeleted = getContentResolver().delete(imageUri, null, null);
@@ -221,7 +227,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 if (data != null) {
                     Uri uri = data.getData();
                     this.profilBitmap = getAndScaleBitmap(uri, 80, 80);
-                    this.profilPic.setImageBitmap(this.profilBitmap);
+                    this.profilPic.setImageDrawable(roundImage(this.profilBitmap));
             }
             } else {
                 Log.d(MainActivity.class.getSimpleName(), "no picture selected");

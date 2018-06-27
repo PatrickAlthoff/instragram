@@ -17,9 +17,8 @@ public class SearchUserFragment extends Fragment {
     Button followBtn;
     Button unfollowBtn;
 
-    public void init(Bitmap bitmap, String username, String contentDis){
+    public void init(String username, String contentDis){
         this.profilPic = getView().findViewById(R.id.profilSearchPic);
-        this.profilPic.setImageBitmap(bitmap);
         this.profilName = getView().findViewById(R.id.profilSearchName);
         this.profilName.setText(username);
         this.profilName.setContentDescription(contentDis);

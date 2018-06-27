@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -82,7 +84,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
 
         ImageView userImage = frontPagePost.profilPicPost;
-        userImage.setImageBitmap(userPic);
+        userImage.setImageDrawable(roundImage(userPic));
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setContentDescription(i);
@@ -191,6 +193,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         return super.onOptionsItemSelected(item);
     }
+
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+        roundedBitmapDrawable.setCircular(true);
+        return roundedBitmapDrawable;
+    }
+
+
     //Generiert den Inhalt des DrawerLayout aus der main.xml
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -200,7 +210,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint("Search for something...");
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -300,7 +309,20 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransactionSearchUser.add(frameInner.getId(), searchFragment);
 
         fragmentTransactionSearchUser.commitNow();
-        searchFragment.init(postBitmap, username, contentDis);
+        searchFragment.init(username, contentDis);
+        ImageView profilBild = searchFragment.profilPic;
+        profilBild.setImageDrawable(roundImage(postBitmap));
+        profilBild.setContentDescription(contentDis);
+        profilBild.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfil = new Intent(SearchActivity.this,ProfilActivity.class);
+                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
+                goToProfil.putExtra("Code",1);
+                goToProfil.putExtra("User", user);
+                startActivity(goToProfil);
+            }
+        });
         Button followBtn = searchFragment.followBtn;
         Button unfollowBtn = searchFragment.unfollowBtn;
         this.searchFragmentList.add(searchFragment);
