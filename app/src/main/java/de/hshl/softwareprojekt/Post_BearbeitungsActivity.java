@@ -32,20 +32,18 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     private ArrayList<EditText> editList;
     private User user;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post__bearbeitungs);
-
         Intent getIntent = getIntent();
-
         this.customizeButton = findViewById(R.id.customizeButton);
         this.postBtn = findViewById(R.id.postButton);
         this.postImage = findViewById(R.id.postImage);
         this.postTitel = findViewById(R.id.postTitel);
         this.postHashtag = findViewById(R.id.hashtagField);
         this.hashGrid = findViewById(R.id.gridLayout);
-
         this.postBitmap = getIntent.getParcelableExtra("BitmapImage");
         this.postImage.setImageBitmap(this.postBitmap);
         this.postTitel.setText(getIntent.getStringExtra("Titel"));

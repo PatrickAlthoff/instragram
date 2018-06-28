@@ -112,7 +112,7 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String uploadKommentar(long id, String username, String userPic, String kommentar, long postTime){
+    public static String uploadKommentar(long id, String username, String userPic, String kommentar, long postTime, long userKey){
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<Kommentar>" +
@@ -121,6 +121,7 @@ public class XmlHelper {
                 "<userPic>" + userPic + "</userPic>" +
                 "<komment>" + kommentar + "</komment>" +
                 "<postTime>" + postTime + "</postTime>" +
+                "<userKey>" + userKey + "</userKey>" +
                 "</Kommentar>" +
                 "</data>";
 
@@ -154,6 +155,31 @@ public class XmlHelper {
                 "<post>" +
                 "<ID>" + id + "</ID>" +
                 "</post>" +
+                "</data>";
+        return xml;
+    }
+    public static String updateProfilData(long id, String username, String beschreibung, String base64){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<User>" +
+                "<UserID>" + id + "</UserID>" +
+                "<UserName>" + username + "</UserName>" +
+                "<Beschreibung>" + beschreibung + "</Beschreibung>" +
+                "<profilbild>" + base64 + "</profilbild>" +
+                "</User>" +
+                "</data>";
+        return xml;
+    }
+    public static String updateAllKomms(long id, String username, String base64, String oldName, String oldBase){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<User>" +
+                "<PostID>" + id + "</PostID>" +
+                "<userName>" + username + "</userName>" +
+                "<profilbild>" + base64 + "</profilbild>" +
+                "<oldName>" + oldName + "</oldName>" +
+                "<oldprofilbild>" + oldBase + "</oldprofilbild>" +
+                "</User>" +
                 "</data>";
         return xml;
     }

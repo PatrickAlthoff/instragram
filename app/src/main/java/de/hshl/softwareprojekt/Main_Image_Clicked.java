@@ -218,7 +218,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     private void uploadKommentar(long id, String kommentar){
         String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar, System.currentTimeMillis()));
+        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar, System.currentTimeMillis(), user.getId()));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }

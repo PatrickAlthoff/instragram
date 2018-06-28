@@ -3,12 +3,14 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
+import android.graphics.PorterDuff;
 import android.media.Image;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,6 +50,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
     private ArrayList<String> idList;
     private ProfilAdapter profilAdapter;
     private long id;
+    private int code;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,19 +66,20 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         this.folgen = findViewById(R.id.folgen);
         this.entfolgen = findViewById(R.id.entfolgen);
         this.user= (User) getIntent.getSerializableExtra("User");
-        if(getIntent.getIntExtra("Code", 1)== 2){
+        this.code = getIntent.getIntExtra("Code", 1);
+        if(this.code == 3){
+            id = Long.parseLong(getIntent.getStringExtra("UserKey"));
+            getUserData(id);
+            updateFollower(id);
+            getUserPosts(id);
+        }
+        else if(this.code == 2){
             this.folgen.setVisibility(View.INVISIBLE);
             this.entfolgen.setVisibility(View.INVISIBLE);
             this.benutzerName.setText(this.user.getUsername());
             profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
             updateFollower(user.getId());
             getUserPosts(user.getId());
-        }
-        else{
-            id = Long.parseLong(getIntent.getStringExtra("UserKey"));
-            getUserData(id);
-            updateFollower(id);
-            getUserPosts(id);
         }
 
         this.dataBasePosts = new DatabaseHelperPosts(this);
@@ -139,7 +143,13 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
 
             }
         });
+        Toolbar toolbar = findViewById(R.id.toolbar11);
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+        setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         // stellt Profilbild rund dar
 
     }
@@ -208,6 +218,14 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
     // wenn Profil bearbeiten
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }else{
+            Intent intent = new Intent(ProfilActivity.this,Profil_BearbeitungActivity.class);
+            intent.putExtra("User", user);
+            startActivity(intent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

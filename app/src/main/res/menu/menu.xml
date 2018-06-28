@@ -5,6 +5,4 @@
         android:id="@+id/action_settings"
         android:title="@string/settings_name"
         app:showAsAction="always" />
-
-
 </menu>

@@ -176,6 +176,27 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
 
     }
 
+    public void updateUserPic(long id, String base64){
+        int rowsUpdated = 0;
+        SQLiteDatabase db = null;
+        try{
+            db = getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("base64", base64);
+            rowsUpdated = db.update(TABLE_NAME, cv, "_id=" + id, null);
+            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
+        }
+        catch(SQLiteException exception){
+            Log.e(TAG, "updateData()", exception);
+        }
+        finally {
+            if(db != null){
+                db.close();
+            }
+        }
+
+    }
+
     //Get Methode zur Ausgabe der Nutzermailadresse
     public String getRemember(){
 

@@ -106,7 +106,7 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
             public void onClick(View v) {
                 Intent goToProfil = new Intent(ListeFollowing.this,ProfilActivity.class);
                 goToProfil.putExtra("UserKey",v.getContentDescription().toString());
-                goToProfil.putExtra("Code",1);
+                goToProfil.putExtra("Code",3);
                 goToProfil.putExtra("User", user);
                 startActivity(goToProfil);
             }

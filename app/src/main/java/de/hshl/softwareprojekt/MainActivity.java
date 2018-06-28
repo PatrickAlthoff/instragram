@@ -67,10 +67,12 @@ public class MainActivity extends AppCompatActivity
     private TextView followsCount;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
+
     private ArrayList<TextView> textViewList;
     private ArrayList<String> hashTagList;
     private ArrayList<String> postList;
     private DatabaseHelperPosts dataBasePosts;
+    private SearchView searchView;
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
         DisplayMetrics dm = new DisplayMetrics();
@@ -463,29 +465,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setQueryHint("Search for something...");
-
-        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
-            public boolean onQueryTextChange(String newText) {
-                // This is your adapter that will be filtered
-                return true;
-            }
-
-            public boolean onQueryTextSubmit(String query) {
-                // **Here you can get the value "query" which is entered in the search box.**
-                Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
-                startSearchIntent.putExtra("User", user);
-                startSearchIntent.putExtra("Search", query);
-                startActivity(startSearchIntent);
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                searchView.setQuery("",false);
-                return true;
-            }
-        };
-        searchView.setOnQueryTextListener(queryTextListener);
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
 
         return true;
     }
@@ -497,11 +477,34 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        if(item.getItemId() == R.id.action_search){
+            SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setQueryHint("Search for something...");
+            SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+                public boolean onQueryTextChange(String newText) {
+                    // This is your adapter that will be filtered
+                    return true;
+                }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                public boolean onQueryTextSubmit(String query) {
+                    // **Here you can get the value "query" which is entered in the search box.**
+                    Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
+                    startSearchIntent.putExtra("User", user);
+                    startSearchIntent.putExtra("Search", query);
+                    startActivity(startSearchIntent);
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+                    searchView.setQuery("",false);
+                    return true;
+                }
+            };
+            searchView.setOnQueryTextListener(queryTextListener);
+        }else
+            if(item.getItemId() == R.id.action_refresh){
+
         }
+
+
 
         return super.onOptionsItemSelected(item);
     }

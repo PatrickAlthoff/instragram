@@ -10,7 +10,6 @@
     <item
         android:id="@+id/action_refresh"
         android:icon="@android:drawable/ic_menu_rotate"
-        android:title="Search"
-        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:title="Refresh"
         app:showAsAction="ifRoom|collapseActionView" />
 </menu>

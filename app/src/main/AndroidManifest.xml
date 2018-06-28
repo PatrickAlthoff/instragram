@@ -43,17 +43,12 @@
         <activity
             android:name=".ProfilActivity"
             android:configChanges="orientation"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" />
+            android:exported="true" />
         <activity android:name=".Main_Image_Clicked"
             android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".Profil_BearbeitungActivity"
-            android:configChanges="orientation"
-            android:parentActivityName=".ProfilActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" />
+            android:configChanges="orientation"></activity>
         <activity android:name=".Main_Story_Clicked" />
         <activity android:name=".Stories_BearbeitungsActivity" />
         <activity android:name=".SettingsActivity" />
