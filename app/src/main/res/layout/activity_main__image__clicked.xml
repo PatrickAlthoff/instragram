@@ -46,72 +46,91 @@
             tools:layout_editor_absoluteX="11dp"
             tools:layout_editor_absoluteY="425dp">
 
-            <RelativeLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                tools:layout_editor_absoluteX="7dp"
-                tools:layout_editor_absoluteY="54dp">
+                android:layout_weight="1">
 
                 <ImageView
                     android:id="@+id/clickedImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="301dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="36dp"
-                    android:layout_weight="1"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_width="330dp"
+                    android:layout_height="300dp"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="2dp"
+                    app:layout_constraintBottom_toTopOf="@+id/clickedLike"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0"
-                    app:srcCompat="@drawable/side_nav_bar" />
+                    app:layout_constraintTop_toBottomOf="@+id/titel"
+                    app:srcCompat="@drawable/major" />
 
                 <CheckBox
                     android:id="@+id/clickedLike"
                     android:layout_width="108dp"
                     android:layout_height="22dp"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/clickedImage"
+                    android:layout_marginEnd="257dp"
+                    android:layout_marginTop="12dp"
                     android:text="Likes: 0"
                     android:textAlignment="center"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/clickedImage" />
 
                 <TextView
                     android:id="@+id/clickedKomment"
                     android:layout_width="103dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_below="@+id/clickedImage"
+                    android:layout_height="22dp"
+                    android:layout_marginStart="41dp"
+                    android:layout_marginTop="7dp"
                     android:text="Kommentar"
                     android:textAlignment="center"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/hashTags"
+                    app:layout_constraintTop_toBottomOf="@+id/clickedImage"
+                    app:layout_constraintVertical_bias="1.0" />
 
                 <TextView
                     android:id="@+id/titel"
-                    android:layout_width="400dp"
+                    android:layout_width="330dp"
                     android:layout_height="36dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginStart="17dp"
                     android:background="@android:color/transparent"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:text="Titel"
                     android:textAlignment="center"
                     android:textAppearance="@android:style/TextAppearance.Medium"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toTopOf="@+id/clickedImage"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/hashTags"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/clickedImage"
-                    android:layout_centerHorizontal="true"
+                    android:layout_height="22dp"
+                    android:layout_marginEnd="144dp"
+                    android:layout_marginStart="36dp"
+                    android:layout_marginTop="6dp"
                     android:text="Hashtags"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/clickedLike"
+                    app:layout_constraintTop_toBottomOf="@+id/clickedImage"
+                    app:layout_constraintVertical_bias="1.0" />
 
-            </RelativeLayout>
+            </android.support.constraint.ConstraintLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -143,9 +162,9 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginEnd="0dp"
-                    android:maxLength="128"
                     android:ems="10"
                     android:inputType="textPersonName"
+                    android:maxLength="128"
                     android:text="Name: Text"
                     android:textSize="14sp"
                     android:visibility="invisible" />

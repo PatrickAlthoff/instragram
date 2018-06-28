@@ -32,7 +32,6 @@ import java.util.ArrayList;
 
 public class ProfilActivity extends AppCompatActivity implements OnClickListener, AsyncResponse {
 
-    private static final String TAG = "ProfilActivity";
     private DatabaseHelperPosts dataBasePosts;
     private ImageView profilbild;
     private TextView follower;
@@ -78,11 +77,8 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             updateFollower(id);
             getUserPosts(id);
         }
-        // folgen.setOnClickListener(this);
-        // isFollowing();
 
         this.dataBasePosts = new DatabaseHelperPosts(this);
-
         this.imageViewArrayList = new ArrayList<>();
         this.idList = new ArrayList<>();
         this.gridView = findViewById(R.id.gridViewBilder);
@@ -100,8 +96,6 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
                 getFullPost(contentDis);
             }
         });
-
-
 
 
         // Zeigt Liste Following

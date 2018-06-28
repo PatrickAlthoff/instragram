@@ -142,11 +142,9 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         if(output.contains("UserData")){
             String[] userDataSplit = output.split(" : ");
             addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[2]),userDataSplit[1],userDataSplit[3]);
-
         }
         else if(output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
-
         }else if(output.contains("FollowExc")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
         }else if(output.contains("UnfollowNotPossible")) {
