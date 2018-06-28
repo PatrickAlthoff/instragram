@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -143,29 +145,36 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 startBar();
                 break;
             case R.id.publishBtn:
-                Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
-                setResult(RESULT_OK, sendBackIntent);
-                String base64 = convertBitMapListtoBase64(this.bitmapList);
-                String titel = convertStringListtoString(this.titelList);
-                int c = this.id;
-                if(c == 0){
-                String d = Long.toString(System.currentTimeMillis()/1000);
-                c = Integer.parseInt(d);
 
+                if(bitmapList.size() > 0 && titelList.size() > 0){
+                    Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
+                    setResult(RESULT_OK, sendBackIntent);
+                    String base64 = convertBitMapListtoBase64(this.bitmapList);
+                    String titel = convertStringListtoString(this.titelList);
+                    int c = this.id;
+                    if(c == 0){
+                        String d = Long.toString(System.currentTimeMillis()/1000);
+                        c = Integer.parseInt(d);
+
+                    }
+
+                    long storyID = System.currentTimeMillis()/1000;
+                    ArrayList<String> storyList = database.getStory(user.getId());
+
+                    if (storyList.size() == 0) {
+                        database.insertStory(c, this.user.getUsername(), base64, titel, "", "", true, this.user.getId());
+
+                    }
+                    else{
+                        database.updateStory(user.getId(),base64, titel);
+                    }
+                    uploadStory(storyID, user.getId(), titel, base64);
+                    finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Ihre Story ist noch leer!", Toast.LENGTH_SHORT).show();
                 }
 
-                long storyID = System.currentTimeMillis()/1000;
-                ArrayList<String> storyList = database.getStory(user.getId());
 
-                if (storyList.size() == 0) {
-                    database.insertStory(c, this.user.getUsername(), base64, titel, "", "", true, this.user.getId());
-
-                }
-                else{
-                    database.updateStory(user.getId(),base64, titel);
-                }
-                uploadStory(storyID, user.getId(), titel, base64);
-                finish();
                 break;
         }
     }
