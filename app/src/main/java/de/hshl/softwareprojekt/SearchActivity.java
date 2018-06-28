@@ -61,7 +61,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManagerSearchPost = getSupportFragmentManager();
@@ -85,6 +85,17 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         ImageView userImage = frontPagePost.profilPicPost;
         userImage.setImageDrawable(roundImage(userPic));
+        userImage.setContentDescription(userKey);
+        userImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfil = new Intent(SearchActivity.this,ProfilActivity.class);
+                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
+                goToProfil.putExtra("Code",3);
+                goToProfil.putExtra("User", user);
+                startActivity(goToProfil);
+            }
+        });
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setContentDescription(i);
@@ -420,7 +431,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                         c++;
                     }
 
-                    addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic));
+                    addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
 
                     i +=9;
 
