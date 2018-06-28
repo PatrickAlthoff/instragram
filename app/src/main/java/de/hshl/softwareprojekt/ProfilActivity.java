@@ -245,10 +245,10 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             String[] firstSplit = output.split(":");
             String postCount = firstSplit[1];
             beiträgeField.setText(beiträgeField.getText().toString() + postCount);
-            int i = 2;
-            while(i<firstSplit.length){
+            int i = firstSplit.length-1;
+            while(i>1){
                 getUserPosts(Long.parseLong(firstSplit[i]));
-                i++;
+                i--;
             }
         }else if(output.contains("PostPic")){
             String[] firstSplit = output.split(":");
