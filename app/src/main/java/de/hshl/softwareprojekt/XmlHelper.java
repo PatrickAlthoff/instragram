@@ -148,6 +148,15 @@ public class XmlHelper {
 
         return xml;
     }
+    public static String getFullPost(String id){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<post>" +
+                "<ID>" + id + "</ID>" +
+                "</post>" +
+                "</data>";
+        return xml;
+    }
 
 
 

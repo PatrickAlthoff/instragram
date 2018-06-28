@@ -3,38 +3,51 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 
+import android.media.Image;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+
 
 public class ProfilActivity extends AppCompatActivity implements OnClickListener, AsyncResponse {
 
     private static final String TAG = "ProfilActivity";
+    private DatabaseHelperPosts dataBasePosts;
     private ImageView profilbild;
     private TextView follower;
     private TextView following;
     private TextView benutzerName;
+    private TextView beiträgeField;
     private Button folgen;
     private Button entfolgen;
     private User user;
     private String followerList;
     private String followsList;
+    private GridView gridView;
+    private ArrayList<Bitmap> imageViewArrayList;
+    private ArrayList<String> idList;
+    private ProfilAdapter profilAdapter;
     private long id;
 
     @Override
@@ -43,6 +56,7 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         setContentView(R.layout.activity_profil);
         Intent getIntent = getIntent();
 
+        this.beiträgeField = findViewById(R.id.beiträgeField);
         this.follower = findViewById(R.id.follower);
         this.following = findViewById(R.id.following);
         this.profilbild = findViewById(R.id.profilbild);
@@ -56,29 +70,34 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             this.benutzerName.setText(this.user.getUsername());
             profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
             updateFollower(user.getId());
+            getUserPosts(user.getId());
         }
         else{
             id = Long.parseLong(getIntent.getStringExtra("UserKey"));
             getUserData(id);
             updateFollower(id);
+            getUserPosts(id);
         }
-        final DatabaseHelperFollow dbHelper = new DatabaseHelperFollow(this);
         // folgen.setOnClickListener(this);
         // isFollowing();
-        GridView gridView = (GridView) findViewById(R.id.gridViewBilder);
-        gridView.setAdapter(new GridAdapter(this));
+
+        this.dataBasePosts = new DatabaseHelperPosts(this);
+
+        this.imageViewArrayList = new ArrayList<>();
+        this.idList = new ArrayList<>();
+        this.gridView = findViewById(R.id.gridViewBilder);
+        this.profilAdapter = new ProfilAdapter(this,imageViewArrayList, idList);
+        this.gridView.setAdapter(profilAdapter);
+
 
         // einzelnes Bild groß anzeigen lassen
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        this.gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
 
-
-                Intent i = new Intent(getApplicationContext(), Full_ImageActivity.class);
-
-                i.putExtra("id", position);
-                startActivity(i);
+                String contentDis = ((ViewGroup)v).getChildAt(0).getContentDescription().toString();
+                getFullPost(contentDis);
             }
         });
 
@@ -135,6 +154,14 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
+    private void getFullPost(String id){
+        String dstAdress = "http://intranet-secure.de/instragram/getFullPost.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getFullPost(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
     private void updateFollower(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -159,29 +186,21 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getUserData(long query){
+    private void getUserData(long id){
         String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.getUsers(query));
+        httpConnection.setMessage(XmlHelper.getUsers(id));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    //überprüft ob man dem Nutzer folgt
-    private void isFollowing() {
-        Log.d(TAG, "Überprüft ob dem Nutzer gefolgt wird");
-
-    }
-
-    // zeigt an, dass man dem Nutzer folgt
-    private void setFollowing() {
-
-
-    }
-
-    // zeigt an, dass man dem Nutzer nicht folgt
-    private void setUnfollowing() {
-
+    private void getUserPosts(long id){
+        String dstAdress = "http://intranet-secure.de/instragram/getPostPicture.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
     }
 
     // erstellt Menuleiste
@@ -228,7 +247,54 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
         }else if(output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
             updateFollower(id);
-        }else if(output.contains("FollowExc")) {
+        }else if(output.contains("PostIDs")){
+            String[] firstSplit = output.split(":");
+            String postCount = firstSplit[1];
+            beiträgeField.setText(beiträgeField.getText().toString() + postCount);
+            int i = 2;
+            while(i<firstSplit.length){
+                getUserPosts(Long.parseLong(firstSplit[i]));
+                i++;
+            }
+        }else if(output.contains("PostPic")){
+            String[] firstSplit = output.split(":");
+            String base64 = firstSplit[1];
+            Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
+            imageViewArrayList.add(bitmap);
+            idList.add(firstSplit[2]);
+            profilAdapter.notifyDataSetChanged();
+        }else if (output.contains("FullPost")){
+            String[] pieces = output.split(" : ");
+            String id = pieces[2];
+            Bitmap image = ImageHelper.base64ToBitmap(pieces[3]);
+            String titel = pieces[4];
+            String[] hashes = pieces[5].split(":");
+            ArrayList<String> hashList = new ArrayList<>();
+            int i = 1;
+            while(i<hashes.length){
+                hashList.add(hashes[i]);
+                i++;
+            }
+            String likes = "Likes: " + pieces[6];
+            int like = dataBasePosts.getLikeCount(Long.parseLong(id), user.getUsername());
+            boolean checked;
+            if(like==2){
+                checked = true;
+
+            }else{
+                checked = false;
+            }
+            Intent goToBigImage = new Intent(ProfilActivity.this, Main_Image_Clicked.class);
+            goToBigImage.putExtra("BitmapImage", image);
+            goToBigImage.putExtra("Titel", titel);
+            goToBigImage.putExtra("Likes", likes);
+            goToBigImage.putExtra("Checked", checked);
+            goToBigImage.putExtra("ID", id);
+            goToBigImage.putExtra("User", user);
+            goToBigImage.putStringArrayListExtra("Hashtags", hashList);
+            startActivity(goToBigImage);
+        }
+        else if(output.contains("FollowExc")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
         }else if(output.contains("UnfollowNotPossible")) {
             Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
