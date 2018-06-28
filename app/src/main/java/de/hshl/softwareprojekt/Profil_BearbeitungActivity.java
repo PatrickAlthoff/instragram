@@ -270,7 +270,10 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
             }
         }else if(output.contains("Beschreibung")){
             String[] splitBeschreibung = output.split(":_:");
-            Beschreibung.setText(splitBeschreibung[1]);
+            if(splitBeschreibung.length==2){
+                Beschreibung.setText(splitBeschreibung[1]);
+            }
+
         }
     }
 }

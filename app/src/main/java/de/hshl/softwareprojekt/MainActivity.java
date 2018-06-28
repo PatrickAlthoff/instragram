@@ -526,6 +526,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStories.putExtra("User", this.user);
+            String userID = String.valueOf(this.user.getId());
+            intentStories.putExtra("User_ID", userID);
             startActivityForResult(intentStories, 101);
         }
         //Startet das Settingslayout
