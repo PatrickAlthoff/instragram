@@ -453,9 +453,12 @@ public class MainActivity extends AppCompatActivity
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
                     String date = intentVerarbeitet.getStringExtra("Date");
-                    String d = Long.toString(System.currentTimeMillis()/1000);
-                    int c = Integer.parseInt(d);
-                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, System.currentTimeMillis()/1000,0,ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()));
+                    long d = System.currentTimeMillis()/1000;
+                    String y = String.valueOf(d);
+                    int c = Integer.parseInt(y);
+                    fragmentIndex = 0;
+                    newestPost = d;
+                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d,0,ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()));
                     int i = 0;
                     String hashes = "";
                     while(i<this.hashTagList.size()){
