@@ -13,16 +13,13 @@
         android:id="@+id/scrollView"
         android:layout_width="385dp"
         android:layout_height="530dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView">
 
         <LinearLayout
             android:id="@+id/innerLayout"
@@ -37,7 +34,7 @@
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
-        android:layout_width="300dp"
+        android:layout_width="349dp"
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
@@ -62,21 +59,5 @@
 
         </LinearLayout>
     </HorizontalScrollView>
-
-    <ImageButton
-        android:id="@+id/refreshBtn"
-        android:layout_width="45dp"
-        android:layout_height="39dp"
-        android:layout_marginBottom="420dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@android:drawable/ic_menu_rotate"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.89"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.181" />
 
 </android.support.constraint.ConstraintLayout>

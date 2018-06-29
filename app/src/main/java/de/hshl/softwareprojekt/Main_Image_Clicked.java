@@ -70,6 +70,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         this.checkLike.setText(getPost.getStringExtra("Likes"));
         this.checkLike.setChecked(getPost.getExtras().getBoolean("Checked"));
         this.checkLike.setContentDescription(getPost.getStringExtra("ID"));
+        this.ID = getPost.getStringExtra("ID");
         this.checkLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -151,6 +151,8 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         }else if(result.contains("Beschreibung")) {
             delegate.processFinish(result);
+        }else if(result.contains("AllPostIDs")) {
+            delegate.processFinish(result);
         }
     }
 }

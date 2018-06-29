@@ -41,6 +41,7 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, AsyncResponse {
@@ -61,16 +62,16 @@ public class MainActivity extends AppCompatActivity
     private User user;
     private ImageView profilBild;
     private ImageView followerBild;
-    private ImageButton refreshBtn;
     private TextView profilName;
     private TextView followerCount;
     private TextView followsCount;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
-
+    private ArrayList<ImageView> followerList;
     private ArrayList<TextView> textViewList;
     private ArrayList<String> hashTagList;
     private ArrayList<String> postList;
+    private ArrayList<PostFragment> postFragmentArrayList;
     private DatabaseHelperPosts dataBasePosts;
     private SearchView searchView;
     //Methode um die Display Auflösung zu erhalten
@@ -113,17 +114,17 @@ public class MainActivity extends AppCompatActivity
         this.profilBild = findViewById(R.id.profilBild);
         this.followerBild = findViewById(R.id.followerNr1);
         this.profilName = findViewById(R.id.profilName);
-        this.refreshBtn = findViewById(R.id.refreshBtn);
         this.followerCount = findViewById(R.id.followerTextView);
         this.followsCount = findViewById(R.id.followsTextView);
 
-        this.refreshBtn.setOnClickListener(this);
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
-
+        this.postFragmentArrayList = new ArrayList<>();
+        this.followerList = new ArrayList<>();
         this.textViewList = new ArrayList<>();
         this.hashTagList = new ArrayList<>();
 
+        this.followerBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
         this.profilName.setText(this.user.getUsername());
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.postList = this.dataBasePosts.getData();
@@ -133,10 +134,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, String titel, ArrayList<String> hashlist, String date, int id, boolean liked, Bitmap profilPic){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey){
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        final FragmentManager fragmentManagerPost = getSupportFragmentManager();
+        final FragmentManager fragmentManagerSearchPost = getSupportFragmentManager();
         final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
@@ -145,25 +146,39 @@ public class MainActivity extends AppCompatActivity
         //add fragment
         String i = String.valueOf(id);
 
-        final FragmentTransaction fragmentTransaction = fragmentManagerPost.beginTransaction();
-        fragmentTransaction.add(frameInner.getId(), frontPagePost, i);
+        final FragmentTransaction fragmentTransactionSearchPost = fragmentManagerSearchPost.beginTransaction();
+        fragmentTransactionSearchPost.add(frameInner.getId(), frontPagePost, i);
 
-        fragmentTransaction.commitNow();
+        fragmentTransactionSearchPost.commitNow();
         frontPagePost.addPost(postBitmap, titel);
         final ArrayList<String> hashList = hashlist;
         TextView datefield = frontPagePost.timeStampView;
         datefield.setText(date);
         //Gib den ImageViews eine generierte ID und fügt einen OnClick Listener hinzu
 
-        ImageView profilBitmap = frontPagePost.profilPicPost;
-        profilBitmap.setImageDrawable(roundImage(profilPic));
+        ImageView userImage = frontPagePost.profilPicPost;
+        userImage.setImageDrawable(roundImage(userPic));
+        userImage.setContentDescription(userKey);
+        userImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToProfil = new Intent(MainActivity.this,ProfilActivity.class);
+                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
+                goToProfil.putExtra("Code",3);
+                goToProfil.putExtra("User", user);
+                startActivity(goToProfil);
+            }
+        });
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
+        postImage.setContentDescription(i);
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
+                View titelView = ((ViewGroup)v.getParent()).getChildAt(3);
                 Boolean checked = ((CheckBox)nextChild).isChecked();
+                String titel = ((TextView)titelView).getText().toString();
                 String likes = ((CheckBox) nextChild).getText().toString();
                 int ID = nextChild.getId();
                 //Baut aus den Daten im Cache eine Bitmap
@@ -171,18 +186,17 @@ public class MainActivity extends AppCompatActivity
                 v.buildDrawingCache();
                 Bitmap parseBit = v.getDrawingCache();
 
-
                 //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
                 Bitmap createBit = scaleBitmap(parseBit,-1,300);
 
                 //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
                 Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
                 intentVollansicht.putExtra("BitmapImage", createBit);
-                intentVollansicht.putExtra("Titel", v.getContentDescription());
-                intentVollansicht.putExtra("User", user);
+                intentVollansicht.putExtra("Titel", titel);
                 intentVollansicht.putExtra("Likes", likes);
                 intentVollansicht.putExtra("Checked", checked);
-                intentVollansicht.putExtra("ID", ID);
+                intentVollansicht.putExtra("ID", v.getContentDescription());
+                intentVollansicht.putExtra("User", user);
                 intentVollansicht.putStringArrayListExtra("Hashtags", hashList);
                 startActivityForResult(intentVollansicht, IMAGE_CLICKED);
             }
@@ -190,7 +204,7 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton deleteButton = frontPagePost.delete;
         TextView profilName = frontPagePost.postProfilName;
-        profilName.setText(user.getUsername());
+        profilName.setText(username);
 
         CheckBox likeCheck = frontPagePost.likeChecker;
         int like = dataBasePosts.getLikeCount(id, user.getUsername());
@@ -201,7 +215,7 @@ public class MainActivity extends AppCompatActivity
             likeCheck.setChecked(false);
         }
         likeCheck.setText("Likes: " + (liked));
-        likeCheck.setId(View.generateViewId());
+        likeCheck.setId(Integer.parseInt(i));
         String ID = String.valueOf(id);
         likeCheck.setContentDescription(ID);
         likeCheck.setOnClickListener(new View.OnClickListener() {
@@ -211,15 +225,13 @@ public class MainActivity extends AppCompatActivity
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
-                View deleteButtonId = ((ViewGroup)v.getParent()).getChildAt(7);
-
                 if(checked){
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==0){
+                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
                         dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
-                    }else if(dataBasePosts.getLikeCount(v.getId(),user.getUsername())==1){
-                        dataBasePosts.updateLike(v.getId(),user.getUsername(), true);
+                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
+                        dataBasePosts.updateLike(id,user.getUsername(), true);
                     }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
                     updateLikeStatus(1, id);
@@ -228,23 +240,14 @@ public class MainActivity extends AppCompatActivity
                 else{
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    dataBasePosts.updateLike(deleteButtonId.getId(),user.getUsername(), false);
+                    dataBasePosts.updateLike(id,user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                     updateLikeStatus(-1, id);
                 }
             }
         });
-
-        this.textViewList.add(profilName);
-
-        deleteButton.setId(id);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                removeFragment(frontPagePost);
-                dataBasePosts.deletePost(v.getId());
-            }
-        });
+        postFragmentArrayList.add(frontPagePost);
+        deleteButton.setVisibility(View.INVISIBLE);
 
     }
 
@@ -399,7 +402,7 @@ public class MainActivity extends AppCompatActivity
                     String date = intentVerarbeitet.getStringExtra("Date");
                     String d = Long.toString(System.currentTimeMillis()/1000);
                     int c = Integer.parseInt(d);
-                    addPostFragment(postImage, titel, this.hashTagList, date, c, false, ImageHelper.base64ToBitmap(user.getBase64()));
+                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, System.currentTimeMillis()/1000,0,ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()));
                     int i = 0;
                     String hashes = "";
                     while(i<this.hashTagList.size()){
@@ -440,7 +443,7 @@ public class MainActivity extends AppCompatActivity
             if(resultCode == RESULT_OK){
                 if(data != null){
                     Intent intentFromImage = data;
-                    int ID = intentFromImage.getExtras().getInt("ID");
+                    int ID = Integer.parseInt(intentFromImage.getStringExtra("ID"));
                     View v = findViewById(ID);
                     ((CheckBox)v).setText(intentFromImage.getStringExtra("Likes"));
                     ((CheckBox)v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
@@ -453,6 +456,24 @@ public class MainActivity extends AppCompatActivity
                     user = (User) data.getSerializableExtra("User");
                     profilName.setText(user.getUsername());
                     profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+                    int i = 0;
+                    while(i<followerList.size()){
+                        followerList.get(i).setVisibility(View.GONE);
+                        i++;
+                    }
+                    updateFollower(user.getId());
+                }
+            }
+        }
+        if(requestCode == 350) {
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    int i = 0;
+                    while(i<followerList.size()){
+                        followerList.get(i).setVisibility(View.GONE);
+                        i++;
+                    }
+                    updateFollower(user.getId());
                 }
             }
         }
@@ -501,7 +522,7 @@ public class MainActivity extends AppCompatActivity
                     Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
                     startSearchIntent.putExtra("User", user);
                     startSearchIntent.putExtra("Search", query);
-                    startActivity(startSearchIntent);
+                    startActivityForResult(startSearchIntent,350);
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                     searchView.setQuery("",false);
                     return true;
@@ -578,35 +599,6 @@ public class MainActivity extends AppCompatActivity
             intentProfil.putExtra("Follower", this.followerCount.getText().toString());
             intentProfil.putExtra("Follows", this.followsCount.getText().toString());
             startActivityForResult(intentProfil, 200);
-        }else if (v.getId() == R.id.refreshBtn) {
-            int i = postList.size()-1;
-            while(i>=0){
-                this.hashTagList.clear();
-                String[] pieces = postList.get(i).split(" : ");
-                if(pieces[1].equals(user.getUsername())){
-                    String ids = pieces[0];
-                    int id = Integer.parseInt(ids);
-                    String base64 =  pieces[2];
-                    Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
-                    String titel = pieces[3];
-                    ArrayList<String> hashlist = new ArrayList<>();
-                    String[] hashes = pieces[4].split(":");
-                    String date = pieces[5];
-                    String bool = pieces[6];
-                    int like = Integer.valueOf(bool);
-                    Boolean liked = (like != 0);
-                    int c = 0;
-                    while(c<hashes.length){
-                        hashlist.add(hashes[c]);
-                        c++;
-                    }
-
-                    addPostFragment(bitmap, titel, hashlist, date, id, liked, ImageHelper.base64ToBitmap(user.getBase64()));
-                }
-
-                i--;
-            }
-            postList.clear();
         }
     }
     private Uri getImageUri(Context context, Bitmap inImage) {
@@ -647,6 +639,22 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    private void getAllPostIDs(String ids){
+        String dstAdress = "http://intranet-secure.de/instragram/getAllPostIDs.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getFullPost(ids));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+    private void getPostForID(String id){
+        String dstAdress = "http://intranet-secure.de/instragram/getPosts.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getFullPost(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
 
     @Override
     public void processFinish(String output) {
@@ -655,25 +663,69 @@ public class MainActivity extends AppCompatActivity
             long inputLong = Long.valueOf(input[1]);
             Bitmap bitmap = ImageHelper.base64ToBitmap(input[2]);
             createFollower(inputLong, bitmap);
-        }else{
-            String[] firstSplit = output.split( " : " );
-            this.followerCount.setText(firstSplit[0]);
-            String[] secondSplit =  firstSplit[1].split(": ");
-            if(secondSplit.length >1){
-                String[] thirdSplit = secondSplit[1].split(":");
-                this.followsCount.setText(followsCount.getText().toString() + (thirdSplit.length));
-                int i = 0;
-                while(i<thirdSplit.length){
-                    long followerID = Long.parseLong(thirdSplit[i]);
-                    getUserPic(followerID);
-                    i++;
+        }else if(output.contains("AllPostIDs")) {
+            String[] split = output.split(":");
+            long[] splitIDs = new long[split.length-1];
+            for(int i=1; i<split.length-1;i++){
+                splitIDs[i] = Long.parseLong(split[i+1]);
+            }
+            Arrays.sort(splitIDs);
+            for(int i=0; i<splitIDs.length;i++){
+                getPostForID(Long.toString(splitIDs[i]));
+            }
+        }else if(output.contains("FullPost")) {
+            String[] response = output.split(" : ");
+            postList = new ArrayList<>();
+            if (response.length > 1) {
+
+                String ids = response[1];
+                String username = response[2];
+                long id = Long.parseLong(ids);
+                String base64 = response[3];
+                Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
+                String titel = response[4];
+                ArrayList<String> hashlist = new ArrayList<>();
+                String[] hashes = response[5].split(":");
+                String date = response[6];
+                String bool = response[7];
+                String userKeyString = response[8];
+                String userPic = response[9];
+                long userKey = Long.parseLong(userKeyString);
+                int like = Integer.valueOf(bool);
+                int c = 0;
+                while (c < hashes.length) {
+                    hashlist.add(hashes[c]);
+                    c++;
                 }
-            }else{
-                this.followsCount.setText(followsCount.getText().toString() + "0");
+
+                addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
+
+                postList.clear();
+            }
+
+
+
+        }else if(output.contains("Follower")){
+
+                String[] firstSplit = output.split( " : " );
+                this.followerCount.setText(firstSplit[0]);
+                String[] secondSplit =  firstSplit[1].split(": ");
+                if(secondSplit.length >1){
+                    getAllPostIDs(secondSplit[1]+user.getId());
+                    String[] thirdSplit = secondSplit[1].split(":");
+                    this.followsCount.setText("Follows: " + (thirdSplit.length));
+                    int i = 0;
+                    while(i<thirdSplit.length){
+                        long followerID = Long.parseLong(thirdSplit[i]);
+                        getUserPic(followerID);
+                        i++;
+                    }
+                }else{
+                    this.followsCount.setText(followsCount.getText().toString() + "0");
+                }
             }
         }
 
-        }
 
     public void createFollower(long id, Bitmap bitmap){
         ImageView followerPic = new ImageView(this);
@@ -684,6 +736,7 @@ public class MainActivity extends AppCompatActivity
         followerPic.setImageDrawable(roundImage(bitmap));
         followerPic.setId(View.generateViewId());
         followerPic.setContentDescription(descriLong);
+        this.followerList.add(followerPic);
         followerPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -142,7 +142,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             likeCheck.setChecked(false);
         }
         likeCheck.setText("Likes: " + (liked));
-        likeCheck.setId(View.generateViewId());
+        likeCheck.setId(Integer.parseInt(i));
         String ID = String.valueOf(id);
         likeCheck.setContentDescription(ID);
         likeCheck.setOnClickListener(new View.OnClickListener() {
@@ -199,6 +199,8 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
+            Intent back = new Intent(SearchActivity.this, MainActivity.class);
+            setResult(RESULT_OK,back);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 
@@ -307,6 +309,21 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_CLICKED) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Intent intentFromImage = data;
+                    int ID = Integer.parseInt(intentFromImage.getStringExtra("ID"));
+                    View v = findViewById(ID);
+                    ((CheckBox) v).setText(intentFromImage.getStringExtra("Likes"));
+                    ((CheckBox) v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
+                }
+            }
+        }
+    }
+
     public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
