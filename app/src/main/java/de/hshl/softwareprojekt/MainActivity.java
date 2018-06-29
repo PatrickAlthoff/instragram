@@ -301,7 +301,8 @@ public class MainActivity extends AppCompatActivity
         });
         postFragmentArrayList.add(frontPagePost);
         deleteButton.setVisibility(View.INVISIBLE);
-
+        fragmentIndex++;
+        rememberIndex++;
     }
 
     public RoundedBitmapDrawable roundImage(Bitmap bitmap){
@@ -634,10 +635,6 @@ public class MainActivity extends AppCompatActivity
             intentSetting.putExtra("User", this.user);
             startActivityForResult(intentSetting, 111);
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
         //Shortcut to Logout.
         else if (id == R.id.nav_logout) {
@@ -780,8 +777,6 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
-                fragmentIndex++;
-                rememberIndex++;
                 postList.clear();
             }
 
