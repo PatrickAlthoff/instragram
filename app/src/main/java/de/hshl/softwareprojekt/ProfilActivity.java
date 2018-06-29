@@ -300,17 +300,17 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
             profilAdapter.notifyDataSetChanged();
         }else if (output.contains("FullPost")){
             String[] pieces = output.split(" : ");
-            String id = pieces[2];
-            Bitmap image = ImageHelper.base64ToBitmap(pieces[3]);
-            String titel = pieces[4];
-            String[] hashes = pieces[5].split(":");
+            String id = pieces[1];
+            Bitmap image = ImageHelper.base64ToBitmap(pieces[2]);
+            String titel = pieces[3];
+            String[] hashes = pieces[4].split(":");
             ArrayList<String> hashList = new ArrayList<>();
             int i = 1;
             while(i<hashes.length){
                 hashList.add(hashes[i]);
                 i++;
             }
-            String likes = "Likes: " + pieces[6];
+            String likes = "Likes: " + pieces[5];
             int like = dataBasePosts.getLikeCount(Long.parseLong(id), user.getUsername());
             boolean checked;
             if(like==2){
