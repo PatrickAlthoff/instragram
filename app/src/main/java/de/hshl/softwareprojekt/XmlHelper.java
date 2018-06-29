@@ -183,6 +183,16 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
+    public static String updateTimeline(String follows, long highestID){
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<post>" +
+                "<ID>" + follows + "</ID>" +
+                "<highID>" + highestID + "</highID>" +
+                "</post>" +
+                "</data>";
+        return xml;
+    }
 
 
 

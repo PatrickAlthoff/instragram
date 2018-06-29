@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -31,13 +32,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +61,13 @@ public class MainActivity extends AppCompatActivity
     private int BEARBEITUNG_CODE = 12;
     private int REQUEST_GETSEND = 12;
     private int IMAGE_CLICKED = 13;
+    private long[] splitIDs;
+    private int index = 0;
+    private int fragmentIndex = 0;
+    private int rememberIndex = 0;
+    private long newestPost;
     private float dpi;
+    private String FollowsList;
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
@@ -74,6 +85,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<PostFragment> postFragmentArrayList;
     private DatabaseHelperPosts dataBasePosts;
     private SearchView searchView;
+    private ScrollView scrollView;
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics(){
         DisplayMetrics dm = new DisplayMetrics();
@@ -116,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         this.profilName = findViewById(R.id.profilName);
         this.followerCount = findViewById(R.id.followerTextView);
         this.followsCount = findViewById(R.id.followsTextView);
+        this.scrollView = findViewById(R.id.scrollView);
 
         this.followerBild.setOnClickListener(this);
         this.profilBild.setOnClickListener(this);
@@ -130,6 +143,46 @@ public class MainActivity extends AppCompatActivity
         this.postList = this.dataBasePosts.getData();
         updateFollower(user.getId());
         this.profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(2000);
+                getAllPostIDs(FollowsList);
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SystemClock.sleep(2000);
+
+                scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        if(scrollView != null){
+                            if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
+                                int precheck = index - 4;
+                                int d = 4;
+                                if (precheck >= 0) {
+                                    fragmentIndex = rememberIndex;
+                                    while (d >= 0) {
+                                        getPostForID(Long.toString(splitIDs[index]));
+                                        index--;
+                                        d--;
+                                    }
+                                } else {
+
+                                    while (index >= 0) {
+                                        getPostForID(Long.toString(splitIDs[index]));
+                                        index--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }).start();
 
     }
 
@@ -141,7 +194,7 @@ public class MainActivity extends AppCompatActivity
         final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
-        innerLayout.addView(frameInner, 0);
+        innerLayout.addView(frameInner, fragmentIndex);
 
         //add fragment
         String i = String.valueOf(id);
@@ -529,10 +582,22 @@ public class MainActivity extends AppCompatActivity
                 }
             };
             searchView.setOnQueryTextListener(queryTextListener);
-        }else
-            if(item.getItemId() == R.id.action_refresh){
+        }else if(item.getItemId() == R.id.action_refresh) {
+
+            if(rememberIndex == fragmentIndex){
+                rememberIndex = fragmentIndex;
+            }
+
+            updateTimeline(FollowsList, newestPost);
 
         }
+
+
+
+
+
+
+
 
 
 
@@ -655,6 +720,15 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    private void updateTimeline(String follows, long highestPost){
+        String dstAdress = "http://intranet-secure.de/instragram/updateTimeline.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateTimeline(follows, highestPost));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
 
     @Override
     public void processFinish(String output) {
@@ -665,13 +739,17 @@ public class MainActivity extends AppCompatActivity
             createFollower(inputLong, bitmap);
         }else if(output.contains("AllPostIDs")) {
             String[] split = output.split(":");
-            long[] splitIDs = new long[split.length-1];
+            splitIDs = new long[split.length-1];
             for(int i=1; i<split.length-1;i++){
                 splitIDs[i] = Long.parseLong(split[i+1]);
             }
             Arrays.sort(splitIDs);
-            for(int i=0; i<splitIDs.length;i++){
-                getPostForID(Long.toString(splitIDs[i]));
+            index = splitIDs.length-1;
+            newestPost = splitIDs[splitIDs.length-1];
+            for(int i=4; i>=0 ;i--){
+                getPostForID(Long.toString(splitIDs[index]));
+                index--;
+
             }
         }else if(output.contains("FullPost")) {
             String[] response = output.split(" : ");
@@ -699,7 +777,8 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
-
+                fragmentIndex++;
+                rememberIndex++;
                 postList.clear();
             }
 
@@ -711,7 +790,7 @@ public class MainActivity extends AppCompatActivity
                 this.followerCount.setText(firstSplit[0]);
                 String[] secondSplit =  firstSplit[1].split(": ");
                 if(secondSplit.length >1){
-                    getAllPostIDs(secondSplit[1]+user.getId());
+                    FollowsList = secondSplit[1]+user.getId();
                     String[] thirdSplit = secondSplit[1].split(":");
                     this.followsCount.setText("Follows: " + (thirdSplit.length));
                     int i = 0;
@@ -723,7 +802,22 @@ public class MainActivity extends AppCompatActivity
                 }else{
                     this.followsCount.setText(followsCount.getText().toString() + "0");
                 }
+            }else if(output.contains("UpdatePostIDs")){
+
+            String[] splitNewPost = output.split(":");
+            if(splitNewPost.length>1){
+                int i = splitNewPost.length-1;
+                fragmentIndex = 0;
+                while(i >=1){
+                    getPostForID(splitNewPost[i]);
+                    i--;
+                }
+                newestPost = Long.parseLong(splitNewPost[splitNewPost.length-1]);
+            }else{
+                Toast.makeText(getApplicationContext(), "Es gibt keine neuen Posts!", Toast.LENGTH_SHORT).show();
             }
+
+        }
         }
 
 
