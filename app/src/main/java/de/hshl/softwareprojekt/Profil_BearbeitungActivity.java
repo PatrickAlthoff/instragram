@@ -70,34 +70,38 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         this.save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(benutzerName.length()>2){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    builder.setTitle("Änderungen bestätigen!");
+                    builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            user.setUsername(benutzerName.getText().toString());
+                            user.setBase64(base64);
+                            databaseHelperUser.updateUserPic(user.getId(),base64);
+                            databaseHelperUser.updateUser(user.getId(), benutzerName.getText().toString());
+                            databaseHelperPosts.updateUserPosts(user.getId(), benutzerName.getText().toString());
+                            updateData(user.getId());
+                            getAllPosts(user.getId());
+                            Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Änderungen bestätigen!");
-                builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        user.setUsername(benutzerName.getText().toString());
-                        user.setBase64(base64);
-                        databaseHelperUser.updateUserPic(user.getId(),base64);
-                        databaseHelperUser.updateUser(user.getId(), benutzerName.getText().toString());
-                        databaseHelperPosts.updateUserPosts(user.getId(), benutzerName.getText().toString());
-                        updateData(user.getId());
-                        getAllPosts(user.getId());
-                        Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            benutzerName.setText(user.getUsername());
+                            Toast.makeText(getApplicationContext(), "Dein ursprünglicher Nutzerdaten wurden wiederhergestellt!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        benutzerName.setText(user.getUsername());
-                        Toast.makeText(getApplicationContext(), "Dein ursprünglicher Nutzerdaten wurden wiederhergestellt!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    builder.show();
 
-                builder.show();
+                }else{
+                    benutzerName.setError("Benutzernamen müssen mind. 3 Zeichen haben!");
+                }
 
 
             }
@@ -121,6 +125,9 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent back = new Intent(Profil_BearbeitungActivity.this, ProfilActivity.class);
+            back.putExtra("User", user);
+            setResult(RESULT_OK, back);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 

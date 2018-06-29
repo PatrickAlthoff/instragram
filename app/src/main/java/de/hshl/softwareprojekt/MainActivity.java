@@ -447,6 +447,15 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        if(requestCode == 200) {
+            if(resultCode == RESULT_OK){
+                if(data != null){
+                    user = (User) data.getSerializableExtra("User");
+                    profilName.setText(user.getUsername());
+                    profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+                }
+            }
+        }
     }
 
     //Schließt bei einem Backpress das DrawerLayout, falls dies offen ist
@@ -568,7 +577,7 @@ public class MainActivity extends AppCompatActivity
             intentProfil.putExtra("Code", 2);
             intentProfil.putExtra("Follower", this.followerCount.getText().toString());
             intentProfil.putExtra("Follows", this.followsCount.getText().toString());
-            startActivity(intentProfil);
+            startActivityForResult(intentProfil, 200);
         }else if (v.getId() == R.id.refreshBtn) {
             int i = postList.size()-1;
             while(i>=0){

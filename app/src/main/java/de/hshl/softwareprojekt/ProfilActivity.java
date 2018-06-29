@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -219,14 +220,36 @@ public class ProfilActivity extends AppCompatActivity implements OnClickListener
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent back = new Intent(ProfilActivity.this,Profil_BearbeitungActivity.class);
+            back.putExtra("User", user);
+            setResult(RESULT_OK, back);
             finish(); // close this activity and return to preview activity (if there is any)
         }else{
             Intent intent = new Intent(ProfilActivity.this,Profil_BearbeitungActivity.class);
             intent.putExtra("User", user);
-            startActivity(intent);
+            startActivityForResult(intent, 200);
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //Verarbeitung der Image Capture Request
+        if (requestCode == 200) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    user = (User) data.getSerializableExtra("User");
+                    benutzerName.setText(user.getUsername());
+                    profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+
+                }
+            } else {
+
+                Log.d(MainActivity.class.getSimpleName(),  "UserUpdated");
+            }
+        }
     }
 
     @Override

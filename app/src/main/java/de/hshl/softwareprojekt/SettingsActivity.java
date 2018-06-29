@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements AsyncResponse {
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private Button applyChanges;
     private User user;
@@ -21,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText emailChanger;
     private DatabaseHelperUser databaseHelperUser;
     private DatabaseHelperPosts databasePosts;
+    private String oldName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.user = (User) intent.getSerializableExtra("User");
         this.databaseHelperUser = new DatabaseHelperUser(this);
         this.databasePosts = new DatabaseHelperPosts(this);
+        this.oldName = user.getUsername();
         this.userChanger = findViewById(R.id.editUser);
         this.emailChanger = findViewById(R.id.editEmail);
         this.applyChanges = findViewById(R.id.applyChanges);
@@ -38,32 +40,35 @@ public class SettingsActivity extends AppCompatActivity {
         this.applyChanges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (userChanger.length() > 2) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    builder.setTitle("Änderungen bestätigen!");
+                    builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            user.setUsername(userChanger.getText().toString());
+                            databaseHelperUser.updateUser(user.getId(), userChanger.getText().toString());
+                            databasePosts.updateUserPosts(user.getId(), userChanger.getText().toString());
+                            updateData(user.getId());
+                            getAllPosts(user.getId());
+                            Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setTitle("Änderungen bestätigen!");
-                builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        user.setUsername(userChanger.getText().toString());
-                        databaseHelperUser.updateUser(user.getId(), userChanger.getText().toString());
-                        databasePosts.updateUserPosts(user.getId(), userChanger.getText().toString());
-                        updateData(user.getId());
-                        Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            userChanger.setText(user.getUsername());
+                            Toast.makeText(getApplicationContext(), "Dein ursprünglicher Nutzerdaten wurden wiederhergestellt!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                builder.setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        userChanger.setText(user.getUsername());
-                        Toast.makeText(getApplicationContext(), "Dein ursprünglicher Nutzerdaten wurden wiederhergestellt!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                builder.show();
-
+                    builder.show();
+                } else {
+                    userChanger.setError("Benutzernamen müssen mind. 3 Zeichen haben!");
+                }
 
             }
         });
@@ -80,7 +85,7 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (SettingsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent(SettingsActivity.this, MainActivity.class);
             sendBackIntent.putExtra("User", this.user);
             setResult(RESULT_OK, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
@@ -89,12 +94,42 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateData(long id){
+    private void updateData(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateData(id,userChanger.getText().toString(), emailChanger.getText().toString()));
+        httpConnection.setMessage(XmlHelper.updateData(id, userChanger.getText().toString(), emailChanger.getText().toString()));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
 
+    private void getAllPosts(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/getAllKommPosts.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void updateAllKomms(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/updateKommentData.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateAllKomms(id, user.getUsername(), user.getBase64(), oldName, user.getBase64()));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    @Override
+    public void processFinish(String output) {
+        if (output.contains("getPostIDs")) {
+            String[] postIDs = output.split(" : ");
+
+            int i = 1;
+            while (i < postIDs.length) {
+                updateAllKomms(Long.parseLong(postIDs[i]));
+                i++;
+            }
+        }
+    }
 }
