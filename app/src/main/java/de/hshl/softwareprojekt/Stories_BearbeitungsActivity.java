@@ -7,12 +7,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Stories_BearbeitungsActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final int PERMISSION_REQUEST = 1;
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
-    private static final int PERMISSION_REQUEST = 1;
     private int BEARBEITUNG_CODE = 12;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
@@ -54,7 +54,6 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     private DatabaseHelperPosts database;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +65,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.bitmapList = new ArrayList<>();
         this.database = new DatabaseHelperPosts(this);
         this.user = (User) data.getSerializableExtra("User");
-        this.id = data.getIntExtra("id",0);
+        this.id = data.getIntExtra("id", 0);
 
         this.fotoBtn = findViewById(R.id.fotoEdit);
         this.galerieBtn = findViewById(R.id.galerieEdit);
@@ -94,7 +93,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             public void run() {
                 ArrayList<String> storyList = database.getStory(user.getId());
 
-                if (storyList.size() == 0){
+                if (storyList.size() == 0) {
                     storiePic.setVisibility(View.VISIBLE);
                 } else {
 
@@ -132,7 +131,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()) {
+        switch (v.getId()) {
 
             case R.id.fotoEdit:
                 startCamera();
@@ -146,31 +145,30 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 break;
             case R.id.publishBtn:
 
-                if(bitmapList.size() > 0 && titelList.size() > 0){
-                    Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
+                if (bitmapList.size() > 0 && titelList.size() > 0) {
+                    Intent sendBackIntent = new Intent(Stories_BearbeitungsActivity.this, Main_Story_Clicked.class);
                     setResult(RESULT_OK, sendBackIntent);
                     String base64 = convertBitMapListtoBase64(this.bitmapList);
                     String titel = convertStringListtoString(this.titelList);
                     int c = this.id;
-                    if(c == 0){
-                        String d = Long.toString(System.currentTimeMillis()/1000);
+                    if (c == 0) {
+                        String d = Long.toString(System.currentTimeMillis() / 1000);
                         c = Integer.parseInt(d);
 
                     }
 
-                    long storyID = System.currentTimeMillis()/1000;
+                    long storyID = System.currentTimeMillis() / 1000;
                     ArrayList<String> storyList = database.getStory(user.getId());
 
                     if (storyList.size() == 0) {
                         database.insertStory(c, this.user.getUsername(), base64, titel, "", "", true, this.user.getId());
 
-                    }
-                    else{
-                        database.updateStory(user.getId(),base64, titel);
+                    } else {
+                        database.updateStory(user.getId(), base64, titel);
                     }
                     uploadStory(storyID, user.getId(), titel, base64);
                     finish();
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Ihre Story ist noch leer!", Toast.LENGTH_SHORT).show();
                 }
 
@@ -179,40 +177,41 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         }
     }
 
-    private void uploadStory(long id, long userKey, String titels, String base64){
+    private void uploadStory(long id, long userKey, String titels, String base64) {
         String dstAdress = "http://intranet-secure.de/instragram/uploadStory.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadStory(id,userKey, titels, base64));
+        httpConnection.setMessage(XmlHelper.uploadStory(id, userKey, titels, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
 
-    public String convertStringListtoString (ArrayList<String> stringList){
+    public String convertStringListtoString(ArrayList<String> stringList) {
         int i = 0;
         String titel = "";
-        while(i<stringList.size()){
-            titel= titel + ":" + stringList.get(i);
+        while (i < stringList.size()) {
+            titel = titel + ":" + stringList.get(i);
             i++;
         }
         return titel;
     }
 
-    public String convertBitMapListtoBase64 (ArrayList<Bitmap> bitmapList){
+    public String convertBitMapListtoBase64(ArrayList<Bitmap> bitmapList) {
         int i = 0;
         String base64 = "";
-        while (i < bitmapList.size()){
-            base64 = base64 + ":" +  ImageHelper.bitmapToBase64(bitmapList.get(i));
+        while (i < bitmapList.size()) {
+            base64 = base64 + ":" + ImageHelper.bitmapToBase64(bitmapList.get(i));
             i++;
         }
         return base64;
     }
+
     //Methode zum Start der Camera
-    private void startCamera(){
-        if (this.permissionGranted){
+    private void startCamera() {
+        if (this.permissionGranted) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
-            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
             imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
             intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -232,14 +231,15 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
         this.storiebar.setProgress(0);
 
     }
+
     //Enthält die Methode zur Visualisierung der Progressbar
-    public void startBar(){
+    public void startBar() {
         this.i = 0;
         this.progressBarCount = this.bitmapList.size();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(i < progressBarCount){
+                while (i < progressBarCount) {
 
 
                     storiePic.post(new Runnable() {
@@ -253,7 +253,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                     storiebar.post(new Runnable() {
                         @Override
                         public void run() {
-                            storiebar.setProgress((i)* 100 / progressBarCount);
+                            storiebar.setProgress((i) * 100 / progressBarCount);
                         }
                     });
                     SystemClock.sleep(2000);
@@ -264,11 +264,11 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     }
 
     //Methode zum Skalieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmapNormal(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-            float   srcWidth = src.getWidth(),
+            float srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
 
             if (dstWidth < 1) {
@@ -276,8 +276,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
             }
             Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
@@ -294,33 +293,31 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                 if (data != null) {
                     int code = 2;
                     Bitmap myBitmap = getAndScaleBitmapNormal(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent(Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
-            }
-            else {
+            } else {
                 int rowsDeleted = getContentResolver().delete(imageUri, null, null);
                 Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
             }
         }
 
         //Verarbeitung der Gallerie Request
-        if(requestCode == GALLERY_PICK){
-            if(resultCode == RESULT_OK){
-                if(data != null) {
+        if (requestCode == GALLERY_PICK) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     int code = 2;
                     Uri uri = data.getData();
                     Bitmap myBitmap = getAndScaleBitmapNormal(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent(Stories_BearbeitungsActivity.this, BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("Code", code);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
-            }
-            else{
-                Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+            } else {
+                Log.d(MainActivity.class.getSimpleName(), "no picture selected");
             }
         }
 
@@ -333,41 +330,37 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
                     String titel;
                     titel = intentVerarbeitet.getStringExtra("Titel");
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
-                    addStorieContent(postImage,titel);
+                    addStorieContent(postImage, titel);
 
                 }
-            }
-            else {
-                Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+            } else {
+                Log.d(MainActivity.class.getSimpleName(), "no picture selected");
             }
         }
     }
 
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
-    protected void checkPermission(){
+    protected void checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
             }
-            else {
-                ActivityCompat.requestPermissions(this, new String[]{   Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
-            }
-        }
-        else {
+        } else {
             this.permissionGranted = true;
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
             case PERMISSION_REQUEST:
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.permissionGranted = true;
                     startCamera();
-                }
-                else  {
+                } else {
                     this.permissionGranted = false;
                 }
                 return;
@@ -379,7 +372,7 @@ public class Stories_BearbeitungsActivity extends AppCompatActivity implements V
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (Stories_BearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent(Stories_BearbeitungsActivity.this, MainActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }

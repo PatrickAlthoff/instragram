@@ -2,6 +2,7 @@ package de.hshl.softwareprojekt;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,23 +13,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpConnection extends AsyncTask<Void, Void, String> {
-    public AsyncResponse delegate = null;
-
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static enum MODE {GET,PUT};
+    public AsyncResponse delegate = null;
     private MODE mode;
     private String dstAddress, message = "";
-
     private String response;
 
-    HttpConnection(String dstAddress){
+    HttpConnection(String dstAddress) {
         this.dstAddress = dstAddress;
     }
 
     public void setMessage(String message) {
         this.message = message;
     }
-    public void setMode(MODE mode){
+
+    public void setMode(MODE mode) {
         this.mode = mode;
     }
 
@@ -40,7 +39,7 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
         BufferedReader bufferedReader = null;
         try {
             URL url = new URL(this.dstAddress);
-            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setAllowUserInteraction(false);
             urlConnection.setInstanceFollowRedirects(true);
 
@@ -52,13 +51,12 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
                 OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
                 outputStream.write(this.message.getBytes());
                 outputStream.flush();
-            }
-            else{
+            } else {
                 urlConnection.setRequestMethod("GET");
             }
 
             int responseCode = urlConnection.getResponseCode();
-            if(responseCode == HttpURLConnection.HTTP_OK){
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 inputStream = urlConnection.getInputStream();
 
                 if (this.mode == MODE.PUT) {
@@ -73,37 +71,32 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
                     this.response = result;
                 }
             }
-        }
-        catch (IOException exception){
+        } catch (IOException exception) {
             Log.e(TAG, "getConnection()", exception);
-        }
-        finally {
-            if(bufferedReader != null){
+        } finally {
+            if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
-                }
-                catch (IOException exception){
+                } catch (IOException exception) {
                     Log.e(TAG, "bufferedReaer.close()", exception);
                 }
             }
 
-            if(inputStreamReader != null){
+            if (inputStreamReader != null) {
                 try {
                     inputStreamReader.close();
-                }
-                catch (IOException exception){
+                } catch (IOException exception) {
                     Log.e(TAG, "inputStreamReader.close()", exception);
                 }
             }
-            if (inputStream != null){
-                try{
+            if (inputStream != null) {
+                try {
                     inputStream.close();
-                }
-                catch (IOException exception){
+                } catch (IOException exception) {
                     Log.e(TAG, "inputStream.close()", exception);
                 }
             }
-            if(urlConnection != null) {
+            if (urlConnection != null) {
                 urlConnection.disconnect();
 
             }
@@ -113,48 +106,56 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        if(result.contains("Is_Ok")) {
+        if (result.contains("Is_Ok")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserChecked")) {
+        } else if (result.contains("UserChecked")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserNotChecked")){
+        } else if (result.contains("UserNotChecked")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserReturn")){
+        } else if (result.contains("UserReturn")) {
             delegate.processFinish(result);
-        }else if(result.contains("HashReturn")){
+        } else if (result.contains("HashReturn")) {
             delegate.processFinish(result);
-        }else if(result.contains("HashInput")){
+        } else if (result.contains("HashInput")) {
             delegate.processFinish(result);
-        }else if(result.contains("Followed")){
+        } else if (result.contains("Followed")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserPic")){
+        } else if (result.contains("UserPic")) {
             delegate.processFinish(result);
-        }else if(result.contains(" : ")){
+        } else if (result.contains(" : ")) {
             delegate.processFinish(result);
-        }else if(result.contains("NoStory")){
+        } else if (result.contains("NoStory")) {
             delegate.processFinish(result);
-        }else if(result.contains("FollowExc")) {
+        } else if (result.contains("FollowExc")) {
             delegate.processFinish(result);
-        }else if(result.contains("getKommentare")) {
+        } else if (result.contains("getKommentare")) {
             delegate.processFinish(result);
-        }else if(result.contains("Unfollowed")) {
+        } else if (result.contains("Unfollowed")) {
             delegate.processFinish(result);
-        }else if(result.contains("UnfollowNotPossible")) {
+        } else if (result.contains("UnfollowNotPossible")) {
             delegate.processFinish(result);
-        }else if(result.contains("UserData")) {
+        } else if (result.contains("UserData")) {
             delegate.processFinish(result);
-        }else if(result.contains("Post")) {
+        } else if (result.contains("Post")) {
             delegate.processFinish(result);
-        }else if(result.contains("FullPost")) {
+        } else if (result.contains("FullPost")) {
             delegate.processFinish(result);
-        }else if(result.contains("getPostIDs")) {
+        } else if (result.contains("getPostIDs")) {
             delegate.processFinish(result);
-        }else if(result.contains("Beschreibung")) {
+        } else if (result.contains("Beschreibung")) {
             delegate.processFinish(result);
-        }else if(result.contains("AllPostIDs")) {
+        } else if (result.contains("AllPostIDs")) {
             delegate.processFinish(result);
-        }else if(result.contains("UpdatePostIDs")) {
+        } else if (result.contains("UpdatePostIDs")) {
+            delegate.processFinish(result);
+        } else if (result.contains("PostDeleted")) {
+            delegate.processFinish(result);
+        } else if (result.contains("NoNewPosts")) {
+            delegate.processFinish(result);
+        } else if (result.contains("SharedSuccessfully")) {
             delegate.processFinish(result);
         }
     }
+
+    public static enum MODE {GET, PUT}
 }

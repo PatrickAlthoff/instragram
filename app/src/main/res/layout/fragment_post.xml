@@ -15,7 +15,7 @@
         android:layout_marginBottom="65dp"
         android:layout_marginEnd="6dp"
         android:layout_marginTop="2dp"
-        android:src="@drawable/side_nav_bar"
+        android:src="@drawable/grad_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,19 +77,20 @@
         android:id="@+id/timeStamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="476dp"
+        android:layout_marginEnd="200dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="TimeStamp"
         android:textAlignment="center"
         android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.847"
-        app:layout_constraintStart_toEndOf="@+id/iLike"
-        app:layout_constraintTop_toBottomOf="@+id/postView"
-        app:layout_constraintVertical_bias="0.039" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/profilPicPost"
+        app:layout_constraintTop_toBottomOf="@+id/profilNamePost"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/profilPicPost"
@@ -123,7 +124,24 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/profilPicPost"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.509" />
+        app:layout_constraintVertical_bias="0.547" />
+
+    <TextView
+        android:id="@+id/shareName"
+        android:layout_width="wrap_content"
+        android:layout_height="21dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Shared By: "
+        android:textAppearance="@android:style/TextAppearance.SearchResult.Subtitle"
+        app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/profilPicPost"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.15" />
 
     <ImageButton
         android:id="@+id/deleteButton"
@@ -141,5 +159,45 @@
         app:layout_constraintStart_toEndOf="@+id/profilNamePost"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.363" />
+
+    <ImageButton
+        android:id="@+id/shareButton"
+        android:layout_width="39dp"
+        android:layout_height="33dp"
+        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@android:drawable/ic_menu_share"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.737"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postView" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="516dp" />
+
+    <TextView
+        android:id="@+id/shareCount"
+        android:layout_width="65dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="104dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="8dp"
+        android:text="count"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.922"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postView"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

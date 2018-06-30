@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,7 +16,6 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -29,8 +29,9 @@ import java.io.IOException;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
 
-    private boolean permissionGranted;
     private static final int PERMISSION_REQUEST = 1;
+    public HttpConnection httpConnection;
+    private boolean permissionGranted;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
@@ -46,7 +47,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private Bitmap profilBitmap;
     private String response;
     private String base64;
-    public HttpConnection httpConnection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,17 +74,16 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.regButton:
                 String username = this.userNameField.getText().toString();
                 String pw = this.pwField.getText().toString();
                 String email = this.emailField.getText().toString();
 
-                if(username != null && pw != null && email != null && this.profilBitmap != null) {
+                if (username != null && pw != null && email != null && this.profilBitmap != null) {
                     this.base64 = ImageHelper.bitmapToBase64(this.profilBitmap);
-                    sendXML(username,email,pw,base64);
-                }
-                else{
+                    sendXML(username, email, pw, base64);
+                } else {
                     Log.e("Fields", "emtpy");
                 }
                 break;
@@ -112,6 +112,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
         }
     }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
@@ -121,10 +122,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendXML(String username, String email, String password, String base64){
+    private void sendXML(String username, String email, String password, String base64) {
         String dstAdress = "http://intranet-secure.de/instragram/Upload_User.php";
         httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadUser( username,  email,  password, base64));
+        httpConnection.setMessage(XmlHelper.uploadUser(username, email, password, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
@@ -139,62 +140,60 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         Intent startLogin = new Intent(SignUpActivity.this, LoginActivity.class);
         startLogin.putExtra("email", email);
         startLogin.putExtra("pw", pw);
-        if(this.response.contains("Not_ok") ){
+        if (this.response.contains("Not_ok")) {
             this.emailField.setError("Email schon vergeben!");
-        }
-        else if(this.response.contains("Is_Ok")){
+        } else if (this.response.contains("Is_Ok")) {
 
             String[] idPiece = this.response.split(":");
             String idPiec = idPiece[0];
             long id = Long.parseLong(idPiec);
-            this.userDatabase.insertData(id,username, email, pw, base64,false);
+            this.userDatabase.insertData(id, username, email, pw, base64, false);
             setResult(RESULT_OK, startLogin);
             finish();
         }
     }
 
     //Methode zum Start der Camera
-    private void startCamera(){
-        if (this.permissionGranted){
+    private void startCamera() {
+        if (this.permissionGranted) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
-            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
             imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
             intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
             startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
         }
     }
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
+
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
-    protected void checkPermission(){
+    protected void checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
             }
-            else {
-                ActivityCompat.requestPermissions(this, new String[]{   Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
-            }
-        }
-        else {
+        } else {
             this.permissionGranted = true;
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
             case PERMISSION_REQUEST:
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.permissionGranted = true;
-                }
-                else  {
+                } else {
                     this.permissionGranted = false;
                 }
                 return;
@@ -228,19 +227,20 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     Uri uri = data.getData();
                     this.profilBitmap = getAndScaleBitmap(uri, 80, 80);
                     this.profilPic.setImageDrawable(roundImage(this.profilBitmap));
-            }
+                }
             } else {
                 Log.d(MainActivity.class.getSimpleName(), "no picture selected");
             }
         }
 
     }
+
     //Methode zum Skallieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-            float   srcWidth = src.getWidth(),
+            float srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
 
             if (dstWidth < 1) {
@@ -248,10 +248,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             }
             Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
     }
-    }
+}

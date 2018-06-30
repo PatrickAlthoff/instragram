@@ -10,9 +10,9 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -83,21 +84,23 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         initImages();
         imageUriÜbergabe();
     }
+
     //Übergibt die ImageUri vom BearbeitungsBitmap
-    public void imageUriÜbergabe(){
+    public void imageUriÜbergabe() {
         this.imageUri = getImageUri(this, this.bearbeitungsBitmap);
     }
+
     //Überprüft die Code mitgabe aus dem Intent und schaltet den dementsprechenden Button auf INVISIBLE
-    public void checkCode(int code){
-        if(code == 2){
+    public void checkCode(int code) {
+        if (code == 2) {
             this.postBtn.setVisibility(View.INVISIBLE);
-        }
-        else if(code == 1){
+        } else if (code == 1) {
             this.storieBtn.setVisibility(View.INVISIBLE);
         }
     }
+
     //Methode zur Initialisierung aller ImageViews in der Activity
-    private void initImages(){
+    private void initImages() {
         this.normalImage = this.bearbeitungsBitmap;
 
         this.miniImage1 = findViewById(R.id.miniImage1);
@@ -113,7 +116,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         this.miniImage3.setOnClickListener(this);
 
         this.miniImage4 = findViewById(R.id.miniImage4);
-        this.miniImage4.setImageBitmap(higherContrast(this.bearbeitungsBitmap,50));
+        this.miniImage4.setImageBitmap(higherContrast(this.bearbeitungsBitmap, 50));
         this.miniImage4.setOnClickListener(this);
 
         this.miniImage5 = findViewById(R.id.miniImage5);
@@ -121,13 +124,14 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         this.miniImage5.setOnClickListener(this);
 
         this.miniImage6 = findViewById(R.id.miniImage6);
-        this.miniImage6.setImageBitmap(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2));
+        this.miniImage6.setImageBitmap(applySepiaToningEffect(this.bearbeitungsBitmap, 25, 3, 1, 2));
         this.miniImage6.setOnClickListener(this);
 
         this.miniImage7 = findViewById(R.id.miniImage7);
-        this.miniImage7.setImageBitmap(invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2)));
+        this.miniImage7.setImageBitmap(invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap, 25, 3, 1, 2)));
         this.miniImage7.setOnClickListener(this);
     }
+
     //Verpackt die übergebene Bitmap in eine Uri
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -138,15 +142,15 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
 
     //Enthält die Funktionen der Buttons
     @Override
-    public void onClick(View v){
-        switch (v.getId()){
+    public void onClick(View v) {
+        switch (v.getId()) {
             //Ruft beim Klick auf den Button die Skalierung auf
             case R.id.scaleBtn:
                 cropImage(this.imageUri);
                 break;
             //Ruft beim Klick auf den Button das SendBackIntent auf
             case R.id.postBtn:
-                Intent sendBackIntent = new Intent (BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+                Intent sendBackIntent = new Intent(BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
                 String sendTitelPost = this.editTitel.getText().toString();
                 sendBackIntent.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
@@ -156,7 +160,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 finish();
                 break;
             case R.id.storieBtn:
-                Intent sendtoStorieBearbeitung = new Intent (BearbeitungsActivity.this, Stories_BearbeitungsActivity.class);
+                Intent sendtoStorieBearbeitung = new Intent(BearbeitungsActivity.this, Stories_BearbeitungsActivity.class);
                 String sendTitelStory = this.editTitel.getText().toString();
                 sendtoStorieBearbeitung.putExtra("BitmapImage", this.bearbeitungsBitmap);
                 sendtoStorieBearbeitung.putExtra("Titel", sendTitelStory);
@@ -172,34 +176,34 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 this.bearbeitungsBitmap = this.normalImage;
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Schwarz/Weiß Effekt
+            //Schwarz/Weiß Effekt
             case R.id.miniImage2:
                 this.bearbeitungsBitmap = changeToGreyscale(this.bearbeitungsBitmap);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Erhöhte Saturation
+            //Erhöhte Saturation
             case R.id.miniImage3:
                 this.bearbeitungsBitmap = higherSaturation(this.bearbeitungsBitmap);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Erhöhter Konstrast
+            //Erhöhter Konstrast
             case R.id.miniImage4:
                 this.bearbeitungsBitmap = higherContrast(this.bearbeitungsBitmap, 50);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Invert Effekt
+            //Invert Effekt
             case R.id.miniImage5:
                 this.bearbeitungsBitmap = invertEffect(this.bearbeitungsBitmap);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Rosa Effekt
+            //Rosa Effekt
             case R.id.miniImage6:
-                this.bearbeitungsBitmap = applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2);
+                this.bearbeitungsBitmap = applySepiaToningEffect(this.bearbeitungsBitmap, 25, 3, 1, 2);
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
-                //Nightmode Effekt
+            //Nightmode Effekt
             case R.id.miniImage7:
-                this.bearbeitungsBitmap = invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap,25,3,1,2));
+                this.bearbeitungsBitmap = invertEffect(applySepiaToningEffect(this.bearbeitungsBitmap, 25, 3, 1, 2));
                 this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
                 break;
 
@@ -209,21 +213,21 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     //Enthält die Funktion, welche die "Croppen"-Funktion für eine Uri aufruft
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-            if(requestCode == PIC_CROP){
-                Uri uri = data.getData();
-                this.bearbeitungsBitmap = getAndScaleBitmap(uri, -1,300);
-                this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
-                initImages();
+        if (requestCode == PIC_CROP) {
+            Uri uri = data.getData();
+            this.bearbeitungsBitmap = getAndScaleBitmap(uri, -1, 300);
+            this.bigImage.setImageBitmap(this.bearbeitungsBitmap);
+            initImages();
 
         }
     }
 
     //Enthält die Funktionen zum Skalieren einer Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-            float   srcWidth = src.getWidth(),
+            float srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
 
             if (dstWidth < 1) {
@@ -231,14 +235,14 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             }
             Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
     }
+
     //Enthält die Funktion für den Schwarz/Weiß Filter
-    private Bitmap changeToGreyscale(Bitmap src){
+    private Bitmap changeToGreyscale(Bitmap src) {
         int width = src.getWidth(), height = src.getHeight();
 
         Bitmap dst = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
@@ -250,11 +254,11 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
         paint.setColorFilter(filter);
 
-        canvas.drawBitmap(src, 0 ,0,paint);
-        return  dst;
+        canvas.drawBitmap(src, 0, 0, paint);
+        return dst;
     }
 
-    private Bitmap higherSaturation(Bitmap src){
+    private Bitmap higherSaturation(Bitmap src) {
 
         int width = src.getWidth(), height = src.getHeight();
 
@@ -267,12 +271,12 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
         paint.setColorFilter(filter);
 
-        canvas.drawBitmap(src, 0, 0,paint);
+        canvas.drawBitmap(src, 0, 0, paint);
 
         return dst;
     }
 
-    private Bitmap higherContrast(Bitmap src, double value){
+    private Bitmap higherContrast(Bitmap src, double value) {
 
         int width = src.getWidth();
         int height = src.getHeight();
@@ -285,26 +289,35 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         double contrast = Math.pow((100 + value) / 100, 2);
 
         // scan through all pixels
-        for(int x = 0; x < width; ++x) {
-            for(int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 // get pixel color
                 pixel = src.getPixel(x, y);
                 A = Color.alpha(pixel);
                 // apply filter contrast for every channel R, G, B
                 R = Color.red(pixel);
-                R = (int)(((((R / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
-                if(R < 0) { R = 0; }
-                else if(R > 255) { R = 255; }
+                R = (int) (((((R / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (R < 0) {
+                    R = 0;
+                } else if (R > 255) {
+                    R = 255;
+                }
 
                 G = Color.red(pixel);
-                G = (int)(((((G / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
-                if(G < 0) { G = 0; }
-                else if(G > 255) { G = 255; }
+                G = (int) (((((G / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (G < 0) {
+                    G = 0;
+                } else if (G > 255) {
+                    G = 255;
+                }
 
                 B = Color.red(pixel);
-                B = (int)(((((B / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
-                if(B < 0) { B = 0; }
-                else if(B > 255) { B = 255; }
+                B = (int) (((((B / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+                if (B < 0) {
+                    B = 0;
+                } else if (B > 255) {
+                    B = 255;
+                }
 
                 // set new pixel color to output bitmap
                 bmOut.setPixel(x, y, Color.argb(A, R, G, B));
@@ -316,8 +329,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     }
 
 
-
-    private Bitmap invertEffect(Bitmap src){
+    private Bitmap invertEffect(Bitmap src) {
 
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
 
@@ -347,7 +359,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return bmOut;
     }
 
-    public  Bitmap applySepiaToningEffect(Bitmap src, int depth, double red, double green, double blue) {
+    public Bitmap applySepiaToningEffect(Bitmap src, int depth, double red, double green, double blue) {
         // image size
         int width = src.getWidth();
         int height = src.getHeight();
@@ -362,8 +374,8 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         int pixel;
 
         // scan through all pixels
-        for(int x = 0; x < width; ++x) {
-            for(int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
                 // get pixel color
                 pixel = src.getPixel(x, y);
                 // get color on each channel
@@ -372,17 +384,23 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
                 G = Color.green(pixel);
                 B = Color.blue(pixel);
                 // apply grayscale sample
-                B = G = R = (int)(GS_RED * R + GS_GREEN * G + GS_BLUE * B);
+                B = G = R = (int) (GS_RED * R + GS_GREEN * G + GS_BLUE * B);
 
                 // apply intensity level for sepid-toning on each channel
                 R += (depth * red);
-                if(R > 255) { R = 255; }
+                if (R > 255) {
+                    R = 255;
+                }
 
                 G += (depth * green);
-                if(G > 255) { G = 255; }
+                if (G > 255) {
+                    G = 255;
+                }
 
                 B += (depth * blue);
-                if(B > 255) { B = 255; }
+                if (B > 255) {
+                    B = 255;
+                }
 
                 // set new pixel color to output image
                 bmOut.setPixel(x, y, Color.argb(A, R, G, B));
@@ -392,9 +410,10 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         // return final image
         return bmOut;
     }
+
     //Enthält die Funktion zum "Croppen" einer übergebenen Uri
     private void cropImage(Uri uri) {
-        try{
+        try {
 
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             cropIntent.setDataAndType(uri, "image/jpeg");
@@ -405,8 +424,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
             cropIntent.putExtra("outputY", 256);
             cropIntent.putExtra("return-data", true);
             startActivityForResult(cropIntent, IMAGE_FROM_CROP);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Log.e(BearbeitungsActivity.class.getSimpleName(), "cropImage()", e);
         }
     }
@@ -415,15 +433,13 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
+            Intent sendBackIntent = new Intent(BearbeitungsActivity.this, Post_BearbeitungsActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
 
 }

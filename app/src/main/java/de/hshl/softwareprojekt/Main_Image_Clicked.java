@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -50,7 +50,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         Intent getPost = getIntent();
         //Ruft die übergebene Bitmap aus dem Intent auf und speichert sie in einem ImageView
         this.clickedImage = findViewById(R.id.clickedImage);
-        this.getBitmap =  getPost.getParcelableExtra("BitmapImage");
+        this.getBitmap = getPost.getParcelableExtra("BitmapImage");
         this.clickedImage.setImageBitmap(this.getBitmap);
         //Initialisierung der Inhalte der Activity
         this.kommentar = findViewById(R.id.clickedKomment);
@@ -80,20 +80,19 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
 
-                if(checked){
+                if (checked) {
                     long id = Long.parseLong(v.getContentDescription().toString());
-                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
-                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
-                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
-                        dataBasePosts.updateLike(id,user.getUsername(), true);
+                    if (dataBasePosts.getLikeCount(id, user.getUsername()) == 0) {
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(), true);
+                    } else if (dataBasePosts.getLikeCount(id, user.getUsername()) == 1) {
+                        dataBasePosts.updateLike(id, user.getUsername(), true);
                     }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
                     updateLikeStatus(1, id);
 
-                }
-                else{
+                } else {
                     long id = Long.parseLong(v.getContentDescription().toString());
-                    dataBasePosts.updateLike(id,user.getUsername(), false);
+                    dataBasePosts.updateLike(id, user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                     updateLikeStatus(-1, id);
                 }
@@ -116,14 +115,14 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.clickedKomment:
-            //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
+                //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
                 this.gridLayout.setVisibility(View.INVISIBLE);
                 this.editKomm.setVisibility(View.VISIBLE);
                 this.subButton.setVisibility(View.VISIBLE);
                 this.editKomm.requestFocus();
                 this.editKomm.setText("");
                 int d = 0;
-                while(d<this.hashTextViewList.size()){
+                while (d < this.hashTextViewList.size()) {
                     this.hashTextViewList.get(d).setVisibility(View.INVISIBLE);
                     d++;
                 }
@@ -135,13 +134,13 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 this.subButton.setVisibility(View.INVISIBLE);
                 this.gridLayout.setVisibility(View.VISIBLE);
                 int i = 0;
-                if(this.hashTextViewList.size()>0){
-                    while(i<this.hashTextViewList.size()){
+                if (this.hashTextViewList.size() > 0) {
+                    while (i < this.hashTextViewList.size()) {
                         this.hashTextViewList.get(i).setVisibility(View.VISIBLE);
                         i++;
                     }
-                }else{
-                    while(i<this.hashList.size()){
+                } else {
+                    while (i < this.hashList.size()) {
                         final TextView textview = new TextView(this);
                         this.hashTextViewList.add(textview);
                         textview.setText(this.hashList.get(i));
@@ -165,13 +164,13 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             case R.id.submitButton:
                 InputMethodManager inputManager = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
-                if(editKomm.getText().length()>10){
+                if (editKomm.getText().length() > 10) {
                     long id = Long.parseLong(this.checkLike.getContentDescription().toString());
-                    uploadKommentar(id,editKomm.getText().toString());
+                    uploadKommentar(id, editKomm.getText().toString());
                     addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString(), System.currentTimeMillis());
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
-                }else{
+                } else {
                     this.editKomm.setError("Kommentare müssen mind. 10 Charakter lang sein.");
                 }
 
@@ -179,7 +178,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         }
     }
 
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
@@ -193,14 +192,14 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
             sendBackIntent.putExtra("ID", this.ID);
             sendBackIntent.putExtra("Likes", this.checkLike.getText().toString());
             sendBackIntent.putExtra("Checked", this.checkLike.isChecked());
-            setResult(RESULT_OK,sendBackIntent);
+            setResult(RESULT_OK, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateLikeStatus(int status, long id){
+    private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
@@ -208,7 +207,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getKommentar(long id){
+
+    private void getKommentar(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getKommentare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getKommentar(id));
@@ -216,33 +216,35 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void uploadKommentar(long id, String kommentar){
+
+    private void uploadKommentar(long id, String kommentar) {
         String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadKommentar(id,user.getUsername(),user.getBase64(), kommentar, System.currentTimeMillis(), user.getId()));
+        httpConnection.setMessage(XmlHelper.uploadKommentar(id, user.getUsername(), user.getBase64(), kommentar, System.currentTimeMillis(), user.getId()));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
 
     @Override
     public void processFinish(String output) {
-        if(output.contains("Update erfolgreich.")) {
+        if (output.contains("Update erfolgreich.")) {
             String returner = output;
-        }else if (output.contains("KommentarUploaded")){
+        } else if (output.contains("KommentarUploaded")) {
 
-        }else if (output.contains("getKommentare")){
+        } else if (output.contains("getKommentare")) {
             String[] outputPieces = output.split(" : ");
             String[] usernamePieces = outputPieces[1].split(":");
             String[] userPicPieces = outputPieces[2].split(":");
             String[] kommentarPieces = outputPieces[3].split(":_:");
             String[] postTimePieces = outputPieces[4].split(":");
             int i = 0;
-            while(usernamePieces.length>i){
-                addKommentar(ImageHelper.base64ToBitmap(userPicPieces[i]),usernamePieces[i], kommentarPieces[i], Long.parseLong(postTimePieces[i]));
+            while (usernamePieces.length > i) {
+                addKommentar(ImageHelper.base64ToBitmap(userPicPieces[i]), usernamePieces[i], kommentarPieces[i], Long.parseLong(postTimePieces[i]));
                 i++;
             }
         }
     }
+
     public void addKommentar(Bitmap profilPic, String username, String kommentar, long kommentTime) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
@@ -256,7 +258,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         fragmentTransactionKommentar.add(frameInner.getId(), kommentarFragment);
 
         fragmentTransactionKommentar.commitNow();
-        kommentarFragment.creatKomment(username,kommentar, kommentTime);
+        kommentarFragment.creatKomment(username, kommentar, kommentTime);
         ImageView profilBild = kommentarFragment.profilPicKomm;
         profilBild.setImageDrawable(roundImage(profilPic));
     }

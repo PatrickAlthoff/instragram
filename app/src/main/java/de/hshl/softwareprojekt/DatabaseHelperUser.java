@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
 import java.util.ArrayList;
 
 public class DatabaseHelperUser extends SQLiteOpenHelper {
@@ -30,8 +31,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         try {
             Log.d(TAG, "Die Tabelle wird mit SQL-Befehl: " + SQL_TABLE_CREATE + " angelegt.");
             db.execSQL(SQL_TABLE_CREATE);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Log.e(TAG, "Fehler beim Anlegen der Tabelle: " + ex.getMessage());
         }
     }
@@ -43,10 +43,11 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         onCreate(db);
 
     }
+
     //Insert Methode zum einfügen weiterer Nutzer (email + pw)
-    public void insertData(long Id,String username, String email, String pw, String base64, boolean remember) {
+    public void insertData(long Id, String username, String email, String pw, String base64, boolean remember) {
         long rowId = -1;
-        int member = remember ? 1:0;
+        int member = remember ? 1 : 0;
         SQLiteDatabase db = null;
         try {
             db = getWritableDatabase();
@@ -54,18 +55,16 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
             values.put("_id", Id);
             values.put("username", username);
             values.put("email", email);
-            values.put("pw",  pw);
+            values.put("pw", pw);
             values.put("base64", base64);
             values.put("remember", member);
             rowId = db.insert(TABLE_NAME, null, values);
-        }
-        catch (SQLiteException exception) {
+        } catch (SQLiteException exception) {
             Log.e(TAG, "insertPost()", exception);
-        }
-        finally {
+        } finally {
             Log.d(TAG, "insertPost(rowId:" + rowId + ")");
 
-            if (db != null){
+            if (db != null) {
                 db.close();
             }
         }
@@ -73,29 +72,27 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
 
 
     //Get Methode zur Datenausgabe
-    public ArrayList<String> getData(){
+    public ArrayList<String> getData() {
 
-        String[] columns = {"_id","username", "email", "pw", "base64"};
+        String[] columns = {"_id", "username", "email", "pw", "base64"};
         ArrayList<String> userList = new ArrayList<>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
         try {
             db = getReadableDatabase();
-            cursor = db.query(TABLE_NAME, columns,  null, null,null,null,null);
+            cursor = db.query(TABLE_NAME, columns, null, null, null, null, null);
 
             while (cursor.moveToNext()) {
-                userList.add(0, cursor.getString(0) + ":" +cursor.getString(1) + ":" + cursor.getString(2) + ":"  + cursor.getString(3) + ":" + cursor.getString(4));
+                userList.add(0, cursor.getString(0) + ":" + cursor.getString(1) + ":" + cursor.getString(2) + ":" + cursor.getString(3) + ":" + cursor.getString(4));
             }
-        }
-        catch(SQLiteException exception) {
+        } catch (SQLiteException exception) {
             Log.e(TAG, "getData()", exception);
-        }
-        finally {
-            if (cursor != null){
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
-            if(db != null){
+            if (db != null) {
                 db.close();
             }
         }
@@ -103,29 +100,27 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     }
 
     //Get Methode zur Ausgabe der Nutzermailadresse
-    public String getUserPic(long id){
+    public String getUserPic(long id) {
 
         String[] columns = {"base64"};
         String userPic = "";
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
-        try{
+        try {
             db = getReadableDatabase();
-            cursor = db.query(TABLE_NAME, columns, "_id="+id, null,null,null,null);
-            while(cursor.moveToNext()){
+            cursor = db.query(TABLE_NAME, columns, "_id=" + id, null, null, null, null);
+            while (cursor.moveToNext()) {
                 userPic = cursor.getString(0);
             }
 
-        }
-        catch(SQLiteException exception){
+        } catch (SQLiteException exception) {
             Log.e(TAG, "getUser()", exception);
-        }
-        finally {
-            if (cursor != null){
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
-            if(db != null){
+            if (db != null) {
                 db.close();
             }
         }
@@ -133,64 +128,62 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         return userPic;
     }
 
-    public void updateRemember(String email, boolean remember){
-        int member = remember ? 1:0;
+    public void updateRemember(String email, boolean remember) {
+        int member = remember ? 1 : 0;
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
-        try{
+        try {
             db = getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put("remember", member);
+
+            ContentValues cv0 = new ContentValues();
+            cv0.put("remember", 0);
+            db.update(TABLE_NAME, cv0, "remember=" + 1, null);
             rowsUpdated = db.update(TABLE_NAME, cv, "email='" + email + "'", null);
-            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
-        }
-        catch(SQLiteException exception){
+            Log.d(TAG, "updateData() affected " + rowsUpdated + " rows");
+        } catch (SQLiteException exception) {
             Log.e(TAG, "updateData()", exception);
-        }
-        finally {
-            if(db != null){
+        } finally {
+            if (db != null) {
                 db.close();
             }
         }
 
     }
 
-    public void updateUser(long id, String username){
+    public void updateUser(long id, String username) {
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
-        try{
+        try {
             db = getWritableDatabase();
             ContentValues cv = new ContentValues();
-            cv.put("username",username);
+            cv.put("username", username);
             rowsUpdated = db.update(TABLE_NAME, cv, "_id=" + id, null);
-            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
-        }
-        catch(SQLiteException exception){
+            Log.d(TAG, "updateData() affected " + rowsUpdated + " rows");
+        } catch (SQLiteException exception) {
             Log.e(TAG, "updateData()", exception);
-        }
-        finally {
-            if(db != null){
+        } finally {
+            if (db != null) {
                 db.close();
             }
         }
 
     }
 
-    public void updateUserPic(long id, String base64){
+    public void updateUserPic(long id, String base64) {
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
-        try{
+        try {
             db = getWritableDatabase();
             ContentValues cv = new ContentValues();
             cv.put("base64", base64);
             rowsUpdated = db.update(TABLE_NAME, cv, "_id=" + id, null);
-            Log.d(TAG,"updateData() affected " + rowsUpdated + " rows");
-        }
-        catch(SQLiteException exception){
+            Log.d(TAG, "updateData() affected " + rowsUpdated + " rows");
+        } catch (SQLiteException exception) {
             Log.e(TAG, "updateData()", exception);
-        }
-        finally {
-            if(db != null){
+        } finally {
+            if (db != null) {
                 db.close();
             }
         }
@@ -198,29 +191,27 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     }
 
     //Get Methode zur Ausgabe der Nutzermailadresse
-    public String getRemember(){
+    public String getRemember() {
 
         String[] columns = {"email", "pw"};
         String userEntry = "";
         SQLiteDatabase db = null;
         Cursor cursor = null;
 
-        try{
+        try {
             db = getReadableDatabase();
-            cursor = db.query(TABLE_NAME, columns, "remember= 1", null,null,null,null);
-            while(cursor.moveToNext()){
+            cursor = db.query(TABLE_NAME, columns, "remember= 1", null, null, null, null);
+            while (cursor.moveToNext()) {
                 userEntry = cursor.getString(0) + ":" + cursor.getString(1);
             }
 
-        }
-        catch(SQLiteException exception){
+        } catch (SQLiteException exception) {
             Log.e(TAG, "getUser()", exception);
-        }
-        finally {
-            if (cursor != null){
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
-            if(db != null){
+            if (db != null) {
                 db.close();
             }
         }
@@ -229,20 +220,18 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     }
 
     //Methode zum Löschen des letzten Eintrages
-    public void deleteData(){
+    public void deleteData() {
         int rowsDeleted;
         SQLiteDatabase db = null;
 
-        try{
+        try {
             db = getWritableDatabase();
-            rowsDeleted = db.delete(TABLE_NAME, "_id = (SELECT MAX(_id) FROM " + TABLE_NAME +")", null);
+            rowsDeleted = db.delete(TABLE_NAME, "_id = (SELECT MAX(_id) FROM " + TABLE_NAME + ")", null);
             Log.d(TAG, "deleteData() affected " + rowsDeleted + " rows");
-        }
-        catch (SQLiteException exception){
+        } catch (SQLiteException exception) {
             Log.e(TAG, "deleteData()", exception);
-        }
-        finally {
-            if(db != null){
+        } finally {
+            if (db != null) {
                 db.close();
             }
         }

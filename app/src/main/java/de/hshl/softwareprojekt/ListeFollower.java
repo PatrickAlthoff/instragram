@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,22 +20,25 @@ import android.widget.Toast;
 
 
 public class ListeFollower extends AppCompatActivity implements AsyncResponse {
+    private String FollowListWithoutSelf;
     private String followerList;
     private LinearLayout userCache;
     private User user;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_layout);
-        Intent getItent = getIntent();
+        Intent getIntent = getIntent();
         this.userCache = findViewById(R.id.userCache);
-        this.user = (User) getItent.getSerializableExtra("User");
-        this.followerList = getItent.getStringExtra("FollowerList");
-        if(followerList != null){
-            String[]followerPieces = this.followerList.split(":");
+        this.user = (User) getIntent.getSerializableExtra("User");
+        this.followerList = getIntent.getStringExtra("FollowerList");
+        this.FollowListWithoutSelf = getIntent.getStringExtra("FollowList");
+        if (followerList != null) {
+            String[] followerPieces = this.followerList.split(":");
             int i = 1;
-            while(i<followerPieces.length){
+            while (i < followerPieces.length) {
                 getUserData(Long.parseLong(followerPieces[i]));
                 i++;
             }
@@ -50,21 +53,27 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
+            Intent gotBack = new Intent(ListeFollower.this, ProfilActivity.class);
+            gotBack.putExtra("FollowList", FollowListWithoutSelf);
+            setResult(RESULT_OK, gotBack);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 
         return super.onOptionsItemSelected(item);
     }
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
-    private void getUserData(long query){
+
+    private void getUserData(long query) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(query));
@@ -72,18 +81,20 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateFollowStatus(long userkey, long FID){
+
+    private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey, FID));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateunfollowStatus(long userkey, long FID){
+
+    private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey, FID));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
@@ -110,27 +121,34 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         profilBild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToProfil = new Intent(ListeFollower.this,ProfilActivity.class);
-                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
-                goToProfil.putExtra("Code",3);
+                Intent goToProfil = new Intent(ListeFollower.this, ProfilActivity.class);
+                goToProfil.putExtra("UserKey", v.getContentDescription().toString());
+                goToProfil.putExtra("Code", 3);
                 goToProfil.putExtra("User", user);
+                goToProfil.putExtra("FollowList", FollowListWithoutSelf);
                 startActivity(goToProfil);
+
             }
         });
-        Button followBtn = followerFragment.followBtn;
-        Button unfollowBtn = followerFragment.unfollowBtn;
-        followBtn.setOnClickListener(new View.OnClickListener() {
+        CheckBox checkAbo = followerFragment.aboBox;
+
+        if (FollowListWithoutSelf.contains(contentDis)) {
+            checkAbo.setChecked(true);
+        }
+
+        checkAbo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                long id = Long.parseLong(v.getContentDescription().toString());
-                updateFollowStatus(user.getId(), id);
-            }
-        });
-        unfollowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                long id = Long.parseLong(v.getContentDescription().toString());
-                updateunfollowStatus(user.getId(), id);
+                boolean checked = ((CheckBox) v).isChecked();
+                if (checked) {
+                    FollowListWithoutSelf = FollowListWithoutSelf + v.getContentDescription().toString() + ":";
+                    updateFollowStatus(user.getId(), Long.parseLong(v.getContentDescription().toString()));
+
+                } else {
+                    String target = v.getContentDescription().toString() + ":";
+                    FollowListWithoutSelf = FollowListWithoutSelf.replace(target, "");
+                    updateunfollowStatus(user.getId(), Long.parseLong(v.getContentDescription().toString()));
+                }
             }
         });
 
@@ -139,17 +157,16 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
     @Override
     public void processFinish(String output) {
 
-        if(output.contains("UserData")){
+        if (output.contains("UserData")) {
             String[] userDataSplit = output.split(" : ");
-            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[2]),userDataSplit[1],userDataSplit[3]);
-        }
-        else if(output.contains("Followed")) {
+            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[2]), userDataSplit[1], userDataSplit[3]);
+        } else if (output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("FollowExc")) {
+        } else if (output.contains("FollowExc")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("UnfollowNotPossible")) {
+        } else if (output.contains("UnfollowNotPossible")) {
             Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("Unfollowed")) {
+        } else if (output.contains("Unfollowed")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
 
         }

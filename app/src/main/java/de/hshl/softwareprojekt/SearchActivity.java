@@ -4,20 +4,19 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -25,31 +24,35 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 
-public class SearchActivity extends AppCompatActivity implements View.OnClickListener,AsyncResponse {
+public class SearchActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
     private int IMAGE_CLICKED = 13;
+    private String followsListWithOutSelf;
+    private String rememberQuery;
     private ArrayList<String> response;
     private DatabaseHelperPosts dataBasePosts;
     private LinearLayout searchLayout;
     private ArrayList<String> postList;
     private ArrayList<PostFragment> postFragmentList;
     private ArrayList<SearchUserFragment> searchFragmentList;
-    private Intent getSeachIntent;
+    private Intent getSearchIntent;
     private User user;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        this.getSeachIntent = getIntent();
+        this.getSearchIntent = getIntent();
         this.postFragmentList = new ArrayList<>();
         this.searchFragmentList = new ArrayList<>();
         this.response = new ArrayList<>();
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.searchLayout = findViewById(R.id.searchInnerLayout);
-        this.user = (User) getSeachIntent.getSerializableExtra("User");
-
+        this.user = (User) getSearchIntent.getSerializableExtra("User");
+        this.followsListWithOutSelf = getSearchIntent.getStringExtra("FollowList");
         Toolbar toolbar = findViewById(R.id.toolbar8);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
@@ -61,7 +64,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey, String shares, String shareName) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         final FragmentManager fragmentManagerSearchPost = getSupportFragmentManager();
@@ -89,10 +92,11 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToProfil = new Intent(SearchActivity.this,ProfilActivity.class);
-                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
-                goToProfil.putExtra("Code",3);
+                Intent goToProfil = new Intent(SearchActivity.this, ProfilActivity.class);
+                goToProfil.putExtra("UserKey", v.getContentDescription().toString());
+                goToProfil.putExtra("Code", 3);
                 goToProfil.putExtra("User", user);
+                goToProfil.putExtra("FollowList", followsListWithOutSelf);
                 startActivity(goToProfil);
             }
         });
@@ -102,10 +106,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
-                View titelView = ((ViewGroup)v.getParent()).getChildAt(3);
-                Boolean checked = ((CheckBox)nextChild).isChecked();
-                String titel = ((TextView)titelView).getText().toString();
+                View nextChild = ((ViewGroup) v.getParent()).getChildAt(2);
+                View titelView = ((ViewGroup) v.getParent()).getChildAt(3);
+                Boolean checked = ((CheckBox) nextChild).isChecked();
+                String titel = ((TextView) titelView).getText().toString();
                 String likes = ((CheckBox) nextChild).getText().toString();
                 int ID = nextChild.getId();
                 //Baut aus den Daten im Cache eine Bitmap
@@ -114,7 +118,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 Bitmap parseBit = v.getDrawingCache();
 
                 //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-                Bitmap createBit = scaleBitmap(parseBit,-1,300);
+                Bitmap createBit = scaleBitmap(parseBit, -1, 300);
 
                 //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
                 Intent intentVollansicht = new Intent(SearchActivity.this, Main_Image_Clicked.class);
@@ -135,10 +139,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
         CheckBox likeCheck = frontPagePost.likeChecker;
         int like = dataBasePosts.getLikeCount(id, user.getUsername());
-        if(like==2){
+        if (like == 2) {
             likeCheck.setChecked(true);
 
-        }else{
+        } else {
             likeCheck.setChecked(false);
         }
         likeCheck.setText("Likes: " + (liked));
@@ -152,35 +156,59 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
-                if(checked){
+                if (checked) {
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
-                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
-                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
-                        dataBasePosts.updateLike(id,user.getUsername(), true);
+                    if (dataBasePosts.getLikeCount(id, user.getUsername()) == 0) {
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(), true);
+                    } else if (dataBasePosts.getLikeCount(id, user.getUsername()) == 1) {
+                        dataBasePosts.updateLike(id, user.getUsername(), true);
                     }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
                     updateLikeStatus(1, id);
 
-                }
-                else{
+                } else {
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    dataBasePosts.updateLike(id,user.getUsername(), false);
+                    dataBasePosts.updateLike(id, user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                     updateLikeStatus(-1, id);
                 }
             }
         });
+
+        TextView shareNAME = frontPagePost.shareName;
+        if (shareName.equals("")) {
+            shareNAME.setVisibility(View.INVISIBLE);
+        } else {
+            shareNAME.setText("Shared By: " + shareName);
+        }
+
+        TextView shareCount = frontPagePost.shareCount;
+        shareCount.setText("Shares: " + shares);
+
+        ImageButton shareButton = frontPagePost.share;
+        shareButton.setVisibility(View.INVISIBLE);
         postFragmentList.add(frontPagePost);
-        deleteButton.setVisibility(View.INVISIBLE);
+        if (Long.parseLong(userKey) == user.getId() || shareName.equals(user.getUsername())) {
+            deleteButton.setVisibility(View.VISIBLE);
+        } else {
+            deleteButton.setVisibility(View.INVISIBLE);
+        }
+        deleteButton.setContentDescription(i);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeFragment(frontPagePost);
+                updateDelete(Long.parseLong(v.getContentDescription().toString()));
+            }
+        });
     }
 
     //Skaliert eine übergebene Bitmap
-    public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
+    public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight) {
 
-        float   srcWidth = bitmap.getWidth(),
+        float srcWidth = bitmap.getWidth(),
                 srcHeight = bitmap.getHeight();
 
         if (dstWidth < 1) {
@@ -193,21 +221,21 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
             Intent back = new Intent(SearchActivity.this, MainActivity.class);
-            setResult(RESULT_OK,back);
+            setResult(RESULT_OK, back);
             finish(); // close this activity and return to preview activity (if there is any)
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
@@ -219,27 +247,27 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setQueryHint("Search for something...");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
+                rememberQuery = query;
                 sendXML(query);
                 response.clear();
                 int i = 0;
-                while(i<postFragmentList.size()){
+                while (i < postFragmentList.size()) {
                     removeFragment(postFragmentList.get(i));
                     i++;
                 }
                 int d = 0;
-                while(d<searchFragmentList.size()){
+                while (d < searchFragmentList.size()) {
                     removeSearchFragment(searchFragmentList.get(d));
                     d++;
                 }
-                searchView.setQuery("",false);
+                searchView.setQuery("", false);
                 return false;
             }
 
@@ -249,11 +277,12 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        searchView.setQuery(this.getSeachIntent.getStringExtra("Search"), true);
-        searchView.setQuery(this.getSeachIntent.getStringExtra("Search"), false);
+        searchView.setQuery(this.getSearchIntent.getStringExtra("Search"), true);
+        searchView.setQuery(this.getSearchIntent.getStringExtra("Search"), false);
         searchView.clearFocus();
         return true;
     }
+
     //Entfernt das Fragment
     public void removeFragment(PostFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -261,6 +290,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
     }
+
+    private void updateDelete(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/updateDelete.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateDelete(id, user.getUsername()));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
     public void removeSearchFragment(SearchUserFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -268,7 +307,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
     }
 
-    private void updateLikeStatus(int status, long id){
+    private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
@@ -277,7 +316,16 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
-    private void sendXML(String query){
+    private void getPostForID(String id) {
+        String dstAdress = "http://intranet-secure.de/instragram/getPosts.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getFullPost(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void sendXML(String query) {
         String dstAdress = "http://intranet-secure.de/instragram/search.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.sendSearchRequest(query));
@@ -285,23 +333,26 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateFollowStatus(long userkey, long FID){
+
+    private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey, FID));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateunfollowStatus(long userkey, long FID){
+
+    private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateFollows(userkey,FID));
+        httpConnection.setMessage(XmlHelper.updateFollows(userkey, FID));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getUserPic(long query){
+
+    private void getUserPic(long query) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(query));
@@ -309,6 +360,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == IMAGE_CLICKED) {
@@ -322,9 +374,20 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         }
+        if (requestCode == 200) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    Intent intentFromImage = data;
+                    user = (User) intentFromImage.getSerializableExtra("User");
+                    rememberQuery = intentFromImage.getStringExtra("RQuery");
+                    followsListWithOutSelf = intentFromImage.getStringExtra("FollowList");
+                    searchView.setQuery(rememberQuery, true);
+                }
+            }
+        }
     }
 
-    public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
+    public void addSearchUser(Bitmap postBitmap, String username, final String contentDis) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         FragmentManager fragmentManagerSearchUser = getSupportFragmentManager();
@@ -344,102 +407,107 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         profilBild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToProfil = new Intent(SearchActivity.this,ProfilActivity.class);
-                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
-                goToProfil.putExtra("Code",3);
+                Intent goToProfil = new Intent(SearchActivity.this, ProfilActivity.class);
+                goToProfil.putExtra("UserKey", v.getContentDescription().toString());
+                goToProfil.putExtra("Code", 3);
                 goToProfil.putExtra("User", user);
-                startActivity(goToProfil);
+                goToProfil.putExtra("FollowList", followsListWithOutSelf);
+                goToProfil.putExtra("RQuery", rememberQuery);
+                startActivityForResult(goToProfil, 200);
             }
         });
-        Button followBtn = searchFragment.followBtn;
-        Button unfollowBtn = searchFragment.unfollowBtn;
-        this.searchFragmentList.add(searchFragment);
-        followBtn.setOnClickListener(new View.OnClickListener() {
+        CheckBox checkAbo = searchFragment.aboBox;
+
+        if (followsListWithOutSelf.contains(contentDis)) {
+            checkAbo.setChecked(true);
+        }
+
+        checkAbo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                long id = Long.parseLong(v.getContentDescription().toString());
-                updateFollowStatus(user.getId(), id);
-            }
-        });
-        unfollowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                long id = Long.parseLong(v.getContentDescription().toString());
-                updateunfollowStatus(user.getId(), id);
+                boolean checked = ((CheckBox) v).isChecked();
+                if (checked) {
+                    followsListWithOutSelf = followsListWithOutSelf + v.getContentDescription().toString() + ":";
+                    updateFollowStatus(user.getId(), Long.parseLong(v.getContentDescription().toString()));
+
+                } else {
+                    String target = v.getContentDescription().toString() + ":";
+                    followsListWithOutSelf = followsListWithOutSelf.replace(target, "");
+                    updateunfollowStatus(user.getId(), Long.parseLong(v.getContentDescription().toString()));
+                }
             }
         });
 
+        this.searchFragmentList.add(searchFragment);
+
     }
+
     @Override
     public void processFinish(String output) {
         String[] response = output.split(" : ");
-        if(response[0].equals("UserReturn")){
+        if (response[0].equals("UserReturn")) {
             int i = 1;
             int d = 1;
-            while(i<response.length){
+            while (i < response.length) {
                 this.response.add(response[i]);
 
-            i++;
+                i++;
             }
-            while(d<response.length){
+            while (d < response.length) {
                 getUserPic(Long.parseLong(response[d]));
-                d+=2;
+                d += 2;
             }
-        }else if(output.contains("UserPic")) {
+        } else if (output.contains("UserPic")) {
             String[] bitmapCodes = output.split(":");
             int i = 0;
-            while(i<this.response.size()){
-                if(bitmapCodes[1].equals(this.response.get(i))){
-                    addSearchUser(ImageHelper.base64ToBitmap(bitmapCodes[2]), this.response.get(i+1),this.response.get(i));
+            while (i < this.response.size()) {
+                if (bitmapCodes[1].equals(this.response.get(i))) {
+                    addSearchUser(ImageHelper.base64ToBitmap(bitmapCodes[2]), this.response.get(i + 1), this.response.get(i));
                 }
-                i+=2;
+                i += 2;
             }
 
-        }else if(output.contains("Followed")) {
+        } else if (output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("FollowExc")) {
+        } else if (output.contains("FollowExc")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person schon!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("UnfollowNotPossible")) {
+        } else if (output.contains("UnfollowNotPossible")) {
             Toast.makeText(getApplicationContext(), "Du musst der Person vorher folgen!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("Unfollowed")) {
+        } else if (output.contains("Unfollowed")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
-        }else if(output.contains("HashInput")) {
+        } else if (output.contains("HashInput")) {
             String[] hashtags = output.split(" : ");
             int i = 1;
             while (hashtags.length > i) {
-                sendXML(hashtags[i]);
+                getPostForID(hashtags[i]);
                 i++;
             }
-        }else{
-
-           /* int index = 1;
-            while (index < response.length) {
-                removeFragment(postFragmentList.get(index));
-                index++;
-            }
-            View view = getCurrentFocus();
-            if (view != null) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }*/
+        } else if (output.contains("PostDeleted")) {
+            Toast.makeText(getApplicationContext(), "Dein Post wurde erfolgreich gelöscht.", Toast.LENGTH_SHORT).show();
+        } else {
 
             postList = new ArrayList<>();
             if (response.length > 1) {
                 int i = 1;
-                while (i < response.length-1) {
+                while (i < response.length - 1) {
 
                     String ids = response[i];
-                    String username = response[i+1];
+                    String username = response[i + 1];
                     long id = Long.parseLong(ids);
-                    String base64 = response[i+2];
+                    String base64 = response[i + 2];
                     Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
-                    String titel = response[i+3];
+                    String titel = response[i + 3];
                     ArrayList<String> hashlist = new ArrayList<>();
-                    String[] hashes = response[i+4].split(":");
-                    String date = response[i+5];
-                    String bool = response[i+6];
-                    String userKeyString = response[i+7];
-                    String userPic = response[i+8];
+                    String[] hashes = response[i + 4].split(":");
+                    String date = response[i + 5];
+                    String bool = response[i + 6];
+                    String userKeyString = response[i + 7];
+                    String userPic = response[i + 8];
+                    String shares = response[i + 9];
+                    String shareName = "";
+                    if (response.length == 12) {
+                        shareName = response[i + 10];
+                    }
                     long userKey = Long.parseLong(userKeyString);
                     int like = Integer.valueOf(bool);
                     int c = 0;
@@ -448,16 +516,15 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                         c++;
                     }
 
-                    addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
+                    addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString, shares, shareName);
 
-                    i +=9;
+                    i += 11;
 
                 }
                 postList.clear();
             }
 
         }
-
 
 
     }

@@ -3,8 +3,8 @@ package de.hshl.softwareprojekt;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +74,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 String sendTitelPost = this.postTitel.getText().toString();
                 sendBackIntent.putExtra("BitmapImage", this.postBitmap);
                 sendBackIntent.putExtra("Titel", sendTitelPost);
-                sendBackIntent.putStringArrayListExtra("Hashtags",convertIntoStringList(this.editList));
+                sendBackIntent.putStringArrayListExtra("Hashtags", convertIntoStringList(this.editList));
                 String date = new SimpleDateFormat("MMM. dd. HH:mm", Locale.getDefault()).format(new Date());
                 sendBackIntent.putExtra("Date", date);
                 setResult(RESULT_OK, sendBackIntent);
@@ -93,9 +94,9 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == BEARBEITUNG_CODE ){
-            if(resultCode == RESULT_OK){
-                if(data != null){
+        if (requestCode == BEARBEITUNG_CODE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     Intent intentVerarbeitet = data;
                     this.postTitel.setText(intentVerarbeitet.getStringExtra("Titel"));
                     this.postBitmap = intentVerarbeitet.getParcelableExtra("BitmapImage");
@@ -110,16 +111,17 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         EditText newText = new EditText(this);
         newText.setBackground(null);
         newText.setTextSize(14);
-        newText.setText("#"+v.getText().toString());
+        newText.setText("#" + v.getText().toString());
         this.hashGrid = (GridLayout) v.getParent();
         this.hashGrid.addView(newText);
         this.editList.add(newText);
         return false;
     }
-    public ArrayList<String> convertIntoStringList(ArrayList<EditText> editList){
+
+    public ArrayList<String> convertIntoStringList(ArrayList<EditText> editList) {
         ArrayList<String> stringList = new ArrayList<>();
         int i = 0;
-        while(i<editList.size()){
+        while (i < editList.size()) {
             String getText = editList.get(i).getText().toString();
             stringList.add(getText);
             i++;
@@ -132,7 +134,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
-            Intent sendBackIntent = new Intent (Post_BearbeitungsActivity.this, MainActivity.class);
+            Intent sendBackIntent = new Intent(Post_BearbeitungsActivity.this, MainActivity.class);
             setResult(RESULT_CANCELED, sendBackIntent);
             finish(); // close this activity and return to preview activity (if there is any)
         }

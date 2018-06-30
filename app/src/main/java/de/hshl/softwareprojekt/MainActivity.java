@@ -12,25 +12,25 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.SearchView;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -51,9 +51,9 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, AsyncResponse {
 
+    private static final int PERMISSION_REQUEST = 1;
     //Variablen zur Verarbeitung der Inhalte in der Activity
     private boolean permissionGranted;
-    private static final int PERMISSION_REQUEST = 1;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity
     private long newestPost;
     private float dpi;
     private String FollowsList;
+    private String FollowListWithoutSelf;
+    private String hashes = "";
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
@@ -86,8 +88,9 @@ public class MainActivity extends AppCompatActivity
     private DatabaseHelperPosts dataBasePosts;
     private SearchView searchView;
     private ScrollView scrollView;
+
     //Methode um die Display Auflösung zu erhalten
-    private void getDisplayMetrics(){
+    private void getDisplayMetrics() {
         DisplayMetrics dm = new DisplayMetrics();
         MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
         this.dpi = getResources().getDisplayMetrics().density;
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity
                 scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
                     @Override
                     public void onScrollChanged() {
-                        if(scrollView != null){
+                        if (scrollView != null) {
                             if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
                                 int precheck = index - 4;
                                 int d = 4;
@@ -187,10 +190,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Fügt der Frontpage ein individuelles Post Fragment hinzu
-    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey){
+    public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey, String shares, String shareName) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
-        final FragmentManager fragmentManagerSearchPost = getSupportFragmentManager();
+        final FragmentManager fragmentManagerPost = getSupportFragmentManager();
         final PostFragment frontPagePost = new PostFragment();
         FrameLayout frameInner = new FrameLayout(this);
         frameInner.setId(View.generateViewId());
@@ -199,10 +202,10 @@ public class MainActivity extends AppCompatActivity
         //add fragment
         String i = String.valueOf(id);
 
-        final FragmentTransaction fragmentTransactionSearchPost = fragmentManagerSearchPost.beginTransaction();
-        fragmentTransactionSearchPost.add(frameInner.getId(), frontPagePost, i);
+        final FragmentTransaction fragmentTransactionPost = fragmentManagerPost.beginTransaction();
+        fragmentTransactionPost.add(frameInner.getId(), frontPagePost, i);
 
-        fragmentTransactionSearchPost.commitNow();
+        fragmentTransactionPost.commitNow();
         frontPagePost.addPost(postBitmap, titel);
         final ArrayList<String> hashList = hashlist;
         TextView datefield = frontPagePost.timeStampView;
@@ -215,10 +218,11 @@ public class MainActivity extends AppCompatActivity
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToProfil = new Intent(MainActivity.this,ProfilActivity.class);
-                goToProfil.putExtra("UserKey",v.getContentDescription().toString());
-                goToProfil.putExtra("Code",3);
+                Intent goToProfil = new Intent(MainActivity.this, ProfilActivity.class);
+                goToProfil.putExtra("UserKey", v.getContentDescription().toString());
+                goToProfil.putExtra("Code", 3);
                 goToProfil.putExtra("User", user);
+                goToProfil.putExtra("FollowList", FollowListWithoutSelf);
                 startActivity(goToProfil);
             }
         });
@@ -228,10 +232,10 @@ public class MainActivity extends AppCompatActivity
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View nextChild = ((ViewGroup)v.getParent()).getChildAt(2);
-                View titelView = ((ViewGroup)v.getParent()).getChildAt(3);
-                Boolean checked = ((CheckBox)nextChild).isChecked();
-                String titel = ((TextView)titelView).getText().toString();
+                View nextChild = ((ViewGroup) v.getParent()).getChildAt(2);
+                View titelView = ((ViewGroup) v.getParent()).getChildAt(3);
+                Boolean checked = ((CheckBox) nextChild).isChecked();
+                String titel = ((TextView) titelView).getText().toString();
                 String likes = ((CheckBox) nextChild).getText().toString();
                 int ID = nextChild.getId();
                 //Baut aus den Daten im Cache eine Bitmap
@@ -240,7 +244,7 @@ public class MainActivity extends AppCompatActivity
                 Bitmap parseBit = v.getDrawingCache();
 
                 //Skaliert die Oben gebaute Bitmap auf ein kleineres Format
-                Bitmap createBit = scaleBitmap(parseBit,-1,300);
+                Bitmap createBit = scaleBitmap(parseBit, -1, 300);
 
                 //Fügt dem Intent für die Vollansicht die Bitmap + einen Titel hinzu
                 Intent intentVollansicht = new Intent(MainActivity.this, Main_Image_Clicked.class);
@@ -261,10 +265,10 @@ public class MainActivity extends AppCompatActivity
 
         CheckBox likeCheck = frontPagePost.likeChecker;
         int like = dataBasePosts.getLikeCount(id, user.getUsername());
-        if(like==2){
+        if (like == 2) {
             likeCheck.setChecked(true);
 
-        }else{
+        } else {
             likeCheck.setChecked(false);
         }
         likeCheck.setText("Likes: " + (liked));
@@ -278,34 +282,85 @@ public class MainActivity extends AppCompatActivity
                 String getCount = ((CheckBox) v).getText().toString();
                 String[] pieces = getCount.split(": ");
                 int getInt = Integer.parseInt(pieces[1]);
-                if(checked){
+                if (checked) {
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    if(dataBasePosts.getLikeCount(id,user.getUsername())==0){
-                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(),true);
-                    }else if(dataBasePosts.getLikeCount(id,user.getUsername())==1){
-                        dataBasePosts.updateLike(id,user.getUsername(), true);
+                    if (dataBasePosts.getLikeCount(id, user.getUsername()) == 0) {
+                        dataBasePosts.insertIntoLikeCount(id, user.getUsername(), true);
+                    } else if (dataBasePosts.getLikeCount(id, user.getUsername()) == 1) {
+                        dataBasePosts.updateLike(id, user.getUsername(), true);
                     }
                     ((CheckBox) v).setText("Likes: " + (getInt + 1));
                     updateLikeStatus(1, id);
 
-                }
-                else{
+                } else {
                     String idString = v.getContentDescription().toString();
                     long id = Long.parseLong(idString);
-                    dataBasePosts.updateLike(id,user.getUsername(), false);
+                    dataBasePosts.updateLike(id, user.getUsername(), false);
                     ((CheckBox) v).setText("Likes: " + (getInt - 1));
                     updateLikeStatus(-1, id);
                 }
             }
         });
         postFragmentArrayList.add(frontPagePost);
-        deleteButton.setVisibility(View.INVISIBLE);
         fragmentIndex++;
         rememberIndex++;
+        if (Long.parseLong(userKey) == user.getId() || shareName.equals(user.getUsername())) {
+            deleteButton.setVisibility(View.VISIBLE);
+        } else {
+            deleteButton.setVisibility(View.INVISIBLE);
+        }
+        deleteButton.setContentDescription(i);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeFragment(frontPagePost);
+                updateDelete(Long.parseLong(v.getContentDescription().toString()));
+            }
+        });
+
+        final Bitmap postBitty = postBitmap;
+        final Bitmap userPicF = userPic;
+        final String titelF = titel;
+        final String dateF = date;
+        final long userKeyF = Long.parseLong(userKey);
+        int index = 0;
+        hashes = "";
+        while (index < hashlist.size()) {
+
+            hashes = hashes + ":" + hashlist.get(index);
+            index++;
+
+        }
+        TextView shareNAME = frontPagePost.shareName;
+        if (shareName.equals("")) {
+            shareNAME.setVisibility(View.INVISIBLE);
+        } else {
+            shareNAME.setText("Shared By: " + shareName);
+        }
+
+        TextView shareCount = frontPagePost.shareCount;
+        shareCount.setText("Shares: " + shares);
+
+        ImageButton shareButton = frontPagePost.share;
+        shareButton.setContentDescription(i);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String hashesF = hashes;
+                updateShare(Long.parseLong(v.getContentDescription().toString()));
+                fragmentIndex = 0;
+                long d = System.currentTimeMillis() / 1000;
+                String y = String.valueOf(d);
+                int c = Integer.parseInt(y);
+                uploadShare(c, username, ImageHelper.bitmapToBase64(postBitty), titelF, hashesF, dateF, false, userKeyF, ImageHelper.bitmapToBase64(userPicF), user.getUsername());
+
+            }
+        });
+
     }
 
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
@@ -318,37 +373,35 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
 
-   }
+    }
+
     //Methode zur Umrechnung der dpi
-    private int dp2px(int dp){
-        return (int)(dp*dpi);
+    private int dp2px(int dp) {
+        return (int) (dp * dpi);
     }
 
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
-    protected void checkPermission(){
+    protected void checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
             }
-            else {
-                ActivityCompat.requestPermissions(this, new String[]{   Manifest.permission.WRITE_EXTERNAL_STORAGE}, this.PERMISSION_REQUEST);
-            }
-        }
-        else {
+        } else {
             this.permissionGranted = true;
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
             case PERMISSION_REQUEST:
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                this.permissionGranted = true;
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.permissionGranted = true;
 
-                }
-                else  {
+                } else {
                     this.permissionGranted = false;
                 }
                 return;
@@ -356,25 +409,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Methode zum Start der Camera
-    private void startCamera(){
-        if (this.permissionGranted){
+    private void startCamera() {
+        if (this.permissionGranted) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
-            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
-             imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-             intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
             startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
         }
     }
 
     //Methode zum Skallieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-            float   srcWidth = src.getWidth(),
+            float srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
 
             if (dstWidth < 1) {
@@ -382,15 +435,15 @@ public class MainActivity extends AppCompatActivity
             }
             Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
     }
+
     //Skaliert eine übergebene Bitmap
-    public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight){
-        float   srcWidth = bitmap.getWidth(),
+    public Bitmap scaleBitmap(Bitmap bitmap, int dstWidth, int dstHeight) {
+        float srcWidth = bitmap.getWidth(),
                 srcHeight = bitmap.getHeight();
 
         if (dstWidth < 1) {
@@ -412,13 +465,12 @@ public class MainActivity extends AppCompatActivity
                 if (data != null) {
 
                     Bitmap myBitmap = getAndScaleBitmap(this.imageUri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent(MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
-            }
-            else {
+            } else {
                 int rowsDeleted = getContentResolver().delete(imageUri, null, null);
                 Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
                 //startCamera();
@@ -426,20 +478,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         //Verarbeitung der Gallerie Request
-        if(requestCode == GALLERY_PICK){
-            if(resultCode == RESULT_OK){
-                if(data != null) {
+        if (requestCode == GALLERY_PICK) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     Uri uri = data.getData();
 
                     Bitmap myBitmap = getAndScaleBitmap(uri, -1, 300);
-                    Intent sendToBearbeitung = new Intent (MainActivity.this, Post_BearbeitungsActivity.class);
+                    Intent sendToBearbeitung = new Intent(MainActivity.this, Post_BearbeitungsActivity.class);
                     sendToBearbeitung.putExtra("BitmapImage", myBitmap);
                     sendToBearbeitung.putExtra("User", this.user);
                     startActivityForResult(sendToBearbeitung, BEARBEITUNG_CODE);
                 }
-            }
-        else{
-            Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+            } else {
+                Log.d(MainActivity.class.getSimpleName(), "no picture selected");
             }
         }
 
@@ -454,41 +505,39 @@ public class MainActivity extends AppCompatActivity
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
                     String date = intentVerarbeitet.getStringExtra("Date");
-                    long d = System.currentTimeMillis()/1000;
+                    long d = System.currentTimeMillis() / 1000;
                     String y = String.valueOf(d);
                     int c = Integer.parseInt(y);
                     fragmentIndex = 0;
                     newestPost = d;
-                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d,0,ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()));
+                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d, 0, ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()), "0", null);
                     int i = 0;
                     String hashes = "";
-                    while(i<this.hashTagList.size()){
+                    while (i < this.hashTagList.size()) {
 
-                        hashes = hashes + ":"+ hashTagList.get(i);
+                        hashes = hashes + ":" + hashTagList.get(i);
                         i++;
                     }
-                    if(hashes == null){
+                    if (hashes == null) {
                         hashes = "#NoHashtags";
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
-                    uploadPost(c,this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId());
+                    uploadPost(c, this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId(), user.getBase64());
 
                 }
-            }
-
-            else {
-                Log.d(MainActivity.class.getSimpleName(),"no picture selected");
+            } else {
+                Log.d(MainActivity.class.getSimpleName(), "no picture selected");
             }
         }
         //Enthält das User Objekt aus der Settings Acitivty
-        if(requestCode == 111){
-            if(resultCode == RESULT_OK){
-                if(data != null){
+        if (requestCode == 111) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     Intent intentStorie = data;
                     this.user = (User) intentStorie.getSerializableExtra("User");
                     this.profilName.setText(this.user.getUsername());
-                    int i=0;
-                    while(i < textViewList.size()){
+                    int i = 0;
+                    while (i < textViewList.size()) {
                         textViewList.get(i).setText(user.getUsername());
                         i++;
                     }
@@ -496,25 +545,26 @@ public class MainActivity extends AppCompatActivity
             }
         }
         //Enthält Daten aus der Vollbildansicht
-        if(requestCode == IMAGE_CLICKED) {
-            if(resultCode == RESULT_OK){
-                if(data != null){
+        if (requestCode == IMAGE_CLICKED) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     Intent intentFromImage = data;
                     int ID = Integer.parseInt(intentFromImage.getStringExtra("ID"));
                     View v = findViewById(ID);
-                    ((CheckBox)v).setText(intentFromImage.getStringExtra("Likes"));
-                    ((CheckBox)v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
+                    ((CheckBox) v).setText(intentFromImage.getStringExtra("Likes"));
+                    ((CheckBox) v).setChecked(intentFromImage.getExtras().getBoolean("Checked"));
                 }
             }
         }
-        if(requestCode == 200) {
-            if(resultCode == RESULT_OK){
-                if(data != null){
+        if (requestCode == 200) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     user = (User) data.getSerializableExtra("User");
                     profilName.setText(user.getUsername());
                     profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+                    FollowListWithoutSelf = data.getStringExtra("FollowList");
                     int i = 0;
-                    while(i<followerList.size()){
+                    while (i < followerList.size()) {
                         followerList.get(i).setVisibility(View.GONE);
                         i++;
                     }
@@ -522,11 +572,11 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-        if(requestCode == 350) {
-            if(resultCode == RESULT_OK){
-                if(data != null){
+        if (requestCode == 350) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
                     int i = 0;
-                    while(i<followerList.size()){
+                    while (i < followerList.size()) {
                         followerList.get(i).setVisibility(View.GONE);
                         i++;
                     }
@@ -564,7 +614,7 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if(item.getItemId() == R.id.action_search){
+        if (item.getItemId() == R.id.action_search) {
             SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             searchView.setQueryHint("Search for something...");
@@ -579,30 +629,23 @@ public class MainActivity extends AppCompatActivity
                     Intent startSearchIntent = new Intent(MainActivity.this, SearchActivity.class);
                     startSearchIntent.putExtra("User", user);
                     startSearchIntent.putExtra("Search", query);
-                    startActivityForResult(startSearchIntent,350);
+                    startSearchIntent.putExtra("FollowList", FollowListWithoutSelf);
+                    startActivityForResult(startSearchIntent, 350);
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    searchView.setQuery("",false);
+                    searchView.setQuery("", false);
                     return true;
                 }
             };
             searchView.setOnQueryTextListener(queryTextListener);
-        }else if(item.getItemId() == R.id.action_refresh) {
+        } else if (item.getItemId() == R.id.action_refresh) {
 
-            if(rememberIndex == fragmentIndex){
+            if (rememberIndex == fragmentIndex) {
                 rememberIndex = fragmentIndex;
             }
 
             updateTimeline(FollowsList, newestPost);
 
         }
-
-
-
-
-
-
-
-
 
 
         return super.onOptionsItemSelected(item);
@@ -651,35 +694,66 @@ public class MainActivity extends AppCompatActivity
     //Enthält die onClick Methode, für die individuellen Posts
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.followerNr1){
+        if (v.getId() == R.id.followerNr1) {
             Intent intentStorie = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStorie.putExtra("User", this.user);
             String userID = String.valueOf(this.user.getId());
             intentStorie.putExtra("User_ID", userID);
             startActivityForResult(intentStorie, 101);
-        }else if (v.getId() == R.id.profilBild) {
+        } else if (v.getId() == R.id.profilBild) {
             Intent intentProfil = new Intent(MainActivity.this, ProfilActivity.class);
             intentProfil.putExtra("User", user);
             intentProfil.putExtra("Code", 2);
             intentProfil.putExtra("Follower", this.followerCount.getText().toString());
             intentProfil.putExtra("Follows", this.followsCount.getText().toString());
+            intentProfil.putExtra("FollowList", this.FollowListWithoutSelf);
             startActivityForResult(intentProfil, 200);
         }
     }
+
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
     }
-    private void uploadPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey){
+
+    private void uploadShare(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic, String shareName) {
+        String dstAdress = "http://intranet-secure.de/instragram/uploadShare.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.uploadShare(id, name, path, titel, hashtags, date, liked, userKey, userPic, shareName));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void updateShare(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/updateShare.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateShare(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void updateDelete(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/updateDelete.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateDelete(id, user.getUsername()));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void uploadPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.uploadPost( id,  name,  path,  titel,  hashtags,  date,  liked,  userKey, user.getBase64() ));
+        httpConnection.setMessage(XmlHelper.uploadPost(id, name, path, titel, hashtags, date, liked, userKey, userPic));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
-    private void getUserPic(long id){
+
+    private void getUserPic(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
@@ -688,7 +762,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
-    private void updateFollower(long id){
+    private void updateFollower(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
@@ -696,7 +770,8 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateLikeStatus(int status, long id){
+
+    private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateStatus(status, id));
@@ -704,7 +779,8 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getAllPostIDs(String ids){
+
+    private void getAllPostIDs(String ids) {
         String dstAdress = "http://intranet-secure.de/instragram/getAllPostIDs.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getFullPost(ids));
@@ -712,7 +788,8 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getPostForID(String id){
+
+    private void getPostForID(String id) {
         String dstAdress = "http://intranet-secure.de/instragram/getPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getFullPost(id));
@@ -720,7 +797,8 @@ public class MainActivity extends AppCompatActivity
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateTimeline(String follows, long highestPost){
+
+    private void updateTimeline(String follows, long highestPost) {
         String dstAdress = "http://intranet-secure.de/instragram/updateTimeline.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateTimeline(follows, highestPost));
@@ -732,26 +810,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void processFinish(String output) {
-        if(output.contains("UserPic")){
+        if (output.contains("UserPic")) {
             String[] input = output.split(":");
             long inputLong = Long.valueOf(input[1]);
             Bitmap bitmap = ImageHelper.base64ToBitmap(input[2]);
             createFollower(inputLong, bitmap);
-        }else if(output.contains("AllPostIDs")) {
+        } else if (output.contains("AllPostIDs")) {
             String[] split = output.split(":");
-            splitIDs = new long[split.length-1];
-            for(int i=1; i<split.length-1;i++){
-                splitIDs[i] = Long.parseLong(split[i+1]);
+            splitIDs = new long[split.length - 1];
+            for (int i = 1; i < split.length - 1; i++) {
+                splitIDs[i] = Long.parseLong(split[i + 1]);
             }
             Arrays.sort(splitIDs);
-            index = splitIDs.length-1;
-            newestPost = splitIDs[splitIDs.length-1];
-            for(int i=4; i>=0 ;i--){
+            index = splitIDs.length - 1;
+            newestPost = splitIDs[splitIDs.length - 1];
+            for (int i = 4; i >= 0; i--) {
                 getPostForID(Long.toString(splitIDs[index]));
                 index--;
 
             }
-        }else if(output.contains("FullPost")) {
+        } else if (output.contains("FullPost")) {
             String[] response = output.split(" : ");
             postList = new ArrayList<>();
             if (response.length > 1) {
@@ -768,6 +846,11 @@ public class MainActivity extends AppCompatActivity
                 String bool = response[7];
                 String userKeyString = response[8];
                 String userPic = response[9];
+                String shares = response[10];
+                String shareName = "";
+                if (response.length == 12) {
+                    shareName = response[11];
+                }
                 long userKey = Long.parseLong(userKeyString);
                 int like = Integer.valueOf(bool);
                 int c = 0;
@@ -776,50 +859,54 @@ public class MainActivity extends AppCompatActivity
                     c++;
                 }
 
-                addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString);
+                addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString, shares, shareName);
                 postList.clear();
             }
 
 
+        } else if (output.contains("Follower")) {
 
-        }else if(output.contains("Follower")){
-
-                String[] firstSplit = output.split( " : " );
-                this.followerCount.setText(firstSplit[0]);
-                String[] secondSplit =  firstSplit[1].split(": ");
-                if(secondSplit.length >1){
-                    FollowsList = secondSplit[1]+user.getId();
-                    String[] thirdSplit = secondSplit[1].split(":");
-                    this.followsCount.setText("Follows: " + (thirdSplit.length));
-                    int i = 0;
-                    while(i<thirdSplit.length){
-                        long followerID = Long.parseLong(thirdSplit[i]);
-                        getUserPic(followerID);
-                        i++;
-                    }
-                }else{
-                    this.followsCount.setText(followsCount.getText().toString() + "0");
+            String[] firstSplit = output.split(" : ");
+            this.followerCount.setText(firstSplit[0]);
+            String[] secondSplit = firstSplit[1].split(": ");
+            if (secondSplit.length > 1) {
+                FollowsList = secondSplit[1] + user.getId();
+                FollowListWithoutSelf = secondSplit[1];
+                String[] thirdSplit = secondSplit[1].split(":");
+                this.followsCount.setText("Follows: " + (thirdSplit.length));
+                int i = 0;
+                while (i < thirdSplit.length) {
+                    long followerID = Long.parseLong(thirdSplit[i]);
+                    getUserPic(followerID);
+                    i++;
                 }
-            }else if(output.contains("UpdatePostIDs")){
+            } else {
+                this.followsCount.setText(followsCount.getText().toString() + "0");
+            }
+        } else if (output.contains("UpdatePostIDs")) {
 
             String[] splitNewPost = output.split(":");
-            if(splitNewPost.length>1){
-                int i = splitNewPost.length-1;
+            if (splitNewPost.length > 1) {
+                int i = splitNewPost.length - 1;
                 fragmentIndex = 0;
-                while(i >=1){
+                while (i >= 1) {
                     getPostForID(splitNewPost[i]);
                     i--;
                 }
-                newestPost = Long.parseLong(splitNewPost[splitNewPost.length-1]);
-            }else{
-                Toast.makeText(getApplicationContext(), "Es gibt keine neuen Posts!", Toast.LENGTH_SHORT).show();
+                newestPost = Long.parseLong(splitNewPost[splitNewPost.length - 1]);
             }
 
+        } else if (output.contains("NoNewPosts")) {
+            Toast.makeText(getApplicationContext(), "Es gibt keine neuen Posts!", Toast.LENGTH_SHORT).show();
+        } else if (output.contains("PostDeleted")) {
+            Toast.makeText(getApplicationContext(), "Dein Post wurde erfolgreich gelöscht.", Toast.LENGTH_SHORT).show();
+        } else if (output.contains("SharedSuccessfully")) {
+            Toast.makeText(getApplicationContext(), "Post wurde geteilt!", Toast.LENGTH_SHORT).show();
         }
-        }
+    }
 
 
-    public void createFollower(long id, Bitmap bitmap){
+    public void createFollower(long id, Bitmap bitmap) {
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);
         followerPic.getLayoutParams().height = 155;

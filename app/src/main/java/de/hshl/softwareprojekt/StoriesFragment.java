@@ -17,7 +17,7 @@ public class StoriesFragment extends Fragment {
     TextView storieTitel;
 
 
-    public void addStr(Bitmap bitmap, String titel){
+    public void addStr(Bitmap bitmap, String titel) {
         this.storieImage = getView().findViewById(R.id.storieView);
         this.storieImage.setImageBitmap(bitmap);
         this.prBar = getView().findViewById(R.id.storiesBar);
@@ -31,6 +31,7 @@ public class StoriesFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
     }
+
     @Override
     public void onStart() {
         super.onStart();

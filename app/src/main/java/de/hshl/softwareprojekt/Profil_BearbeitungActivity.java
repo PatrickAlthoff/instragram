@@ -4,30 +4,24 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Environment;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
-import java.io.InputStream;
 
 public class Profil_BearbeitungActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
 
@@ -46,6 +40,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
     private String base64;
     private String oldbase;
     private String oldName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +65,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         this.save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(benutzerName.length()>2){
+                if (benutzerName.length() > 2) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Änderungen bestätigen!");
                     builder.setMessage("Sie sind dabei ihre Nutzerdaten zu ändern, sind sie sicher, dass sie fortfahren möchten?");
@@ -80,7 +75,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
                         public void onClick(DialogInterface dialog, int which) {
                             user.setUsername(benutzerName.getText().toString());
                             user.setBase64(base64);
-                            databaseHelperUser.updateUserPic(user.getId(),base64);
+                            databaseHelperUser.updateUserPic(user.getId(), base64);
                             databaseHelperUser.updateUser(user.getId(), benutzerName.getText().toString());
                             databaseHelperPosts.updateUserPosts(user.getId(), benutzerName.getText().toString());
                             updateData(user.getId());
@@ -99,7 +94,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
 
                     builder.show();
 
-                }else{
+                } else {
                     benutzerName.setError("Benutzernamen müssen mind. 3 Zeichen haben!");
                 }
 
@@ -117,11 +112,13 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
-    public RoundedBitmapDrawable roundImage(Bitmap bitmap){
+
+    public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -135,17 +132,17 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
     }
 
     //Methode zum Start der Camera
-    private void startCamera(){
+    private void startCamera() {
 
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
-            contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION );
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
-            imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            Intent intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
-        }
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
+        contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION);
+        contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        Intent intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
+    }
 
     //onActivityResult Methode zur Verarbeitung mehrerer Requests
     @Override
@@ -182,12 +179,13 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         }
 
     }
+
     //Methode zum Skallieren der zu übergebenen Bitmap
-    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight){
+    private Bitmap getAndScaleBitmap(Uri uri, int dstWidth, int dstHeight) {
         try {
             Bitmap src = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
 
-            float   srcWidth = src.getWidth(),
+            float srcWidth = src.getWidth(),
                     srcHeight = src.getHeight();
 
             if (dstWidth < 1) {
@@ -195,21 +193,21 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
             }
             Bitmap dst = Bitmap.createScaledBitmap(src, dstWidth, dstHeight, false);
             return dst;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(MainActivity.class.getSimpleName(), "setBitmap", e);
         }
         return null;
     }
 
-    private void updateData(long id){
+    private void updateData(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/sendProfilData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateProfilData(id, benutzerName.getText().toString(), Beschreibung.getText().toString() , base64));
+        httpConnection.setMessage(XmlHelper.updateProfilData(id, benutzerName.getText().toString(), Beschreibung.getText().toString(), base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
-    private void getAllPosts(long id){
+
+    private void getAllPosts(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getAllKommPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
@@ -217,7 +215,8 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void updateAllKomms(long id){
+
+    private void updateAllKomms(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateKommentData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.updateAllKomms(id, user.getUsername(), user.getBase64(), oldName, oldbase));
@@ -225,7 +224,8 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         httpConnection.delegate = this;
         httpConnection.execute();
     }
-    private void getBio(long id){
+
+    private void getBio(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getBio.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.getUsers(id));
@@ -237,7 +237,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.Profilbild:
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                 builder.setTitle("Profilbild wählen!");
@@ -267,17 +267,17 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
 
     @Override
     public void processFinish(String output) {
-        if(output.contains("getPostIDs")){
+        if (output.contains("getPostIDs")) {
             String[] postIDs = output.split(" : ");
 
             int i = 1;
-            while(i<postIDs.length){
+            while (i < postIDs.length) {
                 updateAllKomms(Long.parseLong(postIDs[i]));
                 i++;
             }
-        }else if(output.contains("Beschreibung")){
+        } else if (output.contains("Beschreibung")) {
             String[] splitBeschreibung = output.split(":_:");
-            if(splitBeschreibung.length==2){
+            if (splitBeschreibung.length == 2) {
                 Beschreibung.setText(splitBeschreibung[1]);
             }
 

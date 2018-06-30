@@ -2,15 +2,11 @@ package de.hshl.softwareprojekt;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -51,12 +47,12 @@ public class ProfilAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
         ViewHolder holder = null;
-        if(v==null){
+        if (v == null) {
             holder = new ViewHolder();
             v = layoutInflater.inflate(R.layout.adapter_profil, null);
             holder.imageHold = v.findViewById(R.id.picHolder);
             v.setTag(holder);
-        }else{
+        } else {
             holder = (ViewHolder) v.getTag();
         }
         Bitmap item = getItem(position);
@@ -67,6 +63,6 @@ public class ProfilAdapter extends BaseAdapter {
     }
 }
 
-class ViewHolder{
+class ViewHolder {
     ImageView imageHold;
 }

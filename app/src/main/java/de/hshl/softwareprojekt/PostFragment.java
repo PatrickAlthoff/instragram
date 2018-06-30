@@ -16,29 +16,33 @@ public class PostFragment extends Fragment {
     ImageView postImage;
     ImageView profilPicPost;
     ImageButton delete;
+    ImageButton share;
     TextView textViewTitel;
     TextView timeStampView;
     TextView postProfilName;
+    TextView shareName;
+    TextView shareCount;
     CheckBox likeChecker;
 
     //Initialisierung die notwendigen Daten für das Postfragment
-    public void addPost(Bitmap bitmap, String titel){
+    public void addPost(Bitmap bitmap, String titel) {
         this.postImage = getView().findViewById(R.id.postView);
         this.postImage.setImageBitmap(bitmap);
 
         this.profilPicPost = getView().findViewById(R.id.profilPicPost);
-
+        this.share = getView().findViewById(R.id.shareButton);
+        this.shareName = getView().findViewById(R.id.shareName);
         this.postProfilName = getView().findViewById(R.id.profilNamePost);
         this.likeChecker = getView().findViewById(R.id.iLike);
-
+        this.shareCount = getView().findViewById(R.id.shareCount);
         this.textViewTitel = getView().findViewById(R.id.textViewTitel);
         this.textViewTitel.setText(titel);
-        this.postImage.setContentDescription(this.textViewTitel.getText());
 
         this.timeStampView = getView().findViewById(R.id.timeStamp);
 
         this.delete = getView().findViewById(R.id.deleteButton);
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

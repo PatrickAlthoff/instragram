@@ -1,6 +1,5 @@
 package de.hshl.softwareprojekt;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import static android.text.format.DateUtils.getRelativeTimeSpanString;
 
 public class KommentarFragment extends Fragment {
@@ -16,7 +16,7 @@ public class KommentarFragment extends Fragment {
     TextView kommentar;
     TextView dateKomment;
 
-    public void creatKomment(String username, String kommentar, long kommentTime){
+    public void creatKomment(String username, String kommentar, long kommentTime) {
         this.profilPicKomm = getView().findViewById(R.id.profilPicKomm);
         this.profilNameKomm = getView().findViewById(R.id.usernameKomm);
         this.kommentar = getView().findViewById(R.id.kommentarView);
@@ -31,6 +31,7 @@ public class KommentarFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
     }
+
     @Override
     public void onStart() {
         super.onStart();

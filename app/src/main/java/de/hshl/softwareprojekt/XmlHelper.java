@@ -2,13 +2,13 @@ package de.hshl.softwareprojekt;
 
 public class XmlHelper {
 
-    XmlHelper(){
+    XmlHelper() {
 
     }
 
     public static String uploadPost(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
 
-        int like = liked ? 1:0;
+        int like = liked ? 1 : 0;
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<pictures>" +
@@ -16,7 +16,7 @@ public class XmlHelper {
                 "<id>" + id + "</id>" +
                 "<name>" + name + "</name>" +
                 "<base64>" + base64 + "</base64>" +
-                "<titel>" + titel + "</titel>"+
+                "<titel>" + titel + "</titel>" +
                 "<hashtags>" + hashtags + "</hashtags>" +
                 "<datum>" + date + "</datum>" +
                 "<like>" + like + "</like>" +
@@ -29,7 +29,33 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String uploadUser(String username, String email, String password, String base64){
+
+    public static String uploadShare(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic, String shareName) {
+
+        int like = liked ? 1 : 0;
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<pictures>" +
+                "<picture>" +
+                "<id>" + id + "</id>" +
+                "<name>" + name + "</name>" +
+                "<base64>" + base64 + "</base64>" +
+                "<titel>" + titel + "</titel>" +
+                "<hashtags>" + hashtags + "</hashtags>" +
+                "<datum>" + date + "</datum>" +
+                "<like>" + like + "</like>" +
+                "<userKey>" + userKey + "</userKey>" +
+                "<userPic>" + userPic + "</userPic>" +
+                "<shareName>" + shareName + "</shareName>" +
+                "</picture>" +
+                "</pictures>" +
+                "</data>";
+
+
+        return xml;
+    }
+
+    public static String uploadUser(String username, String email, String password, String base64) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -46,7 +72,7 @@ public class XmlHelper {
         return xml;
     }
 
-    public static String checkEmail(String email){
+    public static String checkEmail(String email) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -57,7 +83,19 @@ public class XmlHelper {
         return xml;
     }
 
-    public static String getUsers(long id){
+    public static String getUserPosts(long id, String username) {
+
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<user>" +
+                "<ID>" + id + "</ID>" +
+                "<Name>" + username + "</Name>" +
+                "</user>" +
+                "</data>";
+        return xml;
+    }
+
+    public static String getUsers(long id) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -67,7 +105,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String updateFollows(long id, long followerID){
+
+    public static String updateFollows(long id, long followerID) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -78,7 +117,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String sendSearchRequest(String query){
+
+    public static String sendSearchRequest(String query) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -88,7 +128,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String updateStatus(int status, long id){
+
+    public static String updateStatus(int status, long id) {
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
@@ -99,7 +140,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String uploadStory(long id, long userKey, String titels, String base64){
+
+    public static String uploadStory(long id, long userKey, String titels, String base64) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<story>" +
@@ -112,7 +154,8 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String uploadKommentar(long id, String username, String userPic, String kommentar, long postTime, long userKey){
+
+    public static String uploadKommentar(long id, String username, String userPic, String kommentar, long postTime, long userKey) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<Kommentar>" +
@@ -127,7 +170,8 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String getKommentar(long id){
+
+    public static String getKommentar(long id) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<Kommentar>" +
@@ -137,7 +181,8 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String updateData(long id, String userName, String userMail){
+
+    public static String updateData(long id, String userName, String userMail) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<User>" +
@@ -149,7 +194,8 @@ public class XmlHelper {
 
         return xml;
     }
-    public static String getFullPost(String id){
+
+    public static String getFullPost(String id) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<post>" +
@@ -158,7 +204,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String updateProfilData(long id, String username, String beschreibung, String base64){
+
+    public static String updateProfilData(long id, String username, String beschreibung, String base64) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<User>" +
@@ -170,7 +217,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String updateAllKomms(long id, String username, String base64, String oldName, String oldBase){
+
+    public static String updateAllKomms(long id, String username, String base64, String oldName, String oldBase) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<User>" +
@@ -183,7 +231,8 @@ public class XmlHelper {
                 "</data>";
         return xml;
     }
-    public static String updateTimeline(String follows, long highestID){
+
+    public static String updateTimeline(String follows, long highestID) {
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
                 "<data>" +
                 "<post>" +
@@ -194,6 +243,26 @@ public class XmlHelper {
         return xml;
     }
 
+    public static String updateDelete(long deletedPost, String shareName) {
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<post>" +
+                "<ID>" + deletedPost + "</ID>" +
+                "<shareName>" + shareName + "</shareName>" +
+                "</post>" +
+                "</data>";
+        return xml;
+    }
+
+    public static String updateShare(long shareID) {
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<data>" +
+                "<post>" +
+                "<ID>" + shareID + "</ID>" +
+                "</post>" +
+                "</data>";
+        return xml;
+    }
 
 
 }
