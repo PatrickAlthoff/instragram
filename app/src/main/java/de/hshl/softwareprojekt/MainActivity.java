@@ -830,12 +830,15 @@ public class MainActivity extends AppCompatActivity
 
                 }
             } else{
-                newestPost = splitIDs[splitIDs.length - 1];
-                int d = splitIDs.length;
-                while(d>=1){
-                    getPostForID(Long.toString(splitIDs[d-1]));
-                    d--;
+                if(splitIDs.length >= 1){
+                    newestPost = splitIDs[splitIDs.length - 1];
+                    int d = splitIDs.length;
+                    while(d>=1){
+                        getPostForID(Long.toString(splitIDs[d-1]));
+                        d--;
+                    }
                 }
+
             }
 
         } else if (output.contains("FullPost")) {
