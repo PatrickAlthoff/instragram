@@ -17,18 +17,18 @@ $dbname = "db742957111";
 
 $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
 
-$countFollower = $conn->prepare("SELECT * FROM follows WHERE userKey LIKE '%$valueID%';");
-$getFollows = $conn->prepare("SELECT follows FROM follows WHERE userKey = $valueID;");
+$countFollower = $conn->prepare("SELECT userKey FROM follows WHERE follow LIKE '%$valueID%';");
+$getFollows = $conn->prepare("SELECT follow FROM follows WHERE userKey = $valueID;");
 
 if($countFollower->execute()){
     $result=$countFollower->fetchAll(PDO::FETCH_ASSOC);
-   if(count($result)==0){
-      $counter = count($result);
-      echo "NoFollower";
-}   
-    else {
-        $counter = count($result);
-    }
+    $counter = count($result);
+    foreach ($result as $row){
+           foreach ($row as $key => $value){
+               $returnFollower =$returnFollower.":".$value;
+             }
+           }
+    
 }
 else{
   echo "Error";
@@ -36,7 +36,7 @@ else{
 if($getFollows->execute()){
     $result = $getFollows->fetchAll(PDO::FETCH_ASSOC);
     if(count($result)==0){
-        echo "NoFollows";
+        
     }
     else{
         foreach ($result as $row){
@@ -44,12 +44,13 @@ if($getFollows->execute()){
                $return = $value;
              }
            }
+    
     }
 }
 else{
    echo "Error2";
 }
-echo $counter." : ".$return;
-
+echo "Follower: ".$counter." : Follows: ".$return." : ".$returnFollower;
+$conn = null;
 ?>
 

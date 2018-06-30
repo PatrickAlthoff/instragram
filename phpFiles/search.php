@@ -17,9 +17,9 @@ $dbname = "db742957111";
 
 $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
 
-$searchUser = $conn->prepare("SELECT username FROM users WHERE username LIKE '%$valueSEARCH%';");
+$searchUser = $conn->prepare("SELECT _id,username FROM users WHERE username LIKE '%$valueSEARCH%';");
 $searchHash= $conn->prepare("SELECT * FROM posts WHERE hashtags LIKE '%$valueSEARCH%';");
-
+$returnMultihash= $conn->prepare("SELECT _id FROM posts WHERE hashtags LIKE '%$valueSEARCH%';");
 if(strpos($valueSEARCH,'#')!== false){
     if($searchHash->execute()){
         $result=$searchHash->fetchAll(PDO::FETCH_ASSOC);
@@ -28,6 +28,19 @@ if(strpos($valueSEARCH,'#')!== false){
             echo "NoHash";
 }   
     else {
+		if(count($result)>1){
+			if($returnMultihash->execute()){
+				$resultMultihash=$returnMultihash->fetchAll(PDO::FETCH_ASSOC);
+					foreach ($resultMultihash as $row){
+						foreach ($row as $key => $value){
+							$return = $return." : ".$value;
+                    }
+                }
+				echo "HashInput".$return;
+        
+			}
+		}
+		else{
         foreach ($result as $row){
             
             foreach ($row as $key => $value){
@@ -36,6 +49,7 @@ if(strpos($valueSEARCH,'#')!== false){
                 }
         echo "HashReturn".$return;
         }
+		}
     }
 }
 else{
@@ -56,4 +70,5 @@ else{
         }
     }
 }
+$conn = null;
 ?>

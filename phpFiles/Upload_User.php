@@ -29,11 +29,11 @@ if ($stmt->execute()){
         try {
         // set the PDO error mode to exception
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "INSERT INTO users (_id, username, email, password)
-            VALUES ($valueID, '$valueNAME', '$valueEMAIL', '$valuePASS')";
+        $sql = "INSERT INTO users (_id, username, email, password, beschreibung)
+            VALUES ($valueID, '$valueNAME', '$valueEMAIL', '$valuePASS', '')";
         // use exec() because no results are returned
         $conn->exec($sql);
-        $sql2 = "INSERT INTO follows (userKey, follows)
+        $sql2 = "INSERT INTO follows (userKey, follow)
             VALUES ($valueID, '')";
         $conn->exec($sql2);
           
