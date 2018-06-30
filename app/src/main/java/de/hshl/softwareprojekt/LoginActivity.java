@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, AsyncResponse {
+public class LoginActivity extends AppCompatActivity implements AsyncResponse {
 
     private ArrayList<String> DUMMY_CREDENTIALS = new ArrayList<>();
     private UserLoginTask mAuthTask = null;
@@ -240,48 +240,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
 
     @Override
     public void processFinish(String output) {
@@ -303,15 +261,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             attemptLogin(false);
         }
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
     }
 
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> implements AsyncResponse {
@@ -350,10 +299,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
 
-                if (pieces[2].equals(mEmail)) {
-                    this.username = pieces[1];
-                    this.userID = Long.parseLong(pieces[0]);
-                    return pieces[3].equals(mPassword);
+                if (pieces[0].equals(mEmail)) {
+                    return pieces[1].equals(mPassword);
                 }
             }
 
@@ -366,6 +313,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success && valid == true) {
+                userID = Long.parseLong(userTableData.get(0));
+                username = userTableData.get(1);
+                email = userTableData.get(2);
                 this.user = new User(userID, username, mEmail);
                 this.user.setBase64(userData.getUserPic(user.getId()));
                 this.userData.updateRemember(mEmail, remember);
@@ -378,11 +328,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 mPasswordView.requestFocus();
                 userTableData.clear();
             } else if (!success && valid == true) {
-                userID = Long.parseLong(userTableData.get(0));
-                username = userTableData.get(1);
-                email = userTableData.get(2);
                 pw = userTableData.get(3);
-                sendXML(userID);
+                if(pw == mPassword){
+                    userID = Long.parseLong(userTableData.get(0));
+                    username = userTableData.get(1);
+                    email = userTableData.get(2);
+                    sendXML(userID);
+                }else{
+                    mPasswordView.setError("Das Passwort ist inkorrekt.");
+                }
+
+
+
             } else {
                 mPasswordView.setError("Um dich einzuloggen, musst du dich vorher registrieren.");
                 mPasswordView.requestFocus();
@@ -404,6 +361,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             httpConnection.setMode(HttpConnection.MODE.PUT);
             httpConnection.delegate = this;
             httpConnection.execute();
+
         }
 
         @Override

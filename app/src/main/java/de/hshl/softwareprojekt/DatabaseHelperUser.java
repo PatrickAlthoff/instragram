@@ -74,7 +74,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     //Get Methode zur Datenausgabe
     public ArrayList<String> getData() {
 
-        String[] columns = {"_id", "username", "email", "pw", "base64"};
+        String[] columns = {"email", "pw"};
         ArrayList<String> userList = new ArrayList<>();
         SQLiteDatabase db = null;
         Cursor cursor = null;
@@ -84,7 +84,8 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
             cursor = db.query(TABLE_NAME, columns, null, null, null, null, null);
 
             while (cursor.moveToNext()) {
-                userList.add(0, cursor.getString(0) + ":" + cursor.getString(1) + ":" + cursor.getString(2) + ":" + cursor.getString(3) + ":" + cursor.getString(4));
+                String entry = cursor.getString(0) + ":" + cursor.getString(1);
+                userList.add(0, entry);
             }
         } catch (SQLiteException exception) {
             Log.e(TAG, "getData()", exception);
@@ -153,6 +154,25 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
     }
 
     public void updateUser(long id, String username) {
+        int rowsUpdated = 0;
+        SQLiteDatabase db = null;
+        try {
+            db = getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("username", username);
+            rowsUpdated = db.update(TABLE_NAME, cv, "_id=" + id, null);
+            Log.d(TAG, "updateData() affected " + rowsUpdated + " rows");
+        } catch (SQLiteException exception) {
+            Log.e(TAG, "updateData()", exception);
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+
+    }
+
+    public void updateUserData(long id, String username ) {
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
         try {

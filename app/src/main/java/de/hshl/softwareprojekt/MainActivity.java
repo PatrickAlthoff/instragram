@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     private long newestPost;
     private float dpi;
     private String FollowsList;
-    private String FollowListWithoutSelf;
+    private String FollowListWithoutSelf = "";
     private String hashes = "";
     private Uri imageUri;
     private Intent intentCaptureImage;
@@ -818,17 +818,27 @@ public class MainActivity extends AppCompatActivity
         } else if (output.contains("AllPostIDs")) {
             String[] split = output.split(":");
             splitIDs = new long[split.length - 1];
-            for (int i = 1; i < split.length - 1; i++) {
+            for (int i = 0; i < split.length - 1; i++) {
                 splitIDs[i] = Long.parseLong(split[i + 1]);
             }
             Arrays.sort(splitIDs);
             index = splitIDs.length - 1;
-            newestPost = splitIDs[splitIDs.length - 1];
-            for (int i = 4; i >= 0; i--) {
-                getPostForID(Long.toString(splitIDs[index]));
-                index--;
+            if(splitIDs.length>=6){
+                newestPost = splitIDs[splitIDs.length - 1];
+                for (int i = 4; i >= 0; i--) {
+                    getPostForID(Long.toString(splitIDs[index]));
+                    index--;
 
+                }
+            } else{
+                newestPost = splitIDs[splitIDs.length - 1];
+                int d = splitIDs.length;
+                while(d>=1){
+                    getPostForID(Long.toString(splitIDs[d-1]));
+                    d--;
+                }
             }
+
         } else if (output.contains("FullPost")) {
             String[] response = output.split(" : ");
             postList = new ArrayList<>();

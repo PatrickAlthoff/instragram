@@ -30,6 +30,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
     private long id;
     private int code;
     private String followerList;
+    private String followsList;
     private String FollowListWithoutSelf;
     private String rememberQuery;
     private User user;
@@ -44,7 +45,6 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
     private DatabaseHelperPosts dataBasePosts;
     private ArrayList<Bitmap> imageViewArrayList;
     private ArrayList<String> idList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +109,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             public void onClick(View v) {
                 Intent intent = new Intent(ProfilActivity.this, ListeFollowing.class);
                 intent.putExtra("User", user);
+                intent.putExtra("FollowsList", followsList);
                 intent.putExtra("FollowList", FollowListWithoutSelf);
                 startActivityForResult(intent, 250);
 
@@ -287,7 +288,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
                 this.followerList = firstSplit[2];
             }
             if (secondSplit.length > 1) {
-                this.FollowListWithoutSelf = secondSplit[1];
+                this.followsList = secondSplit[1];
                 String[] thirdSplit = secondSplit[1].split(":");
                 this.following.setText(secondSplit[0] + ": " + (thirdSplit.length));
             } else {

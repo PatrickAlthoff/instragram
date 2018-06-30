@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
     private String FollowListWithoutSelf;
+    private String followsList;
     private LinearLayout userCache;
     private User user;
 
@@ -32,7 +33,8 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         this.user = (User) getIntent.getSerializableExtra("User");
 
         this.FollowListWithoutSelf = getIntent.getStringExtra("FollowList");
-        String[] followerPieces = this.FollowListWithoutSelf.split(":");
+        this.followsList = getIntent.getStringExtra("FollowsList");
+        String[] followerPieces = this.followsList.split(":");
         int i = 0;
         while (i < followerPieces.length) {
             getUserData(Long.parseLong(followerPieces[i]));
