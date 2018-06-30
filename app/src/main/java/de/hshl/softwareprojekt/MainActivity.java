@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity
     private float dpi;
     private String FollowsList;
     private String FollowListWithoutSelf = "";
-    private String hashes = "";
     private Uri imageUri;
     private Intent intentCaptureImage;
     private User user;
@@ -325,7 +324,7 @@ public class MainActivity extends AppCompatActivity
         final String dateF = date;
         final long userKeyF = Long.parseLong(userKey);
         int index = 0;
-        hashes = "";
+        String hashes = "";
         while (index < hashlist.size()) {
 
             hashes = hashes + ":" + hashlist.get(index);
@@ -341,13 +340,13 @@ public class MainActivity extends AppCompatActivity
 
         TextView shareCount = frontPagePost.shareCount;
         shareCount.setText("Shares: " + shares);
-
+        final String hashesF = hashes;
         ImageButton shareButton = frontPagePost.share;
         shareButton.setContentDescription(i);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String hashesF = hashes;
+
                 updateShare(Long.parseLong(v.getContentDescription().toString()));
                 fragmentIndex = 0;
                 long d = System.currentTimeMillis() / 1000;
