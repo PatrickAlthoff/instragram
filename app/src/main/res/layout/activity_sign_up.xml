@@ -7,19 +7,25 @@
     android:background="@drawable/grad_bg"
     tools:context=".SignUpActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar9"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_marginBottom="8dp"
-        android:background="?attr/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+        android:layout_height="57dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar9"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -96,12 +102,12 @@
                         android:layout_marginTop="5dp"
                         android:background="@drawable/et_bg"
                         android:fontFamily="sans-serif-light"
+                        android:hint="Benutzername"
+                        android:inputType="textPersonName"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:inputType="textPersonName"
-                        android:hint="Benutzername"/>
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
@@ -158,12 +164,12 @@
                         android:layout_marginTop="5dp"
                         android:background="@drawable/et_bg"
                         android:fontFamily="sans-serif-light"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:inputType="textEmailAddress"
-                        android:hint="Email"/>
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 

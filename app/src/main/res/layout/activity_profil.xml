@@ -6,32 +6,43 @@
     android:layout_height="match_parent"
     tools:context=".ProfilActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar11"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_marginBottom="8dp"
-        android:background="?attr/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+        android:layout_height="57dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar11"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+    </android.support.design.widget.AppBarLayout>
 
     <TextView
         android:id="@+id/follower"
         android:layout_width="85dp"
         android:layout_height="24dp"
+        android:layout_marginBottom="20dp"
         android:layout_marginEnd="92dp"
         android:layout_marginTop="4dp"
         android:text="Follower:"
         android:textAlignment="center"
         android:textColor="@android:color/background_dark"
+        app:layout_constraintBottom_toTopOf="@+id/beschreibungView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/beiträgeField"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar11" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/following"
@@ -134,5 +145,23 @@
         app:layout_constraintStart_toEndOf="@+id/benutzerName"
         app:layout_constraintTop_toBottomOf="@+id/profilbild"
         app:layout_constraintVertical_bias="0.166" />
+
+    <TextView
+        android:id="@+id/beschreibungView"
+        android:layout_width="238dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="28dp"
+        android:text="Beschreibung: "
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar11"
+        app:layout_constraintVertical_bias="0.3" />
 
 </android.support.constraint.ConstraintLayout>

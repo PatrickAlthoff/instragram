@@ -39,6 +39,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
     private TextView following;
     private TextView benutzerName;
     private TextView beiträgeField;
+    private TextView beschreibungView;
     private CheckBox aboBox;
     private GridView gridView;
     private ProfilAdapter profilAdapter;
@@ -57,16 +58,17 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         this.following = findViewById(R.id.following);
         this.profilbild = findViewById(R.id.profilbild);
         this.benutzerName = findViewById(R.id.benutzerName);
+        this.beschreibungView = findViewById(R.id.beschreibungView);
         this.aboBox = findViewById(R.id.aboBox);
         this.user = (User) getIntent.getSerializableExtra("User");
         this.code = getIntent.getIntExtra("Code", 1);
         this.FollowListWithoutSelf = getIntent.getStringExtra("FollowList");
         this.rememberQuery = getIntent.getStringExtra("RQuery");
         if (this.code == 3) {
-            id = Long.parseLong(getIntent.getStringExtra("UserKey"));
+            this.id = Long.parseLong(getIntent.getStringExtra("UserKey"));
             String userKey = getIntent.getStringExtra("UserKey");
-            if (id == user.getId()) {
-                aboBox.setVisibility(View.INVISIBLE);
+            if (this.id == this.user.getId()) {
+                this.aboBox.setVisibility(View.INVISIBLE);
             }
             if (FollowListWithoutSelf.contains(userKey)) {
                 aboBox.setChecked(true);
@@ -78,17 +80,18 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         } else if (this.code == 2) {
             this.aboBox.setVisibility(View.INVISIBLE);
             this.benutzerName.setText(this.user.getUsername());
-            profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+            this.profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(this.user.getBase64())));
             updateFollower(user.getId());
-            getUserPosts(user.getId(), user.getUsername());
+            getUserPosts(this.user.getId(), this.user.getUsername());
+            getBio(this.user.getId());
         }
 
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.imageViewArrayList = new ArrayList<>();
         this.idList = new ArrayList<>();
         this.gridView = findViewById(R.id.gridViewBilder);
-        this.profilAdapter = new ProfilAdapter(this, imageViewArrayList, idList);
-        this.gridView.setAdapter(profilAdapter);
+        this.profilAdapter = new ProfilAdapter(this, this.imageViewArrayList, this.idList);
+        this.gridView.setAdapter(this.profilAdapter);
 
 
         // einzelnes Bild groß anzeigen lassen
@@ -104,7 +107,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
 
 
         // Zeigt Liste Following
-        following.setOnClickListener(new OnClickListener() {
+        this.following.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfilActivity.this, ListeFollowing.class);
@@ -116,7 +119,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             }
         });
         //Zeigt Liste Followern
-        follower.setOnClickListener(new OnClickListener() {
+        this.follower.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfilActivity.this, ListeFollower.class);
@@ -127,8 +130,8 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
 
             }
         });
-        aboBox.setContentDescription(getIntent.getStringExtra("UserKey"));
-        aboBox.setOnClickListener(new View.OnClickListener() {
+        this.aboBox.setContentDescription(getIntent.getStringExtra("UserKey"));
+        this.aboBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean checked = ((CheckBox) v).isChecked();
@@ -214,6 +217,14 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+    private void getBio(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/getBio.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.getUsers(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
 
     // erstellt Menuleiste
     @Override
@@ -235,7 +246,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             finish(); // close this activity and return to preview activity (if there is any)
         } else {
             Intent intent = new Intent(ProfilActivity.this, Profil_BearbeitungActivity.class);
-            intent.putExtra("User", user);
+            intent.putExtra("User", this.user);
             startActivityForResult(intent, 200);
         }
 
@@ -249,9 +260,9 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         if (requestCode == 200) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    user = (User) data.getSerializableExtra("User");
-                    benutzerName.setText(user.getUsername());
-                    profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+                    this.user = (User) data.getSerializableExtra("User");
+                    this.benutzerName.setText(this.user.getUsername());
+                    this.profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(this.user.getBase64())));
 
                 }
             } else {
@@ -262,8 +273,8 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         if (requestCode == 250) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
-                    FollowListWithoutSelf = data.getStringExtra("FollowList");
-                    String[] thirdSplit = FollowListWithoutSelf.split(":");
+                    this.FollowListWithoutSelf = data.getStringExtra("FollowList");
+                    String[] thirdSplit = this.FollowListWithoutSelf.split(":");
                     this.following.setText("Follows" + ": " + (thirdSplit.length));
                 } else {
                     this.following.setText("Follows" + ": " + "0");
@@ -277,8 +288,9 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
     public void processFinish(String output) {
         if (output.contains("UserData")) {
             String[] userDataSplit = output.split(" : ");
-            this.profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(userDataSplit[2])));
-            this.benutzerName.setText(userDataSplit[1]);
+            this.benutzerName.setText(userDataSplit[2]);
+            this.beschreibungView.setText(this.beschreibungView.getText().toString() + userDataSplit[3]);
+            this.profilbild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(userDataSplit[4])));
 
         } else if (output.contains("Follower: ")) {
             String[] firstSplit = output.split(" : ");
@@ -297,23 +309,23 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             }
         } else if (output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
-            updateFollower(id);
+            updateFollower(this.id);
         } else if (output.contains("PostIDs")) {
             String[] firstSplit = output.split(":");
             String postCount = firstSplit[1];
-            beiträgeField.setText(beiträgeField.getText().toString() + postCount);
+            this.beiträgeField.setText(this.beiträgeField.getText().toString() + postCount);
             int i = firstSplit.length - 1;
             while (i > 1) {
-                getUserPosts(Long.parseLong(firstSplit[i]), benutzerName.getText().toString());
+                getUserPosts(Long.parseLong(firstSplit[i]), this.benutzerName.getText().toString());
                 i--;
             }
         } else if (output.contains("PostPic")) {
             String[] firstSplit = output.split(":");
             String base64 = firstSplit[1];
             Bitmap bitmap = ImageHelper.base64ToBitmap(base64);
-            imageViewArrayList.add(bitmap);
-            idList.add(firstSplit[2]);
-            profilAdapter.notifyDataSetChanged();
+            this.imageViewArrayList.add(bitmap);
+            this.idList.add(firstSplit[2]);
+            this.profilAdapter.notifyDataSetChanged();
         } else if (output.contains("FullPost")) {
             String[] pieces = output.split(" : ");
             String id = pieces[1];
@@ -327,7 +339,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
                 i++;
             }
             String likes = "Likes: " + pieces[5];
-            int like = dataBasePosts.getLikeCount(Long.parseLong(id), user.getUsername());
+            int like = this.dataBasePosts.getLikeCount(Long.parseLong(id), this.user.getUsername());
             boolean checked;
             if (like == 2) {
                 checked = true;
@@ -341,7 +353,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             goToBigImage.putExtra("Likes", likes);
             goToBigImage.putExtra("Checked", checked);
             goToBigImage.putExtra("ID", id);
-            goToBigImage.putExtra("User", user);
+            goToBigImage.putExtra("User", this.user);
             goToBigImage.putStringArrayListExtra("Hashtags", hashList);
             startActivity(goToBigImage);
         } else if (output.contains("FollowExc")) {
@@ -351,6 +363,12 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         } else if (output.contains("Unfollowed")) {
             Toast.makeText(getApplicationContext(), "Du folgst der Person nun nicht mehr!", Toast.LENGTH_SHORT).show();
             updateFollower(id);
+        } else if (output.contains("Beschreibung")) {
+            String[] splitBeschreibung = output.split(":_:");
+            if (splitBeschreibung.length == 2) {
+                this.beschreibungView.setText(this.beschreibungView.getText().toString() + splitBeschreibung[1]);
+            }
+
         }
     }
 }

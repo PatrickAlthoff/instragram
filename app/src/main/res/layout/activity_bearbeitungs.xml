@@ -7,14 +7,20 @@
     android:layout_height="match_parent"
     tools:context=".BearbeitungsActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar3"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        android:layout_height="57dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar3"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
+    </android.support.design.widget.AppBarLayout>
 
     <ImageView
         android:id="@+id/imageView2"
