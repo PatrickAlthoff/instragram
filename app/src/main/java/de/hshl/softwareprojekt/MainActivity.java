@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity
         this.postList = this.dataBasePosts.getData();
         updateFollower(user.getId());
         this.profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -161,7 +162,7 @@ public class MainActivity extends AppCompatActivity
                 scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
                     @Override
                     public void onScrollChanged() {
-                        if (scrollView != null) {
+                        if (scrollView != null && splitIDs.length>4) {
                             if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
                                 int precheck = index - 4;
                                 int d = 4;
@@ -509,7 +510,7 @@ public class MainActivity extends AppCompatActivity
                     int c = Integer.parseInt(y);
                     fragmentIndex = 0;
                     newestPost = d;
-                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d, 0, ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()), "0", null);
+                    addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d, 0, ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()), "0", "");
                     int i = 0;
                     String hashes = "";
                     while (i < this.hashTagList.size()) {
@@ -832,10 +833,10 @@ public class MainActivity extends AppCompatActivity
             } else{
                 if(splitIDs.length >= 1){
                     newestPost = splitIDs[splitIDs.length - 1];
-                    int d = splitIDs.length;
-                    while(d>=1){
-                        getPostForID(Long.toString(splitIDs[d-1]));
-                        d--;
+                    index = splitIDs.length-1;
+                    while(index>=1){
+                        getPostForID(Long.toString(splitIDs[index]));
+                        index--;
                     }
                 }
 
@@ -881,6 +882,7 @@ public class MainActivity extends AppCompatActivity
             String[] firstSplit = output.split(" : ");
             this.followerCount.setText(firstSplit[0]);
             String[] secondSplit = firstSplit[1].split(": ");
+            FollowsList = String.valueOf(user.getId());
             if (secondSplit.length > 1) {
                 FollowsList = secondSplit[1] + user.getId();
                 FollowListWithoutSelf = secondSplit[1];
@@ -893,7 +895,7 @@ public class MainActivity extends AppCompatActivity
                     i++;
                 }
             } else {
-                this.followsCount.setText(followsCount.getText().toString() + "0");
+                this.followsCount.setText("Follows: " + "0");
             }
         } else if (output.contains("UpdatePostIDs")) {
 

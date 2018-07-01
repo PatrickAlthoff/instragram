@@ -42,6 +42,8 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
                 getUserData(Long.parseLong(followerPieces[i]));
                 i++;
             }
+        }else{
+            Toast.makeText(getApplicationContext(), "Du hast noch keine Follower!", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -159,7 +161,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
 
         if (output.contains("UserData")) {
             String[] userDataSplit = output.split(" : ");
-            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[2]), userDataSplit[1], userDataSplit[3]);
+            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[4]), userDataSplit[2], userDataSplit[5]);
         } else if (output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();
         } else if (output.contains("FollowExc")) {

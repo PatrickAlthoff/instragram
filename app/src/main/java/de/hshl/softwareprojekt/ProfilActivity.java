@@ -275,10 +275,13 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
                 if (data != null) {
                     this.FollowListWithoutSelf = data.getStringExtra("FollowList");
                     String[] thirdSplit = this.FollowListWithoutSelf.split(":");
-                    this.following.setText("Follows" + ": " + (thirdSplit.length));
-                } else {
-                    this.following.setText("Follows" + ": " + "0");
+                    if(this.FollowListWithoutSelf.equals("")){
+                        this.following.setText("Follows" + ": " + "0");
+                    }
 
+                    else {
+                        this.following.setText("Follows" + ": " + (thirdSplit.length));
+                        }
                 }
             }
         }

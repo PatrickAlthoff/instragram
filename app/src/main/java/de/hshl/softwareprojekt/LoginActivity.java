@@ -329,7 +329,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
                 userTableData.clear();
             } else if (!success && valid == true) {
                 pw = userTableData.get(3);
-                if(pw == mPassword){
+                if(pw.equals(mPassword)){
                     userID = Long.parseLong(userTableData.get(0));
                     username = userTableData.get(1);
                     email = userTableData.get(2);

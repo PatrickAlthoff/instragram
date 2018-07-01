@@ -484,6 +484,10 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             }
         } else if (output.contains("PostDeleted")) {
             Toast.makeText(getApplicationContext(), "Dein Post wurde erfolgreich gelöscht.", Toast.LENGTH_SHORT).show();
+        } else if (output.contains("NoHash")) {
+            Toast.makeText(getApplicationContext(), "Es konnten keine Posts mit diesem Hashtag gefunden werden.", Toast.LENGTH_SHORT).show();
+        } else if (output.contains("NoUser")) {
+            Toast.makeText(getApplicationContext(), "Es konnten keine User gefunden werden.", Toast.LENGTH_SHORT).show();
         } else {
 
             postList = new ArrayList<>();

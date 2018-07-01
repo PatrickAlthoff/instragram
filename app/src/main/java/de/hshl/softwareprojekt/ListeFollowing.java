@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
     private String FollowListWithoutSelf;
-    private String followsList;
+    private String followsList = "";
     private LinearLayout userCache;
     private User user;
 
@@ -34,12 +34,19 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
 
         this.FollowListWithoutSelf = getIntent.getStringExtra("FollowList");
         this.followsList = getIntent.getStringExtra("FollowsList");
-        String[] followerPieces = this.followsList.split(":");
-        int i = 0;
-        while (i < followerPieces.length) {
-            getUserData(Long.parseLong(followerPieces[i]));
-            i++;
+        if(followsList == null){
+            Toast.makeText(getApplicationContext(), "Du folgst noch niemandem!", Toast.LENGTH_SHORT).show();
         }
+        else{
+            String[] followerPieces = this.followsList.split(":");
+            int i = 0;
+            while (i < followerPieces.length) {
+                getUserData(Long.parseLong(followerPieces[i]));
+                i++;
+            }
+        }
+
+
         Toolbar toolbar = findViewById(R.id.toolbar10);
         toolbar.setTitleTextColor(0xFFFFFFFF);
         setSupportActionBar(toolbar);
@@ -151,7 +158,7 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
     public void processFinish(String output) {
         if (output.contains("UserData")) {
             String[] userDataSplit = output.split(" : ");
-            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[2]), userDataSplit[1], userDataSplit[3]);
+            addSearchUser(ImageHelper.base64ToBitmap(userDataSplit[4]), userDataSplit[2], userDataSplit[5]);
 
         } else if (output.contains("Followed")) {
             Toast.makeText(getApplicationContext(), "Du folgst nun dieser Person!", Toast.LENGTH_SHORT).show();

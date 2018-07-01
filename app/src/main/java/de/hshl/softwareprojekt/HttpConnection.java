@@ -154,6 +154,10 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
             delegate.processFinish(result);
         } else if (result.contains("SharedSuccessfully")) {
             delegate.processFinish(result);
+        } else if (result.contains("NoHash")) {
+            delegate.processFinish(result);
+        } else if (result.contains("NoUser")) {
+            delegate.processFinish(result);
         }
     }
 
