@@ -177,18 +177,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        TextView shareNAME = frontPagePost.shareName;
-        if (shareName.equals("")) {
-            shareNAME.setVisibility(View.INVISIBLE);
-        } else {
-            shareNAME.setText("Shared By: " + shareName);
-        }
 
-        TextView shareCount = frontPagePost.shareCount;
-        shareCount.setText("Shares: " + shares);
-
-        ImageButton shareButton = frontPagePost.share;
-        shareButton.setVisibility(View.INVISIBLE);
         postFragmentList.add(frontPagePost);
         if (Long.parseLong(userKey) == user.getId() || shareName.equals(user.getUsername())) {
             deleteButton.setVisibility(View.VISIBLE);
@@ -203,6 +192,52 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                 updateDelete(Long.parseLong(v.getContentDescription().toString()));
             }
         });
+
+        final Bitmap postBitty = postBitmap;
+        final Bitmap userPicF = userPic;
+        final String titelF = titel;
+        final String dateF = date;
+        final long userKeyF = Long.parseLong(userKey);
+        int index = 0;
+        String hashes = "";
+        while (index < hashlist.size()) {
+
+            hashes = hashes + ":" + hashlist.get(index);
+            index++;
+
+        }
+        TextView shareNAME = frontPagePost.shareName;
+        if (shareName.equals("")) {
+            shareNAME.setVisibility(View.INVISIBLE);
+        } else {
+            shareNAME.setText("Shared By: " + shareName);
+        }
+
+        TextView shareCount = frontPagePost.shareCount;
+        shareCount.setText("Shares: " + shares);
+        ImageButton shareButton = frontPagePost.share;
+        final String hashesF = hashes;
+        if (shareName.equals("")) {
+
+            shareButton.setContentDescription(i);
+            shareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    updateShare(Long.parseLong(v.getContentDescription().toString()));
+                    long d = System.currentTimeMillis() / 1000;
+                    String y = String.valueOf(d);
+                    int c = Integer.parseInt(y);
+                    uploadShare(c, username, ImageHelper.bitmapToBase64(postBitty), titelF, hashesF, dateF, false, userKeyF, ImageHelper.bitmapToBase64(userPicF), user.getUsername());
+
+                }
+            });
+        } else {
+            shareButton.setVisibility(View.INVISIBLE);
+            shareCount.setVisibility(View.INVISIBLE);
+        }
+
+
     }
 
     //Skaliert eine übergebene Bitmap
@@ -289,6 +324,24 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
+    }
+
+    private void uploadShare(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic, String shareName) {
+        String dstAdress = "http://intranet-secure.de/instragram/uploadShare.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.uploadShare(id, name, path, titel, hashtags, date, liked, userKey, userPic, shareName));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
+    }
+
+    private void updateShare(long id) {
+        String dstAdress = "http://intranet-secure.de/instragram/updateShare.php";
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
+        httpConnection.setMessage(XmlHelper.updateShare(id));
+        httpConnection.setMode(HttpConnection.MODE.PUT);
+        httpConnection.delegate = this;
+        httpConnection.execute();
     }
 
     private void updateDelete(long id) {

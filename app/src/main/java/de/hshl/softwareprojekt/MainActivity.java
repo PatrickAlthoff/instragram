@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity
                 scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
                     @Override
                     public void onScrollChanged() {
-                        if (scrollView != null && splitIDs.length>4) {
+                        if (scrollView != null && splitIDs.length > 4) {
                             if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
                                 int precheck = index - 4;
                                 int d = 4;
@@ -343,21 +343,25 @@ public class MainActivity extends AppCompatActivity
         shareCount.setText("Shares: " + shares);
         final String hashesF = hashes;
         ImageButton shareButton = frontPagePost.share;
-        shareButton.setContentDescription(i);
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (shareName.equals("")) {
+            shareButton.setContentDescription(i);
+            shareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                updateShare(Long.parseLong(v.getContentDescription().toString()));
-                fragmentIndex = 0;
-                long d = System.currentTimeMillis() / 1000;
-                String y = String.valueOf(d);
-                int c = Integer.parseInt(y);
-                uploadShare(c, username, ImageHelper.bitmapToBase64(postBitty), titelF, hashesF, dateF, false, userKeyF, ImageHelper.bitmapToBase64(userPicF), user.getUsername());
+                    updateShare(Long.parseLong(v.getContentDescription().toString()));
+                    fragmentIndex = 0;
+                    long d = System.currentTimeMillis() / 1000;
+                    String y = String.valueOf(d);
+                    int c = Integer.parseInt(y);
+                    uploadShare(c, username, ImageHelper.bitmapToBase64(postBitty), titelF, hashesF, dateF, false, userKeyF, ImageHelper.bitmapToBase64(userPicF), user.getUsername());
 
-            }
-        });
-
+                }
+            });
+        } else{
+            shareButton.setVisibility(View.INVISIBLE);
+            shareCount.setVisibility(View.INVISIBLE);
+        }
     }
 
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
@@ -823,18 +827,18 @@ public class MainActivity extends AppCompatActivity
             }
             Arrays.sort(splitIDs);
             index = splitIDs.length - 1;
-            if(splitIDs.length>=6){
+            if (splitIDs.length >= 6) {
                 newestPost = splitIDs[splitIDs.length - 1];
                 for (int i = 4; i >= 0; i--) {
                     getPostForID(Long.toString(splitIDs[index]));
                     index--;
 
                 }
-            } else{
-                if(splitIDs.length >= 1){
+            } else {
+                if (splitIDs.length >= 1) {
                     newestPost = splitIDs[splitIDs.length - 1];
-                    index = splitIDs.length-1;
-                    while(index>=1){
+                    index = splitIDs.length - 1;
+                    while (index >= 1) {
                         getPostForID(Long.toString(splitIDs[index]));
                         index--;
                     }
