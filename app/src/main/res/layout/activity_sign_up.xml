@@ -164,7 +164,7 @@
                         android:layout_marginTop="5dp"
                         android:background="@drawable/et_bg"
                         android:fontFamily="sans-serif-light"
-                        android:hint="Email"
+                        android:hint="E-mail"
                         android:inputType="textEmailAddress"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
