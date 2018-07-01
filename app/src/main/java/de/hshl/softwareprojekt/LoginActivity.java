@@ -41,11 +41,9 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
     private View mProgressView;
     private View mLoginFormView;
     private Button neuBtn;
-    private Button getDaten;
-    private Button deleteBtn;
     private ArrayList<String> userList;
     private DatabaseHelperUser database;
-    private LinearLayout email_login_form;
+
     private CheckBox rememberCheck;
     private ArrayList<String> userTableData;
     private HttpConnection httpConnection;
@@ -75,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
         });
 
         database = new DatabaseHelperUser(this);
-        email_login_form = findViewById(R.id.email_login_form);
+
 
         this.userTableData = new ArrayList<>();
         this.userList = new ArrayList<>();
@@ -89,28 +87,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
             }
         });
 
-        this.getDaten = findViewById(R.id.getDaten);
-        this.getDaten.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                userList = database.getData();
-                int i = 0;
-                while (i < userList.size()) {
-                    TextView newText = new TextView(LoginActivity.this);
-                    newText.setText(userList.get(i));
-                    email_login_form.addView(newText, 6);
-                    i++;
-                }
-            }
-        });
 
-        this.deleteBtn = findViewById(R.id.deleteBtn);
-        this.deleteBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                database.deleteData();
-            }
-        });
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
