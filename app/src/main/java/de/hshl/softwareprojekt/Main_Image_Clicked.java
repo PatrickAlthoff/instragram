@@ -111,11 +111,12 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    //Enthält die Funktionen des onClick Events
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            //Verarbeitet den Click auf das Kommentarfeld
             case R.id.clickedKomment:
-                //Setzt die Sichtbarkeit des EditText auf VISIBLE und leert den Inhalt
                 this.gridLayout.setVisibility(View.INVISIBLE);
                 this.editKomm.setVisibility(View.VISIBLE);
                 this.subButton.setVisibility(View.VISIBLE);
@@ -129,6 +130,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 long idPost = Long.parseLong(this.checkLike.getContentDescription().toString());
                 getKommentar(idPost);
                 break;
+            //Verarbeitet den Click auf das Hashtagfeld
             case R.id.hashTags:
                 this.editKomm.setVisibility(View.INVISIBLE);
                 this.subButton.setVisibility(View.INVISIBLE);
@@ -161,6 +163,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                 }
 
                 break;
+            //Verarbeitet den Klick auf den Submit Button bei einem Kommentar
             case R.id.submitButton:
                 InputMethodManager inputManager = (InputMethodManager)
                         getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -178,12 +181,14 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         }
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
 
+    //Enthält die Funktion des Backbuttons in der Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -199,6 +204,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         return super.onOptionsItemSelected(item);
     }
 
+    //Enthält die Funktion zum Update des Like Status beim Klick auf die Like Box
     private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -208,6 +214,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.execute();
     }
 
+    //Enthält die Funktion zur Abfrage aller Kommentare des jeweiligen Posts
     private void getKommentar(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getKommentare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -217,6 +224,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.execute();
     }
 
+    //Enthält die Funktion zum Senden eines Kommentars
     private void uploadKommentar(long id, String kommentar) {
         String dstAdress = "http://intranet-secure.de/instragram/uploadKomment.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -225,6 +233,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.execute();
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("Update erfolgreich.")) {
@@ -245,6 +254,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         }
     }
 
+    //Enthält die Funktion zum Erzeugen eines Kommentar Fragmentes
     public void addKommentar(Bitmap profilPic, String username, String kommentar, long kommentTime) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout

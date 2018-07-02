@@ -29,17 +29,17 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
-    private Uri imageUri;
-    private ImageView profilbild;
-    private Button save;
-    private EditText benutzerName;
-    private EditText Beschreibung;
-    private DatabaseHelperPosts databaseHelperPosts;
-    private DatabaseHelperUser databaseHelperUser;
-    private User user;
     private String base64;
     private String oldbase;
     private String oldName;
+    private Uri imageUri;
+    private User user;
+    private Button save;
+    private EditText benutzerName;
+    private EditText Beschreibung;
+    private ImageView profilbild;
+    private DatabaseHelperPosts databaseHelperPosts;
+    private DatabaseHelperUser databaseHelperUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +47,11 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         setContentView(R.layout.activity_profil__bearbeitung);
 
         Intent intent = getIntent();
-        user = (User) intent.getSerializableExtra("User");
-        getBio(user.getId());
-        base64 = user.getBase64();
-        oldbase = user.getBase64();
-        oldName = user.getUsername();
+        this.user = (User) intent.getSerializableExtra("User");
+        getBio(this.user.getId());
+        this.base64 = this.user.getBase64();
+        this.oldbase = this.user.getBase64();
+        this.oldName = this.user.getUsername();
         this.databaseHelperPosts = new DatabaseHelperPosts(this);
         this.databaseHelperUser = new DatabaseHelperUser(this);
 
@@ -113,6 +113,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
@@ -123,7 +124,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             Intent back = new Intent(Profil_BearbeitungActivity.this, ProfilActivity.class);
-            back.putExtra("User", user);
+            back.putExtra("User", this.user);
             setResult(RESULT_OK, back);
             finish(); // close this activity and return to preview activity (if there is any)
         }
@@ -138,9 +139,9 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         contentValues.put(MediaStore.Images.Media.TITLE, TITLE);
         contentValues.put(MediaStore.Images.Media.DESCRIPTION, DESCRIPTION);
         contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        this.imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
         Intent intentCaptureImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        intentCaptureImage.putExtra(MediaStore.EXTRA_OUTPUT, this.imageUri);
         startActivityForResult(intentCaptureImage, IMAGE_CAPTURE);
     }
 
@@ -155,11 +156,11 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
                 if (data != null) {
 
                     Bitmap profilBitmap = getAndScaleBitmap(this.imageUri, 80, 80);
-                    base64 = ImageHelper.bitmapToBase64(profilBitmap);
+                    this.base64 = ImageHelper.bitmapToBase64(profilBitmap);
                     this.profilbild.setImageDrawable(roundImage(profilBitmap));
                 }
             } else {
-                int rowsDeleted = getContentResolver().delete(imageUri, null, null);
+                int rowsDeleted = getContentResolver().delete(this.imageUri, null, null);
                 Log.d(MainActivity.class.getSimpleName(), rowsDeleted + " rows deleted");
             }
         }
@@ -170,7 +171,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
                 if (data != null) {
                     Uri uri = data.getData();
                     Bitmap profilBitmap = getAndScaleBitmap(uri, 80, 80);
-                    base64 = ImageHelper.bitmapToBase64(profilBitmap);
+                    this.base64 = ImageHelper.bitmapToBase64(profilBitmap);
                     this.profilbild.setImageDrawable(roundImage(profilBitmap));
                 }
             } else {
@@ -199,14 +200,16 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         return null;
     }
 
+    //Sendet eine Anfrage an die updateUnfollow.php zum Updaten der Profilinformationen
     private void updateData(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/sendProfilData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateProfilData(id, benutzerName.getText().toString(), Beschreibung.getText().toString(), base64));
+        httpConnection.setMessage(XmlHelper.updateProfilData(id, this.benutzerName.getText().toString(), this.Beschreibung.getText().toString(), this.base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getAllKommPosts.php um alle KommentarIDs des Users zu erhalten
     private void getAllPosts(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getAllKommPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -216,15 +219,17 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateKommentData.php um alle Kommentare des Users mit den neuen Daten upzudaten
     private void updateAllKomms(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateKommentData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
-        httpConnection.setMessage(XmlHelper.updateAllKomms(id, user.getUsername(), user.getBase64(), oldName, oldbase));
+        httpConnection.setMessage(XmlHelper.updateAllKomms(id, this.user.getUsername(), this.user.getBase64(), this.oldName, this.oldbase));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getBio.php um die Biografie abzurufen
     private void getBio(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getBio.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -265,6 +270,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         }
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("getPostIDs")) {
@@ -278,7 +284,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
         } else if (output.contains("Beschreibung")) {
             String[] splitBeschreibung = output.split(":_:");
             if (splitBeschreibung.length == 2) {
-                Beschreibung.setText(splitBeschreibung[1]);
+                this.Beschreibung.setText(splitBeschreibung[1]);
             }
 
         }

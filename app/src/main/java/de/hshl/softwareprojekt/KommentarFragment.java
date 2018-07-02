@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import static android.text.format.DateUtils.getRelativeTimeSpanString;
 
+//Enthält die Variablen und Objekte des KommentarFragmentes
 public class KommentarFragment extends Fragment {
     ImageView profilPicKomm;
     TextView profilNameKomm;

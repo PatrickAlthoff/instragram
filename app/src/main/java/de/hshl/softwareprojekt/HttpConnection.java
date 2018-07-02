@@ -31,6 +31,7 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
         this.mode = mode;
     }
 
+    //Zuständig für den Upload der XML-Dateien und den Empfängt echo der Php Dateien
     @Override
     protected String doInBackground(Void... voids) {
         HttpURLConnection urlConnection = null;
@@ -104,6 +105,7 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
         return this.response;
     }
 
+    //Enthält Vielzahl von Kennwörtern, die im Echo der Php Dateien mitgesendet werden
     @Override
     protected void onPostExecute(String result) {
         if (result.contains("Is_Ok")) {
@@ -161,5 +163,5 @@ public class HttpConnection extends AsyncTask<Void, Void, String> {
         }
     }
 
-    public static enum MODE {GET, PUT}
+    public enum MODE {GET, PUT}
 }

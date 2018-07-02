@@ -30,23 +30,22 @@ import java.io.IOException;
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
 
     private static final int PERMISSION_REQUEST = 1;
-    public HttpConnection httpConnection;
     private boolean permissionGranted;
     private int TITLE = 2;
     private int DESCRIPTION = 3;
     private int IMAGE_CAPTURE = 4;
     private int GALLERY_PICK = 5;
+    private String response;
+    private String base64;
     private Uri imageUri;
     private Intent intentCaptureImage;
-    private DatabaseHelperUser userDatabase;
     private Button regButton;
     private EditText userNameField;
     private EditText pwField;
     private EditText emailField;
     private ImageView profilPic;
     private Bitmap profilBitmap;
-    private String response;
-    private String base64;
+    private DatabaseHelperUser userDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +83,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     this.base64 = ImageHelper.bitmapToBase64(this.profilBitmap);
                     sendXML(username, email, pw, base64);
                 } else {
-                    Log.e("Fields", "emtpy");
+                    Toast.makeText(getApplicationContext(), "Bitte fülle alle Felder aus und wähle dein Profilbild.", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.imgView_logo:
@@ -122,15 +121,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         return super.onOptionsItemSelected(item);
     }
 
+    //Sendet eine XML an die Upload_User.php, welche einen neuen User in der Datenbank speichert
     private void sendXML(String username, String email, String password, String base64) {
         String dstAdress = "http://intranet-secure.de/instragram/Upload_User.php";
-        httpConnection = new HttpConnection(dstAdress);
+        HttpConnection httpConnection = new HttpConnection(dstAdress);
         httpConnection.setMessage(XmlHelper.uploadUser(username, email, password, base64));
         httpConnection.setMode(HttpConnection.MODE.PUT);
         httpConnection.delegate = this;
         httpConnection.execute();
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         this.response = output;
@@ -167,6 +168,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);

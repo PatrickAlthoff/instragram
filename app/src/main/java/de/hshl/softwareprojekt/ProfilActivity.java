@@ -40,8 +40,8 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
     private TextView benutzerName;
     private TextView beiträgeField;
     private TextView beschreibungView;
-    private CheckBox aboBox;
     private GridView gridView;
+    private CheckBox aboBox;
     private ProfilAdapter profilAdapter;
     private DatabaseHelperPosts dataBasePosts;
     private ArrayList<Bitmap> imageViewArrayList;
@@ -158,12 +158,14 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
 
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
 
+    //Sendet eine Anfrage an die getFullPost.php um zu einem bestimmten Post zu gehen
     private void getFullPost(String id) {
         String dstAdress = "http://intranet-secure.de/instragram/getFullPost.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -173,6 +175,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getFollower.php um die Followeranzeige korrekt darzustellen
     private void updateFollower(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -182,6 +185,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateFollows.php um die Abo follow Anfrage zu bearbeiten
     private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -191,6 +195,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateUnfollow.php um die entfollow Anfrage zu bearbeiten
     private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -200,6 +205,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getUserData.php um die Profildaten des Nutzers zu erhalten
     private void getUserData(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -209,6 +215,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getPostPicture.php alle Posts des Users abzufragen und darzustellen
     private void getUserPosts(long id, String username) {
         String dstAdress = "http://intranet-secure.de/instragram/getPostPicture.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -217,6 +224,8 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         httpConnection.delegate = this;
         httpConnection.execute();
     }
+
+    //Sendet eine Anfrage an die getBio.php um die Biografie des Users darzustellen
     private void getBio(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getBio.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -234,7 +243,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         return super.onCreateOptionsMenu(menu);
     }
 
-    // wenn Profil bearbeiten
+    //Enthält die Backbutton Funktio und die Profil-Bearbeiten Funktion
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -275,18 +284,19 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
                 if (data != null) {
                     this.FollowListWithoutSelf = data.getStringExtra("FollowList");
                     String[] thirdSplit = this.FollowListWithoutSelf.split(":");
-                    if(this.FollowListWithoutSelf.equals("")){
+                    if (this.FollowListWithoutSelf.equals("")) {
                         this.following.setText("Follows" + ": " + "0");
-                    }
-
-                    else {
+                    } else if (code == 2) {
                         this.following.setText("Follows" + ": " + (thirdSplit.length));
-                        }
+                    } else {
+
+                    }
                 }
             }
         }
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("UserData")) {

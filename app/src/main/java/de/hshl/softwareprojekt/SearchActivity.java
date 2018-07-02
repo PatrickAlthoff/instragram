@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class SearchActivity extends AppCompatActivity implements View.OnClickListener, AsyncResponse {
+public class SearchActivity extends AppCompatActivity implements AsyncResponse {
     private int IMAGE_CLICKED = 13;
     private String followsListWithOutSelf;
     private String rememberQuery;
@@ -63,7 +63,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
-    //Fügt der Frontpage ein individuelles Post Fragment hinzu
+    //Enthält die Funktion um ein PostFragment zu erzeugen
     public void addPostFragment(Bitmap postBitmap, final String username, String titel, ArrayList<String> hashlist, String date, long id, int liked, Bitmap userPic, String userKey, String shares, String shareName) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
@@ -255,10 +255,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
 
     @Override
-    public void onClick(View v) {
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
@@ -270,14 +266,14 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         return super.onOptionsItemSelected(item);
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
 
-
-    //Generiert den Inhalt des DrawerLayout aus der main.xml
+    //Enthält die Funktionen für den Backbutton und die Suchanfrage des SearchViews
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -326,6 +322,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
     }
 
+    //Enthält die Anfrage, einen Post zu teilen
     private void uploadShare(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic, String shareName) {
         String dstAdress = "http://intranet-secure.de/instragram/uploadShare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -335,6 +332,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, den Share Counter hochzuzählen
     private void updateShare(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateShare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -344,6 +342,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, einen Post zu löschen
     private void updateDelete(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateDelete.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -353,6 +352,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Entfernt das Fragment
     public void removeSearchFragment(SearchUserFragment pf) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -360,6 +360,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         fragmentTransaction.commitNow();
     }
 
+    //Enthält die Anfrage, den Like Status eines Posts upzudaten
     private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -369,6 +370,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, alle IDs der Posts zu erhalten die der Suchanfrage entsprechen
     private void getPostForID(String id) {
         String dstAdress = "http://intranet-secure.de/instragram/getPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -378,6 +380,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Sendet eine Suchanfrage an den Server
     private void sendXML(String query) {
         String dstAdress = "http://intranet-secure.de/instragram/search.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -387,6 +390,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateFollows.php um die Abo follow Anfrage zu bearbeiten
     private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -396,6 +400,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateUnfollow.php um die entfollow Anfrage zu bearbeiten
     private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -405,6 +410,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getUserPic.php um das jeweilige Profilbild zu erhalten
     private void getUserPic(long query) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -440,9 +446,9 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    //Enthält die Funktionen zum Erzeugen eines UserFragments
     public void addSearchUser(Bitmap postBitmap, String username, final String contentDis) {
 
-        //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
         FragmentManager fragmentManagerSearchUser = getSupportFragmentManager();
         SearchUserFragment searchFragment = new SearchUserFragment();
         FrameLayout frameInner = new FrameLayout(this);
@@ -495,6 +501,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         String[] response = output.split(" : ");
@@ -565,7 +572,6 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     if (response.length == 12) {
                         shareName = response[i + 10];
                     }
-                    long userKey = Long.parseLong(userKeyString);
                     int like = Integer.valueOf(bool);
                     int c = 0;
                     while (c < hashes.length) {

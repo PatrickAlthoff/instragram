@@ -70,13 +70,15 @@ public class MainActivity extends AppCompatActivity
     private String FollowsList;
     private String FollowListWithoutSelf = "";
     private Uri imageUri;
-    private Intent intentCaptureImage;
     private User user;
+    private Intent intentCaptureImage;
     private ImageView profilBild;
     private ImageView followerBild;
     private TextView profilName;
     private TextView followerCount;
     private TextView followsCount;
+    private SearchView searchView;
+    private ScrollView scrollView;
     private LinearLayout innerLayout;
     private LinearLayout horiInner;
     private ArrayList<ImageView> followerList;
@@ -85,8 +87,6 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> postList;
     private ArrayList<PostFragment> postFragmentArrayList;
     private DatabaseHelperPosts dataBasePosts;
-    private SearchView searchView;
-    private ScrollView scrollView;
 
     //Methode um die Display Auflösung zu erhalten
     private void getDisplayMetrics() {
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity
         this.postList = this.dataBasePosts.getData();
         updateFollower(user.getId());
         this.profilBild.setImageDrawable(roundImage(ImageHelper.base64ToBitmap(user.getBase64())));
-
+        //Sendet nach 2000 Millsec. eine Anfrage an den Server um alle Posts zu erhalten
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity
             }
         }).start();
 
+        //Enthält Funktion zum Nachladen der Posts, wenn der User am Ende des Scrolls angekommnen ist
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -215,6 +216,7 @@ public class MainActivity extends AppCompatActivity
         ImageView userImage = frontPagePost.profilPicPost;
         userImage.setImageDrawable(roundImage(userPic));
         userImage.setContentDescription(userKey);
+        //Verarbeitet das OnClick Event für den Klick auf das Profilbild
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -229,6 +231,7 @@ public class MainActivity extends AppCompatActivity
         ImageView postImage = frontPagePost.postImage;
         postImage.setId(View.generateViewId());
         postImage.setContentDescription(i);
+        //Verarbeitet das OnClick Event für den Klick auf das Postbild
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -275,6 +278,7 @@ public class MainActivity extends AppCompatActivity
         likeCheck.setId(Integer.parseInt(i));
         String ID = String.valueOf(id);
         likeCheck.setContentDescription(ID);
+        //Verarbeitet OnClick Event beim Check der Likebox
         likeCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -345,6 +349,7 @@ public class MainActivity extends AppCompatActivity
         ImageButton shareButton = frontPagePost.share;
         if (shareName.equals("")) {
             shareButton.setContentDescription(i);
+            //Verarbeitet OnClick Event des Share-Buttons
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -358,12 +363,13 @@ public class MainActivity extends AppCompatActivity
 
                 }
             });
-        } else{
+        } else {
             shareButton.setVisibility(View.INVISIBLE);
             shareCount.setVisibility(View.INVISIBLE);
         }
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
@@ -560,6 +566,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        //Enthält die Daten, die aus dem Profil kommen
         if (requestCode == 200) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
@@ -576,6 +583,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+        //aktualisiert die Follower Liste nach der Suche
         if (requestCode == 350) {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
@@ -661,15 +669,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        //Startet die Kamera
         if (id == R.id.nav_camera) {
             startCamera();
 
-        } else if (id == R.id.nav_gallery) {
+        }
+        //Startet die Galerie Ansicht
+        else if (id == R.id.nav_gallery) {
             Intent intentGallerie = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             startActivityForResult(intentGallerie, GALLERY_PICK);
 
-        } else if (id == R.id.nav_slideshow) {
+        }
+        //Startet die Story Ansicht
+        else if (id == R.id.nav_slideshow) {
             Intent intentStories = new Intent(MainActivity.this, Main_Story_Clicked.class);
             intentStories.putExtra("User", this.user);
             String userID = String.valueOf(this.user.getId());
@@ -722,6 +734,7 @@ public class MainActivity extends AppCompatActivity
         return Uri.parse(path);
     }
 
+    //Enthält die Anfrage, einen Post zu teilen
     private void uploadShare(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic, String shareName) {
         String dstAdress = "http://intranet-secure.de/instragram/uploadShare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -731,6 +744,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, den Share Counter hochzuzählen
     private void updateShare(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateShare.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -740,6 +754,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, einen Post zu löschen
     private void updateDelete(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateDelete.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -749,6 +764,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage einen Post hochzuladen
     private void uploadPost(int id, String name, String path, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
         String dstAdress = "http://intranet-secure.de/instragram/Upload.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -757,6 +773,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage ein Profilbild zu erhalten
     private void getUserPic(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserPic.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -766,6 +783,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Abfrage, um die Followerlisten zu aktualisieren
     private void updateFollower(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getFollower.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -775,6 +793,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, den Like Status eines Posts upzudaten
     private void updateLikeStatus(int status, long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateLikeStatus.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -784,6 +803,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, alle IDs der Posts zu erhalten (Eigene und Usern denen man folgt)
     private void getAllPostIDs(String ids) {
         String dstAdress = "http://intranet-secure.de/instragram/getAllPostIDs.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -793,6 +813,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Anfrage, einen Post zu erhalten
     private void getPostForID(String id) {
         String dstAdress = "http://intranet-secure.de/instragram/getPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -802,6 +823,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
+    //Enthält die Abfrage, um neuere Posts in die Timeline zu laden
     private void updateTimeline(String follows, long highestPost) {
         String dstAdress = "http://intranet-secure.de/instragram/updateTimeline.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -811,7 +833,7 @@ public class MainActivity extends AppCompatActivity
         httpConnection.execute();
     }
 
-
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("UserPic")) {
@@ -819,28 +841,30 @@ public class MainActivity extends AppCompatActivity
             long inputLong = Long.valueOf(input[1]);
             Bitmap bitmap = ImageHelper.base64ToBitmap(input[2]);
             createFollower(inputLong, bitmap);
-        } else if (output.contains("AllPostIDs")) {
+        }
+        //Verarbeitet den String, welcher alle Post IDs enthält
+        else if (output.contains("AllPostIDs")) {
             String[] split = output.split(":");
-            splitIDs = new long[split.length - 1];
+            this.splitIDs = new long[split.length - 1];
             for (int i = 0; i < split.length - 1; i++) {
-                splitIDs[i] = Long.parseLong(split[i + 1]);
+                this.splitIDs[i] = Long.parseLong(split[i + 1]);
             }
-            Arrays.sort(splitIDs);
-            index = splitIDs.length - 1;
-            if (splitIDs.length >= 6) {
-                newestPost = splitIDs[splitIDs.length - 1];
+            Arrays.sort(this.splitIDs);
+            this.index = this.splitIDs.length - 1;
+            if (this.splitIDs.length >= 6) {
+                this.newestPost = this.splitIDs[this.splitIDs.length - 1];
                 for (int i = 4; i >= 0; i--) {
-                    getPostForID(Long.toString(splitIDs[index]));
-                    index--;
+                    getPostForID(Long.toString(this.splitIDs[this.index]));
+                    this.index--;
 
                 }
             } else {
-                if (splitIDs.length >= 1) {
-                    newestPost = splitIDs[splitIDs.length - 1];
-                    index = splitIDs.length - 1;
-                    while (index >= 1) {
-                        getPostForID(Long.toString(splitIDs[index]));
-                        index--;
+                if (this.splitIDs.length >= 1) {
+                    this.newestPost = this.splitIDs[this.splitIDs.length - 1];
+                    this.index = splitIDs.length - 1;
+                    while (this.index >= 1) {
+                        getPostForID(Long.toString(this.splitIDs[this.index]));
+                        this.index--;
                     }
                 }
 
@@ -848,7 +872,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (output.contains("FullPost")) {
             String[] response = output.split(" : ");
-            postList = new ArrayList<>();
+            this.postList = new ArrayList<>();
             if (response.length > 1) {
 
                 String ids = response[1];
@@ -868,7 +892,6 @@ public class MainActivity extends AppCompatActivity
                 if (response.length == 12) {
                     shareName = response[11];
                 }
-                long userKey = Long.parseLong(userKeyString);
                 int like = Integer.valueOf(bool);
                 int c = 0;
                 while (c < hashes.length) {
@@ -877,7 +900,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 addPostFragment(bitmap, username, titel, hashlist, date, id, like, ImageHelper.base64ToBitmap(userPic), userKeyString, shares, shareName);
-                postList.clear();
+                this.postList.clear();
             }
 
 
@@ -886,10 +909,10 @@ public class MainActivity extends AppCompatActivity
             String[] firstSplit = output.split(" : ");
             this.followerCount.setText(firstSplit[0]);
             String[] secondSplit = firstSplit[1].split(": ");
-            FollowsList = String.valueOf(user.getId());
+            this.FollowsList = String.valueOf(this.user.getId());
             if (secondSplit.length > 1) {
-                FollowsList = secondSplit[1] + user.getId();
-                FollowListWithoutSelf = secondSplit[1];
+                this.FollowsList = secondSplit[1] + this.user.getId();
+                this.FollowListWithoutSelf = secondSplit[1];
                 String[] thirdSplit = secondSplit[1].split(":");
                 this.followsCount.setText("Follows: " + (thirdSplit.length));
                 int i = 0;
@@ -906,12 +929,12 @@ public class MainActivity extends AppCompatActivity
             String[] splitNewPost = output.split(":");
             if (splitNewPost.length > 1) {
                 int i = splitNewPost.length - 1;
-                fragmentIndex = 0;
+                this.fragmentIndex = 0;
                 while (i >= 1) {
                     getPostForID(splitNewPost[i]);
                     i--;
                 }
-                newestPost = Long.parseLong(splitNewPost[splitNewPost.length - 1]);
+                this.newestPost = Long.parseLong(splitNewPost[splitNewPost.length - 1]);
             }
 
         } else if (output.contains("NoNewPosts")) {
@@ -923,7 +946,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
+    //Enthält die Funktion um einen Follower zu erzeugen (Story Picture)
     public void createFollower(long id, Bitmap bitmap) {
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);

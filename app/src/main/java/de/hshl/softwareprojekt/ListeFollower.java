@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-
+//Enthält die Funktionen und Variablen zum Abrufen der Follower eines Users
 public class ListeFollower extends AppCompatActivity implements AsyncResponse {
     private String FollowListWithoutSelf;
     private String followerList;
@@ -42,7 +42,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
                 getUserData(Long.parseLong(followerPieces[i]));
                 i++;
             }
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "Du hast noch keine Follower!", Toast.LENGTH_SHORT).show();
         }
 
@@ -56,6 +56,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    //Enthält die Funktion des Backbuttons in der Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -69,12 +70,14 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         return super.onOptionsItemSelected(item);
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
 
+    //Sendet eine Anfrage an die getUserData.php zum Erhalt aller Userdaten
     private void getUserData(long query) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -84,6 +87,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateFollows.php zum Updaten einer Follow Anfrage
     private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -93,6 +97,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateUnfollow.php zum Updaten einer Unfollow Anfrage
     private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -102,7 +107,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
-
+    //Enthält die Funktion zur Erzeugung eines SearchUser Frangmentes
     public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
 
         //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
@@ -156,6 +161,7 @@ public class ListeFollower extends AppCompatActivity implements AsyncResponse {
 
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
 

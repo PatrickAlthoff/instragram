@@ -81,6 +81,7 @@ public class SettingsActivity extends AppCompatActivity implements AsyncResponse
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    //Enthält die Backbutton Funktion
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -94,6 +95,7 @@ public class SettingsActivity extends AppCompatActivity implements AsyncResponse
         return super.onOptionsItemSelected(item);
     }
 
+    //Sendet eine Anfrage an die updateUserData.php um die Userdaten zu ändern
     private void updateData(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -102,6 +104,7 @@ public class SettingsActivity extends AppCompatActivity implements AsyncResponse
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die getAllKommPosts.php um die Daten aller Posts zu ändern
     private void getAllPosts(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getAllKommPosts.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -111,6 +114,7 @@ public class SettingsActivity extends AppCompatActivity implements AsyncResponse
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateKommentData.php um die Daten aller Kommentare zu ändern
     private void updateAllKomms(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/updateKommentData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -120,6 +124,7 @@ public class SettingsActivity extends AppCompatActivity implements AsyncResponse
         httpConnection.execute();
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("getPostIDs")) {

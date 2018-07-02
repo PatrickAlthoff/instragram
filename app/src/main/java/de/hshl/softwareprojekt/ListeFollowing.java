@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+//Enthält die Funktionen und Variablen zum Abrufen der Follows eines Users
 public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
     private String FollowListWithoutSelf;
     private String followsList = "";
@@ -34,10 +35,9 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
 
         this.FollowListWithoutSelf = getIntent.getStringExtra("FollowList");
         this.followsList = getIntent.getStringExtra("FollowsList");
-        if(followsList == null){
+        if (followsList == null) {
             Toast.makeText(getApplicationContext(), "Du folgst noch niemandem!", Toast.LENGTH_SHORT).show();
-        }
-        else{
+        } else {
             String[] followerPieces = this.followsList.split(":");
             int i = 0;
             while (i < followerPieces.length) {
@@ -56,12 +56,14 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
     }
 
+    //Enthält die Funktion des Backbuttons in der Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
             Intent gotBack = new Intent(ListeFollowing.this, ProfilActivity.class);
             gotBack.putExtra("FollowList", FollowListWithoutSelf);
+            gotBack.putExtra("FollowsList", this.followsList);
             setResult(RESULT_OK, gotBack);
             finish(); // close this activity and return to preview activity (if there is any)
         }
@@ -69,12 +71,14 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         return super.onOptionsItemSelected(item);
     }
 
+    //Enthält Funktion zum "Runden" einer Bitmap
     public RoundedBitmapDrawable roundImage(Bitmap bitmap) {
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
         roundedBitmapDrawable.setCircular(true);
         return roundedBitmapDrawable;
     }
 
+    //Sendet eine Anfrage an die getUserData.php zum Erhalt aller Userdaten
     private void getUserData(long query) {
         String dstAdress = "http://intranet-secure.de/instragram/getUserData.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -84,6 +88,7 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateFollows.php zum Updaten einer Follow Anfrage
     private void updateFollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateFollows.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -93,6 +98,7 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Sendet eine Anfrage an die updateUnfollow.php zum Updaten einer Unfollow Anfrage
     private void updateunfollowStatus(long userkey, long FID) {
         String dstAdress = "http://intranet-secure.de/instragram/updateUnfollow.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -102,9 +108,10 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
         httpConnection.execute();
     }
 
+    //Enthält die Funktion zur Erzeugung eines SearchUser Frangmentes
     public void addSearchUser(Bitmap postBitmap, String username, String contentDis) {
 
-        //Initialisiert den FragmentManager, das PostFragment und das FrameLayout
+
         FragmentManager fragmentManagerSearchUser = getSupportFragmentManager();
         SearchUserFragment followerFragment = new SearchUserFragment();
         FrameLayout frameInner = new FrameLayout(this);
@@ -154,6 +161,7 @@ public class ListeFollowing extends AppCompatActivity implements AsyncResponse {
 
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("UserData")) {

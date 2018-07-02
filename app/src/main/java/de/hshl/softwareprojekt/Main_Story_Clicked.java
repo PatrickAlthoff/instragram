@@ -200,13 +200,12 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
 
     //Sorgt beim Delete für eine Leerung der ArrayLists und schaltet Objekte auf INVISIBLE
     public void deleteProcess() {
-            /*this.bitmapList.clear();
-            this.titelList.clear();
-            this.storiePic.setVisibility(View.INVISIBLE);
-            this.progressBar.setVisibility(View.INVISIBLE);
-            this.titelStory.setVisibility(View.INVISIBLE);
-            this.emptyText.setVisibility(View.VISIBLE);
-            */
+        this.bitmapList.clear();
+        this.titelList.clear();
+        this.storiePic.setVisibility(View.INVISIBLE);
+        this.progressBar.setVisibility(View.INVISIBLE);
+        this.titelStory.setVisibility(View.INVISIBLE);
+        this.emptyText.setVisibility(View.VISIBLE);
         database.deleteStory(user.getId());
         deleteStory(user.getId());
     }
@@ -223,6 +222,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         return super.onOptionsItemSelected(item);
     }
 
+    //Enthält Funktion zum Löschen einer Story vom Server
     private void deleteStory(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/deleteStory.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -232,6 +232,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         httpConnection.execute();
     }
 
+    //Enthält Funktion zur Anfrage der Storydaten
     private void updateStoryboard(long id) {
         String dstAdress = "http://intranet-secure.de/instragram/getStory.php";
         HttpConnection httpConnection = new HttpConnection(dstAdress);
@@ -278,6 +279,7 @@ public class Main_Story_Clicked extends AppCompatActivity implements View.OnClic
         }
     }
 
+    //Enthält die ProcessFinish Funktion des AsyncResponse Interface
     @Override
     public void processFinish(String output) {
         if (output.contains("StoryReturn")) {

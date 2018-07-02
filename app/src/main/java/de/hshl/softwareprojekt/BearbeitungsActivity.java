@@ -258,6 +258,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return dst;
     }
 
+    //Enthält die Funktion für eine höhere Saturierung
     private Bitmap higherSaturation(Bitmap src) {
 
         int width = src.getWidth(), height = src.getHeight();
@@ -276,6 +277,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return dst;
     }
 
+    //Enthält die Funktion für einen höheren Kontrast
     private Bitmap higherContrast(Bitmap src, double value) {
 
         int width = src.getWidth();
@@ -328,7 +330,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         return bmOut;
     }
 
-
+    //Enthält die Funktion für einen Invers Effekt
     private Bitmap invertEffect(Bitmap src) {
 
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
@@ -429,6 +431,7 @@ public class BearbeitungsActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    //Enthält die Funktion des Backbuttons in der Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here

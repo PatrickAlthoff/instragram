@@ -69,6 +69,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     public void onClick(View v) {
 
         switch (v.getId()) {
+            //Enthält den Intent, der einen zur Timeline weiterleitet
             case R.id.postButton:
                 Intent sendBackIntent = new Intent(Post_BearbeitungsActivity.this, MainActivity.class);
                 String sendTitelPost = this.postTitel.getText().toString();
@@ -80,6 +81,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
                 setResult(RESULT_OK, sendBackIntent);
                 finish();
                 break;
+            //Enthält den Intent, der einen zur Detailbearbeitung weiterleitet
             case R.id.customizeButton:
                 Intent sendToBearbeitung = new Intent(Post_BearbeitungsActivity.this, BearbeitungsActivity.class);
                 sendToBearbeitung.putExtra("BitmapImage", this.postBitmap);

@@ -129,6 +129,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
         return userPic;
     }
 
+    //Updated den Remember Status aller Einträge
     public void updateRemember(String email, boolean remember) {
         int member = remember ? 1 : 0;
         int rowsUpdated = 0;
@@ -172,7 +173,7 @@ public class DatabaseHelperUser extends SQLiteOpenHelper {
 
     }
 
-    public void updateUserData(long id, String username ) {
+    public void updateUserData(long id, String username) {
         int rowsUpdated = 0;
         SQLiteDatabase db = null;
         try {

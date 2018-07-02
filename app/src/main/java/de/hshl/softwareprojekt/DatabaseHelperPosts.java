@@ -53,6 +53,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
 
     }
 
+    //Funktion zur Abfrage eines Like Status des jeweiligen Posts
     public int getLikeCount(long id, String username) {
         String[] columns = {"username", "liked"};
         SQLiteDatabase db = null;
@@ -80,6 +81,7 @@ public class DatabaseHelperPosts extends SQLiteOpenHelper {
         return like + i;
     }
 
+    //Insert Funktion zum Hinzufügen eines Eintrags in die Likecount Tabelle
     public void insertIntoLikeCount(long id, String name, boolean liked) {
         long rowId = -1;
         SQLiteDatabase db = null;
