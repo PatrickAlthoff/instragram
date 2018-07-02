@@ -6,7 +6,7 @@ public class XmlHelper {
 
     }
 
-    public static String uploadPost(int id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
+    public static String uploadPost(long id, String name, String base64, String titel, String hashtags, String date, boolean liked, long userKey, String userPic) {
 
         int like = liked ? 1 : 0;
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" +
