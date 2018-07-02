@@ -8,4 +8,13 @@
     <color name="transparent">#00000000</color>
     <color name="gradStart">#19AA8B</color>
     <color name="gradStop">#23A7D8</color>
+
+    <color name="address">#2F7092</color>
+    <color name="follower">#0D5D98</color>
+    <color name="headings">#3797CF</color>
+    <color name="solidCircle">#80FFFFFF</color>
+    <color name="circleBorder">#30FFFFFF</color>
+    <color name="followerBg">#65DCE5</color>
+    <color name="followingBg">#49BEFF</color>
+    <color name="grey">#E5E5E5</color>
 </resources>
