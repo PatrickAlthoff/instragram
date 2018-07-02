@@ -85,7 +85,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
             getUserPosts(this.user.getId(), this.user.getUsername());
             getBio(this.user.getId());
         }
-
+        this.beiträgeField.setText("Beiträge: 0");
         this.dataBasePosts = new DatabaseHelperPosts(this);
         this.imageViewArrayList = new ArrayList<>();
         this.idList = new ArrayList<>();
@@ -326,7 +326,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         } else if (output.contains("PostIDs")) {
             String[] firstSplit = output.split(":");
             String postCount = firstSplit[1];
-            this.beiträgeField.setText(this.beiträgeField.getText().toString() + postCount);
+            this.beiträgeField.setText("Beiträge: " + postCount);
             int i = firstSplit.length - 1;
             while (i > 1) {
                 getUserPosts(Long.parseLong(firstSplit[i]), this.benutzerName.getText().toString());
