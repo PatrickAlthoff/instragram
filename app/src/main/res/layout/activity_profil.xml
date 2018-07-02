@@ -45,6 +45,7 @@
             android:layout_centerHorizontal="true"
             android:fontFamily="sans-serif-light"
             android:text="Nutzername"
+            android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="25sp" />
 
@@ -116,6 +117,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
                     android:text="Follower:"
+                    android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 
@@ -146,6 +148,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
                     android:text="Follows:"
+                    android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 
