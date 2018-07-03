@@ -11,7 +11,7 @@
         app:showAsAction="ifRoom|collapseActionView" />
     <item
         android:id="@+id/action_refresh"
-        android:icon="@android:drawable/ic_menu_rotate"
+        android:icon="@drawable/outline_refresh_white_18dp"
         android:title="Refresh"
         app:showAsAction="ifRoom|collapseActionView" />
 </menu>

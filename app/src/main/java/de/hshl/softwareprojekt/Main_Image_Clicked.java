@@ -147,6 +147,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                         this.hashTextViewList.add(textview);
                         textview.setText(this.hashList.get(i));
                         textview.setTextSize(14);
+                        textview.setTextColor(getResources().getColor(R.color.white));
                         this.gridLayout.addView(textview);
                         textview.setOnClickListener(new View.OnClickListener() {
                             @Override

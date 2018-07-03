@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -26,20 +26,12 @@
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="385dp"
-        android:layout_height="500dp"
-        android:layout_alignParentStart="true"
+        android:layout_width="match_parent"
+        android:layout_height="506dp"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar2"
-        app:layout_constraintVertical_bias="0.0">
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="50dp">
 
         <LinearLayout
             android:id="@+id/underKomm"
@@ -54,8 +46,9 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="402dp"
                 android:layout_weight="1"
+                android:background="@drawable/grad_bg"
                 tools:layout_editor_absoluteX="7dp"
                 tools:layout_editor_absoluteY="54dp">
 
@@ -64,8 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="301dp"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="36dp"
+                    android:layout_centerVertical="true"
                     android:layout_weight="1"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -78,58 +70,79 @@
                     android:id="@+id/clickedLike"
                     android:layout_width="108dp"
                     android:layout_height="22dp"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
-                    android:layout_below="@+id/clickedImage"
+                    android:layout_marginBottom="11dp"
                     android:text="Likes: 0"
                     android:textAlignment="center"
+                    android:buttonTint="@color/white"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
                     android:textAppearance="@android:style/TextAppearance.Medium" />
 
                 <TextView
                     android:id="@+id/clickedKomment"
-                    android:layout_width="103dp"
+                    android:layout_width="113dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_below="@+id/clickedImage"
+                    android:layout_alignTop="@+id/clickedLike"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/btn_bg"
+                    android:fontFamily="sans-serif"
                     android:text="Kommentar"
                     android:textAlignment="center"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/titel"
                     android:layout_width="400dp"
-                    android:layout_height="36dp"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
-                    android:background="@android:color/transparent"
+                    android:layout_marginTop="18dp"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:text="Titel"
                     android:textAlignment="center"
                     android:textAppearance="@android:style/TextAppearance.Medium"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/white"
+                    />
 
                 <TextView
                     android:id="@+id/hashTags"
-                    android:layout_width="wrap_content"
+                    android:layout_width="96dp"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/clickedImage"
+                    android:layout_alignTop="@+id/clickedLike"
                     android:layout_centerHorizontal="true"
+                    android:background="@drawable/btn_bg"
+                    android:fontFamily="sans-serif"
                     android:text="Hashtags"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textAlignment="center"
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textColor="@color/white" />
 
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="62dp">
+                android:layout_height="62dp"
+                android:background="@drawable/grad_bg">
 
                 <Button
                     android:id="@+id/submitButton"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_alignParentStart="true"
-                    android:layout_below="@+id/displayUser"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="13dp"
+                    android:background="@drawable/btn_bg"
+                    android:fontFamily="sans-serif"
                     android:text="Submit"
+                    android:textColor="@color/white"
                     android:visibility="invisible" />
 
                 <android.support.v7.widget.GridLayout
@@ -148,11 +161,17 @@
                     android:layout_height="53dp"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginEnd="0dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/et_bg"
                     android:ems="10"
+                    android:fontFamily="sans-serif"
                     android:inputType="textPersonName"
                     android:maxLength="128"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="10dp"
                     android:text="Name: Text"
+                    android:textColor="@color/white"
+                    android:textColorLink="@color/white"
                     android:textSize="14sp"
                     android:visibility="invisible" />
 
@@ -161,4 +180,4 @@
         </LinearLayout>
     </ScrollView>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

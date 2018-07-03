@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +27,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
     private Button customizeButton;
     private Button postBtn;
     private ImageView postImage;
-    private TextView postTitel;
+    private EditText postTitel;
     private EditText postHashtag;
     private Bitmap postBitmap;
     private GridLayout hashGrid;
@@ -114,6 +115,7 @@ public class Post_BearbeitungsActivity extends AppCompatActivity implements View
         newText.setBackground(null);
         newText.setTextSize(14);
         newText.setText("#" + v.getText().toString());
+        newText.setTextColor(getResources().getColor(R.color.white));
         this.hashGrid = (GridLayout) v.getParent();
         this.hashGrid.addView(newText);
         this.editList.add(newText);

@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity
                     public void onScrollChanged() {
                         if (scrollView != null && splitIDs.length > 4) {
                             if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
-                                int precheck = index - 4;
-                                int d = 4;
+                                int precheck = index - 3;
+                                int d = 3;
                                 if (precheck >= 0) {
                                     fragmentIndex = rememberIndex;
                                     while (d >= 0) {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View nextChild = ((ViewGroup) v.getParent()).getChildAt(2);
+                View nextChild = ((ViewGroup) v.getParent()).getChildAt(4);
                 View titelView = ((ViewGroup) v.getParent()).getChildAt(3);
                 Boolean checked = ((CheckBox) nextChild).isChecked();
                 String titel = ((TextView) titelView).getText().toString();
@@ -852,7 +852,7 @@ public class MainActivity extends AppCompatActivity
             this.index = this.splitIDs.length - 1;
             if (this.splitIDs.length >= 6) {
                 this.newestPost = this.splitIDs[this.splitIDs.length - 1];
-                for (int i = 4; i >= 0; i--) {
+                for (int i = 2; i >= 0; i--) {
                     getPostForID(Long.toString(this.splitIDs[this.index]));
                     this.index--;
 

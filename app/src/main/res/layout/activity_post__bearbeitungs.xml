@@ -5,6 +5,7 @@
     android:id="@+id/postCons"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/grad"
     tools:context=".Post_BearbeitungsActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -34,7 +35,8 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="14dp"
+        android:background="@color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,17 +44,22 @@
         app:layout_constraintVertical_bias="0.403"
         app:srcCompat="@drawable/major" />
 
-    <TextView
+    <EditText
         android:id="@+id/postTitel"
         android:layout_width="93dp"
         android:layout_height="28dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/et_bg"
+        android:fontFamily="sans-serif-light"
+        android:hint="Titel"
+        android:inputType="text"
         android:text="Titel"
         android:textAlignment="center"
         android:textAppearance="@android:style/TextAppearance.Medium"
+        android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,14 +85,18 @@
 
         <EditText
             android:id="@+id/hashtagField"
-            android:layout_width="56dp"
+            android:layout_width="72dp"
             android:layout_height="23dp"
-            android:background="@android:color/transparent"
+            android:background="@drawable/et_bg"
             android:ems="10"
+            android:fontFamily="sans-serif-light"
             android:imeOptions="actionDone"
             android:inputType="textPersonName"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text="Hashtag"
             android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_column="0"
             app:layout_row="0" />
@@ -100,27 +111,33 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/btn_bg"
+        android:fontFamily="sans-serif"
         android:text="Post"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.86"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.984" />
 
     <Button
         android:id="@+id/customizeButton"
-        android:layout_width="wrap_content"
+        android:layout_width="93dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/btn_bg"
+        android:fontFamily="sans-serif"
         android:text="Customize"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.146"
+        app:layout_constraintHorizontal_bias="0.141"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.984" />
 </android.support.constraint.ConstraintLayout>
