@@ -66,8 +66,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Abo"
+            android:buttonTint="@color/white"
+            android:fontFamily="sans-serif-light"
             android:textColor="@color/white"
-            android:textSize="18dp" />
+            android:textSize="16sp" />
 
 
         <TextView

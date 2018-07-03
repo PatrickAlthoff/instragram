@@ -276,8 +276,7 @@ public class MainActivity extends AppCompatActivity
         }
         String ID = String.valueOf(id);
         likeCheck.setText("Likes: " + (liked));
-        likeCheck.setId(View.generateViewId());
-        likeCheck.setTag(ID);
+        likeCheck.setId(Integer.parseInt(i));
         likeCheck.setContentDescription(ID);
         //Verarbeitet OnClick Event beim Check der Likebox
         likeCheck.setOnClickListener(new View.OnClickListener() {
@@ -357,7 +356,7 @@ public class MainActivity extends AppCompatActivity
 
                     updateShare(Long.parseLong(v.getContentDescription().toString()));
                     fragmentIndex = 0;
-                    long d = System.currentTimeMillis() / 100;
+                    long d = System.currentTimeMillis() / 1000;
                     String y = String.valueOf(d);
                     int c = Integer.parseInt(y);
                     uploadShare(c, username, ImageHelper.bitmapToBase64(postBitty), titelF, hashesF, dateF, false, userKeyF, ImageHelper.bitmapToBase64(userPicF), user.getUsername());
@@ -515,8 +514,9 @@ public class MainActivity extends AppCompatActivity
                     postImage = intentVerarbeitet.getParcelableExtra("BitmapImage");
                     this.hashTagList = intentVerarbeitet.getStringArrayListExtra("Hashtags");
                     String date = intentVerarbeitet.getStringExtra("Date");
-                    long d = System.currentTimeMillis() / 100;
-
+                    long d = System.currentTimeMillis() / 1000;
+                    String y = String.valueOf(d);
+                    int c = Integer.parseInt(y);
                     fragmentIndex = 0;
                     newestPost = d;
                     addPostFragment(postImage, user.getUsername(), titel, this.hashTagList, date, d, 0, ImageHelper.base64ToBitmap(user.getBase64()), String.valueOf(user.getId()), "0", "");
@@ -531,7 +531,7 @@ public class MainActivity extends AppCompatActivity
                         hashes = "#NoHashtags";
                     }
                     String base64Code = ImageHelper.bitmapToBase64(postImage);
-                    uploadPost(d, this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId(), user.getBase64());
+                    uploadPost(c, this.user.getUsername(), base64Code, titel, hashes, date, false, this.user.getId(), user.getBase64());
 
                 }
             } else {

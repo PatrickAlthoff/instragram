@@ -7,10 +7,25 @@
     android:layout_height="match_parent"
     tools:context=".PostFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="380dp"
+        android:layout_height="490dp"
+        android:layout_marginBottom="65dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginTop="2dp"
+        android:rotation="180"
+        android:src="@drawable/grad_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
     <ImageView
         android:id="@+id/imageView5"
-        android:layout_width="370dp"
+        android:layout_width="374dp"
         android:layout_height="482dp"
         android:layout_marginBottom="65dp"
         android:layout_marginEnd="6dp"
@@ -18,9 +33,10 @@
         android:src="@drawable/grad_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.714"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.777" />
 
     <ImageView
         android:id="@+id/postView"
@@ -33,26 +49,9 @@
         android:src="@drawable/major"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.487"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
-
-    <CheckBox
-        android:id="@+id/iLike"
-        android:layout_width="105dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Likes: 0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.078"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postView"
-        app:layout_constraintVertical_bias="0.042" />
+        app:layout_constraintVertical_bias="0.552" />
 
     <TextView
         android:id="@+id/textViewTitel"
@@ -64,84 +63,98 @@
         android:layout_marginTop="8dp"
         android:text="TextView"
         android:textAlignment="center"
-        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/postView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.487"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/timeStamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="476dp"
-        android:layout_marginEnd="200dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="TimeStamp"
-        android:textAlignment="center"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/profilPicPost"
-        app:layout_constraintTop_toBottomOf="@+id/profilNamePost"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <ImageView
-        android:id="@+id/profilPicPost"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginBottom="8dp"
+    <RelativeLayout
+        android:layout_width="288dp"
+        android:layout_height="107dp"
+        android:layout_marginBottom="326dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@mipmap/ic_launcher"
-        app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.063"
+        app:layout_constraintHorizontal_bias="0.023"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.0">
 
-    <TextView
-        android:id="@+id/profilNamePost"
-        android:layout_width="wrap_content"
-        android:layout_height="21dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/acc_name"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/profilPicPost"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.547" />
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profilPicPost"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@mipmap/ic_launcher"
+            app:civ_border_color="#ffff"
+            app:civ_border_width="2dp"
+            app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.027"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/shareName"
-        android:layout_width="wrap_content"
-        android:layout_height="21dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Shared By: "
-        android:textAppearance="@android:style/TextAppearance.SearchResult.Subtitle"
-        app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/profilPicPost"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.15" />
+        <TextView
+            android:id="@+id/profilNamePost"
+            android:layout_width="wrap_content"
+            android:layout_height="21dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="32dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/acc_name"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.059"
+            app:layout_constraintStart_toEndOf="@+id/profilPicPost"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.718" />
+
+        <TextView
+            android:id="@+id/shareName"
+            android:layout_width="wrap_content"
+            android:layout_height="21dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-light"
+            android:text="Shared By: "
+            android:textColor="#707070"
+            app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.052"
+            app:layout_constraintStart_toEndOf="@+id/profilPicPost"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.453" />
+
+        <TextView
+            android:id="@+id/timeStamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="57dp"
+            android:fontFamily="sans-serif-light"
+            android:text="TimeStamp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.214"
+            app:layout_constraintStart_toEndOf="@+id/profilPicPost"
+            app:layout_constraintTop_toBottomOf="@+id/profilNamePost"
+            app:layout_constraintVertical_bias="0.0" />
+    </RelativeLayout>
 
     <ImageButton
         android:id="@+id/deleteButton"
@@ -149,55 +162,80 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="304dp"
         android:layout_marginTop="8dp"
         android:contentDescription="delete"
         android:src="@android:drawable/ic_menu_delete"
         app:layout_constraintBottom_toTopOf="@+id/textViewTitel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.805"
-        app:layout_constraintStart_toEndOf="@+id/profilNamePost"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.363" />
-
-    <ImageButton
-        android:id="@+id/shareButton"
-        android:layout_width="39dp"
-        android:layout_height="33dp"
-        android:layout_marginBottom="96dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@android:drawable/ic_menu_share"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.737"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postView" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="516dp" />
-
-    <TextView
-        android:id="@+id/shareCount"
-        android:layout_width="65dp"
-        android:layout_height="20dp"
-        android:layout_marginBottom="104dp"
-        android:layout_marginEnd="7dp"
-        android:layout_marginStart="7dp"
-        android:layout_marginTop="8dp"
-        android:text="count"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.922"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postView"
         app:layout_constraintVertical_bias="1.0" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="381dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="76dp"
+        android:layout_marginStart="9dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <CheckBox
+            android:id="@+id/iLike"
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="10dp"
+            android:text="Likes: 0"
+            android:buttonTint="@color/white"
+            android:fontFamily="sans-serif-light"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.078"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/postView"
+            app:layout_constraintVertical_bias="0.085" />
+
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="39dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="85dp"
+            android:layout_marginTop="6dp"
+            android:src="@android:drawable/ic_menu_share"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.737"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/postView"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/shareCount"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="13dp"
+            android:fontFamily="sans-serif-light"
+            android:text="count"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.922"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/postView"
+            app:layout_constraintVertical_bias="0.0" />
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -379,7 +379,7 @@ public class ProfilActivity extends AppCompatActivity implements AsyncResponse {
         } else if (output.contains("Beschreibung")) {
             String[] splitBeschreibung = output.split(":_:");
             if (splitBeschreibung.length == 2) {
-                this.beschreibungView.setText(this.beschreibungView.getText().toString() + splitBeschreibung[1]);
+                this.beschreibungView.setText(splitBeschreibung[1]);
             }
 
         }

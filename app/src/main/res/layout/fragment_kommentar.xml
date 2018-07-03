@@ -14,7 +14,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:src="?attr/colorAccent"
+        android:rotation="180"
+        android:src="@drawable/grad_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.513"
@@ -38,21 +39,23 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.518" />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profilPicKomm"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="15dp"
         android:src="@mipmap/ic_launcher_round"
+        app:civ_border_color="#ffff"
+        app:civ_border_width="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.055"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintTop_toTopOf="@+id/backGroundKomm3"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/usernameKomm"
@@ -62,9 +65,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-light"
         android:text="Username"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -80,9 +84,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-light"
         android:text="Date"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.948"
@@ -98,14 +103,15 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-light"
         android:text="Kommentar"
-        android:textAppearance="@android:style/TextAppearance.Medium"
-        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/profilPicKomm"
         app:layout_constraintTop_toBottomOf="@+id/usernameKomm"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.044" />
 
 </android.support.constraint.ConstraintLayout>

@@ -34,7 +34,7 @@
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
-        android:layout_width="349dp"
+        android:layout_width="372dp"
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"

@@ -14,7 +14,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:src="?attr/colorAccent"
+        android:rotation="180"
+        android:src="@drawable/grad_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.533"
@@ -38,7 +39,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.49" />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profilSearchPic"
         android:layout_width="80dp"
         android:layout_height="80dp"
@@ -47,6 +48,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:src="@mipmap/ic_launcher_round"
+        app:civ_border_color="#ffff"
+        app:civ_border_width="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.027"
@@ -63,28 +66,36 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="Benutzername"
-        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.557"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.445" />
+        app:layout_constraintTop_toTopOf="@+id/profilSearchPic"
+        app:layout_constraintVertical_bias="0.0" />
 
     <CheckBox
         android:id="@+id/aboBoxUser"
-        android:layout_width="64dp"
-        android:layout_height="19dp"
+        android:layout_width="61dp"
+        android:layout_height="20dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="Abo"
+        android:buttonTint="@color/white"
+        android:fontFamily="sans-serif-light"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.289"
+        app:layout_constraintHorizontal_bias="0.286"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profilSearchName"
-        app:layout_constraintVertical_bias="0.109" />
+        app:layout_constraintVertical_bias="0.078" />
 
 </android.support.constraint.ConstraintLayout>
