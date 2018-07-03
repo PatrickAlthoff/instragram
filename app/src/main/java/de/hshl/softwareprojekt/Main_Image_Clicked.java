@@ -109,6 +109,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        long idPost = Long.parseLong(this.checkLike.getContentDescription().toString());
+        getKommentar(idPost);
     }
 
     //Enthält die Funktionen des onClick Events
@@ -127,8 +129,8 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                     this.hashTextViewList.get(d).setVisibility(View.INVISIBLE);
                     d++;
                 }
-                long idPost = Long.parseLong(this.checkLike.getContentDescription().toString());
-                getKommentar(idPost);
+
+
                 break;
             //Verarbeitet den Click auf das Hashtagfeld
             case R.id.hashTags:

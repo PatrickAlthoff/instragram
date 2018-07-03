@@ -9,6 +9,16 @@
 
     <!-- Login progress -->
 
+    <ProgressBar
+        android:id="@+id/login_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="179dp"
+        android:layout_height="58dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="119dp"
+        android:visibility="invisible" />
+
     <RelativeLayout
         android:id="@+id/login_form"
         android:layout_width="wrap_content"
@@ -25,15 +35,6 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_camera" />
-
-        <ProgressBar
-            android:id="@+id/login_progress"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="156dp"
-            android:layout_height="32dp"
-            android:layout_alignBottom="@+id/imgView_logo"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone" />
 
         <RelativeLayout
             android:id="@+id/email_login_form"

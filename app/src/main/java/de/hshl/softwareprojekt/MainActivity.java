@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity
                     public void onScrollChanged() {
                         if (scrollView != null && splitIDs.length > 4) {
                             if (scrollView.getChildAt(0).getBottom() == (scrollView.getHeight() + scrollView.getScrollY())) {
-                                int precheck = index - 3;
-                                int d = 3;
+                                int precheck = index - 2;
+                                int d = 2;
                                 if (precheck >= 0) {
                                     fragmentIndex = rememberIndex;
                                     while (d >= 0) {

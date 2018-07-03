@@ -68,18 +68,19 @@
 
                 <CheckBox
                     android:id="@+id/clickedLike"
-                    android:layout_width="108dp"
+                    android:layout_width="104dp"
                     android:layout_height="22dp"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
                     android:layout_marginBottom="11dp"
-                    android:text="Likes: 0"
-                    android:textAlignment="center"
+                    android:layout_marginStart="13dp"
                     android:buttonTint="@color/white"
                     android:fontFamily="sans-serif-light"
+                    android:text="Likes: 0"
+                    android:textAlignment="center"
+                    android:textAppearance="@android:style/TextAppearance.Medium"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/clickedKomment"
@@ -87,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignTop="@+id/clickedLike"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginEnd="28dp"
                     android:background="@drawable/btn_bg"
                     android:fontFamily="sans-serif"
                     android:text="Kommentar"
@@ -114,7 +115,7 @@
 
                 <TextView
                     android:id="@+id/hashTags"
-                    android:layout_width="96dp"
+                    android:layout_width="101dp"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/clickedLike"
                     android:layout_centerHorizontal="true"
@@ -143,7 +144,7 @@
                     android:fontFamily="sans-serif"
                     android:text="Submit"
                     android:textColor="@color/white"
-                    android:visibility="invisible" />
+                    android:visibility="visible" />
 
                 <android.support.v7.widget.GridLayout
                     android:id="@+id/gridLayout"
@@ -151,7 +152,7 @@
                     android:layout_height="38dp"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:visibility="invisible">
+                    android:visibility="visible">
 
                 </android.support.v7.widget.GridLayout>
 
@@ -165,15 +166,15 @@
                     android:background="@drawable/et_bg"
                     android:ems="10"
                     android:fontFamily="sans-serif"
+                    android:hint="Schreibe einen Kommentar.."
                     android:inputType="textPersonName"
                     android:maxLength="128"
                     android:paddingLeft="15dp"
                     android:paddingRight="10dp"
-                    android:text="Name: Text"
                     android:textColor="@color/white"
                     android:textColorLink="@color/white"
                     android:textSize="14sp"
-                    android:visibility="invisible" />
+                    android:visibility="visible" />
 
             </RelativeLayout>
 
