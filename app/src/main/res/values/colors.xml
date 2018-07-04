@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#23A7D8</color>
+    <color name="colorPrimary">#23a7d8</color>
     <color name="colorPrimaryDark">#23A7D8</color>
-    <color name="colorAccent">#ffffff</color>
+    <color name="colorAccent">#23A7D8</color>
 
     <color name="white">#ffffff</color>
     <color name="transparent">#00000000</color>
     <color name="gradStart">#19AA8B</color>
     <color name="gradStop">#23A7D8</color>
 
-    <color name="address">#2F7092</color>
+    <color name="address">#2f7092</color>
     <color name="follower">#0D5D98</color>
     <color name="headings">#3797CF</color>
     <color name="solidCircle">#80FFFFFF</color>

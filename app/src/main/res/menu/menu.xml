@@ -4,6 +4,6 @@
     <item
         android:id="@+id/action_settings"
         android:title="@string/settings_name"
-        android:textSize="75dp"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        />
 </menu>

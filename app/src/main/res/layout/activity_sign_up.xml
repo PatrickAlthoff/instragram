@@ -46,12 +46,23 @@
             android:textSize="30sp" />
 
         <ImageView
+            android:id="@+id/imgView_logo2"
+            android:layout_width="101dp"
+            android:layout_height="80dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="33dp"
+            android:adjustViewBounds="true"
+            android:background="@color/colorPrimary"
+            android:scaleType="fitCenter" />
+
+        <ImageView
             android:id="@+id/imgView_logo"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
-            android:layout_marginEnd="44dp"
+            android:layout_marginEnd="43dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_camera" />
@@ -107,7 +118,8 @@
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:textCursorDrawable="@drawable/color_cursor"/>
 
                 </LinearLayout>
 
@@ -138,7 +150,8 @@
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:textCursorDrawable="@drawable/color_cursor"/>
 
                 </LinearLayout>
 
@@ -169,7 +182,8 @@
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:textCursorDrawable="@drawable/color_cursor"/>
 
                 </LinearLayout>
 
@@ -201,6 +215,7 @@
         android:layout_alignParentBottom="true">
 
         <Button
+            android:id="@+id/backToLog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"

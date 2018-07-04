@@ -109,6 +109,7 @@
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="20sp"
+        android:textCursorDrawable="@drawable/color_cursor"
         app:layout_constraintBottom_toTopOf="@+id/imageView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

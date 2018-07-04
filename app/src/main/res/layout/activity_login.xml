@@ -17,7 +17,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="119dp"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:theme="@style/AppTheme.WhiteAccent"/>
 
     <RelativeLayout
         android:id="@+id/login_form"
@@ -94,7 +95,8 @@
                     android:paddingRight="15dp"
                     android:singleLine="true"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textCursorDrawable="@drawable/color_cursor"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -132,7 +134,8 @@
                     android:paddingLeft="15dp"
                     android:paddingRight="15dp"
                     android:singleLine="true"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textCursorDrawable="@drawable/color_cursor"/>
 
             </android.support.design.widget.TextInputLayout>
 

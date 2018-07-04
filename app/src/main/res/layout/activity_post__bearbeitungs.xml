@@ -61,6 +61,7 @@
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:textColor="@color/white"
         android:textSize="20sp"
+        android:textCursorDrawable="@drawable/color_cursor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
@@ -98,6 +99,7 @@
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:textColor="@color/white"
             android:textSize="14sp"
+            android:textCursorDrawable="@drawable/color_cursor"
             app:layout_column="0"
             app:layout_row="0" />
 

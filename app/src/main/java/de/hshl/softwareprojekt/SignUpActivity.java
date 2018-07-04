@@ -40,6 +40,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     private Uri imageUri;
     private Intent intentCaptureImage;
     private Button regButton;
+    private Button backToLog;
     private EditText userNameField;
     private EditText pwField;
     private EditText emailField;
@@ -58,7 +59,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         this.pwField = findViewById(R.id.passwordField);
         this.emailField = findViewById(R.id.emailField);
         this.profilPic = findViewById(R.id.imgView_logo);
+        this.backToLog = findViewById(R.id.backToLog);
 
+        this.backToLog.setOnClickListener(this);
         this.regButton.setOnClickListener(this);
         this.profilPic.setOnClickListener(this);
         Toolbar toolbar = findViewById(R.id.toolbar9);
@@ -108,6 +111,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                     }
                 });
                 builder.show();
+                break;
+            case R.id.backToLog:
+                finish();
                 break;
         }
     }
