@@ -78,20 +78,20 @@
 
     <CheckBox
         android:id="@+id/aboBoxUser"
-        android:layout_width="61dp"
+        android:layout_width="86dp"
         android:layout_height="20dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Abo"
         android:buttonTint="@color/white"
         android:fontFamily="sans-serif-light"
+        android:text="Follow"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.286"
+        app:layout_constraintHorizontal_bias="0.312"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profilSearchName"
         app:layout_constraintVertical_bias="0.078" />
