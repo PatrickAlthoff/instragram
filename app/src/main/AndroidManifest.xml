@@ -35,7 +35,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name=".BearbeitungsActivity"
@@ -44,8 +44,9 @@
             android:name=".ProfilActivity"
             android:configChanges="orientation"
             android:exported="true" />
-        <activity android:name=".Main_Image_Clicked"
-            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".Main_Image_Clicked"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Profil_BearbeitungActivity"
             android:configChanges="orientation"></activity>

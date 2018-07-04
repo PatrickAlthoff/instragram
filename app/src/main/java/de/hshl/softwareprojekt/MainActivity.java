@@ -28,7 +28,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,7 +67,6 @@ public class MainActivity extends AppCompatActivity
     private int fragmentIndex = 0;
     private int rememberIndex = 0;
     private long newestPost;
-    private float dpi;
     private String FollowsList;
     private String FollowListWithoutSelf = "";
     private Uri imageUri;
@@ -90,19 +88,11 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<PostFragment> postFragmentArrayList;
     private DatabaseHelperPosts dataBasePosts;
 
-    //Methode um die Display Auflösung zu erhalten
-    private void getDisplayMetrics() {
-        DisplayMetrics dm = new DisplayMetrics();
-        MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        this.dpi = getResources().getDisplayMetrics().density;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkPermission();
-        getDisplayMetrics();
         Intent logInIntent = getIntent();
         this.user = (User) logInIntent.getSerializableExtra("User");
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -405,12 +395,6 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(pf);
         fragmentTransaction.commitNow();
-
-    }
-
-    //Methode zur Umrechnung der dpi
-    private int dp2px(int dp) {
-        return (int) (dp * dpi);
     }
 
     //Öffnet Fenster zur Bestätigung der Zugriffsrechte / Prüft ob dies schon geschehen ist
@@ -947,7 +931,7 @@ public class MainActivity extends AppCompatActivity
                 this.followsCount.setText("Follows: " + "0");
             }
         } else if (output.contains("UpdatePostIDs")) {
-
+            output = output.replace("NoNewPosts","");
             String[] splitNewPost = output.split(":");
             if (splitNewPost.length > 1) {
                 int i = splitNewPost.length - 1;

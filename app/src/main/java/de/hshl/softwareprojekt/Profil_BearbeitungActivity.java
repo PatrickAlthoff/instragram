@@ -80,7 +80,7 @@ public class Profil_BearbeitungActivity extends AppCompatActivity implements Vie
                             databaseHelperPosts.updateUserPosts(user.getId(), benutzerName.getText().toString());
                             updateData(user.getId());
                             getAllPosts(user.getId());
-                            Toast.makeText(getApplicationContext(), "Dein Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Deine Nutzerdaten wurden erfolgreich geändert!", Toast.LENGTH_SHORT).show();
                         }
                     });
 

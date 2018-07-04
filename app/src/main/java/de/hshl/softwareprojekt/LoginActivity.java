@@ -107,25 +107,23 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
             return;
         }
 
-        // Reset errors.
         this.mEmailView.setError(null);
         this.mPasswordView.setError(null);
 
-        // Store values at the time of the login attempt.
         String email = this.mEmailView.getText().toString();
         String password = this.mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             this.mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = this.mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid email address.
+
         if (TextUtils.isEmpty(email)) {
             this.mEmailView.setError(getString(R.string.error_field_required));
             focusView = this.mEmailView;
@@ -137,12 +135,10 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
+
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
+
             showProgress(true);
             this.mAuthTask = new UserLoginTask(email, password, remember, this.valid, this.userTableData);
             this.mAuthTask.execute((Void) null);
@@ -161,9 +157,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -185,8 +179,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
                 }
             });
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
+
             this.mProgressView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
             this.mLoginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
         }
@@ -277,8 +270,8 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
                 startActivity(intentMain);
                 finish();
             } else if (success && this.valid == false) {
-                mPasswordView.setError("Deine Mailadresse ist ungültig!");
-                mPasswordView.requestFocus();
+                mEmailView.setError("Deine Mailadresse ist ungültig!");
+                mEmailView.requestFocus();
                 this.userTableData.clear();
             } else if (!success && this.valid == true) {
                 this.pw = this.userTableData.get(3);
@@ -289,6 +282,7 @@ public class LoginActivity extends AppCompatActivity implements AsyncResponse {
                     sendXML(this.userID);
                 } else {
                     mPasswordView.setError("Das Passwort ist inkorrekt.");
+                    mPasswordView.requestFocus();
                 }
 
 
