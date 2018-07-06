@@ -28,6 +28,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
     private int fragmentIndex = 0;
     private int rememberIndex = 0;
     private long newestPost;
+    private float dpi;
     private String FollowsList;
     private String FollowListWithoutSelf = "";
     private Uri imageUri;
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkPermission();
+        getDisplayMetrics();
         Intent logInIntent = getIntent();
         this.user = (User) logInIntent.getSerializableExtra("User");
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -227,8 +230,8 @@ public class MainActivity extends AppCompatActivity
         postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View nextChild = ((ViewGroup) v.getParent()).getChildAt(4);
-                View titelView = ((ViewGroup) v.getParent()).getChildAt(3);
+                View nextChild = ((ViewGroup) v.getParent()).getChildAt(3);
+                View titelView = ((ViewGroup) v.getParent()).getChildAt(2);
                 Boolean checked = ((CheckBox) nextChild).isChecked();
                 String titel = ((TextView) titelView).getText().toString();
                 String likes = ((CheckBox) nextChild).getText().toString();
@@ -956,8 +959,8 @@ public class MainActivity extends AppCompatActivity
     public void createFollower(long id, Bitmap bitmap) {
         ImageView followerPic = new ImageView(this);
         this.horiInner.addView(followerPic);
-        followerPic.getLayoutParams().height = 155;
-        followerPic.getLayoutParams().width = 155;
+        followerPic.getLayoutParams().height = dp2px(60);
+        followerPic.getLayoutParams().width = dp2px(60);
         String descriLong = String.valueOf(id);
         followerPic.setImageDrawable(roundImage(bitmap));
         followerPic.setId(View.generateViewId());
@@ -972,5 +975,15 @@ public class MainActivity extends AppCompatActivity
                 startActivityForResult(intentStorie, 101);
             }
         });
+    }
+
+    private void getDisplayMetrics() {
+        DisplayMetrics dm = new DisplayMetrics();
+        MainActivity.this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        this.dpi = getResources().getDisplayMetrics().density;
+    }
+
+    private int dp2px(int dp) {
+        return (int) (dp * dpi);
     }
 }
