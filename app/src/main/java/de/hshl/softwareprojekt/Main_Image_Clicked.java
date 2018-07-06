@@ -176,6 +176,7 @@ public class Main_Image_Clicked extends AppCompatActivity implements View.OnClic
                     addKommentar(ImageHelper.base64ToBitmap(user.getBase64()), user.getUsername(), editKomm.getText().toString(), System.currentTimeMillis());
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
+                    editKomm.setText("");
                 } else {
                     this.editKomm.setError("Kommentare müssen mind. 10 Charakter lang sein.");
                 }
