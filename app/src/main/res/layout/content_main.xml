@@ -1,36 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraint"
-    android:layout_width="407dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
-
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="385dp"
-        android:layout_height="530dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView">
-
-        <LinearLayout
-            android:id="@+id/innerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="308dp">
-
-        </LinearLayout>
-    </ScrollView>
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
@@ -38,11 +15,7 @@
         android:layout_height="60dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        android:layout_marginTop="8dp">
 
         <LinearLayout
             android:id="@+id/horiInner"
@@ -60,4 +33,23 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-</android.support.constraint.ConstraintLayout>
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="520dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="12dp">
+
+        <LinearLayout
+            android:id="@+id/innerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="308dp">
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
